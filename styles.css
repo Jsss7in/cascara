@@ -707,26 +707,25 @@ html:has(.is-legal) { background: var(--paper); }
   opacity: var(--photo, 0);
 }
 
-/* The same at the top on touch screens (with a mouse the bar does it): the top of the stage settles into
-   the colour of the strip above it (hero.js sets --top), so the photograph never ends in a line there. */
+/* The same at the top on touch screens (with a mouse the bar does it): the top edge of the stage dissolves
+   into the flat colour Safari shows above it, which hero.js keeps equal to what that edge shows (--top). */
 .hero { --top: 180, 89, 42; }
 @media (pointer: coarse) {
   .hero__stage::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 96px; z-index: 2; pointer-events: none;
-    background: linear-gradient(rgb(var(--top)) 0%, rgba(var(--top), .78) 18%, rgba(var(--top), .46) 42%,
-      rgba(var(--top), .2) 66%, rgba(var(--top), .05) 86%, rgba(var(--top), 0) 100%);
-    opacity: var(--photo, 0);
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 44px; z-index: 2; pointer-events: none;
+    background: linear-gradient(rgb(var(--top)) 0%, rgba(var(--top), .84) 16%, rgba(var(--top), .58) 36%,
+      rgba(var(--top), .3) 58%, rgba(var(--top), .1) 80%, rgba(var(--top), 0) 100%);
   }
 }
 
 /* iOS Safari paints its status bar and bottom toolbar as solid bands, frozen in the colour of any pinned
    element (or anything inside it) that has touched the top or bottom of the screen, for the rest of the
-   page. So on touch screens the pinned stage keeps 24px clear of both. In those gaps the hero itself shows,
-   and since it is ordinary page content, Safari lets it run to the very edges of the screen. hero.js paints
-   it in the colours the stage meets there: the top colour above, the floor below. */
+   page. So on touch screens the pinned stage keeps clear of both: 8px at the top (the least that holds),
+   24px at the bottom. Above and below it the hero itself shows – behind the clock that is all Safari can
+   show while something is pinned – and hero.js paints it in the colours the stage meets there. */
 @media (pointer: coarse) {
-  .hero { padding-top: 24px; background: rgb(var(--top)); }
-  .hero__stage { top: 24px; height: calc(100svh - 48px); min-height: 0; }
+  .hero { padding-top: 8px; background: rgb(var(--top)); }
+  .hero__stage { top: 8px; height: calc(100svh - 32px); min-height: 0; }
 }
 /* The pin ends a little before the hero does, and the stage leaves as ordinary content, from the same
    place: a sticky element crossing the top of the screen, even for a frame in a fast swipe, would freeze

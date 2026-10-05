@@ -62,15 +62,36 @@
     photo.style.setProperty('--clip', `ellipse(${rx.toFixed(1)}px ${ry.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`);
     // Edge colours. At the bottom the photograph dissolves into the floor colour, which turns from
     // terracotta to the paper of the next section once the photograph covers the whole bottom edge (both
-    // lower corners inside the ellipse). At the top the dark of the photograph takes over in the same way
-    // (both upper corners); the bar (main.js) and the fade at the top of the stage take that colour.
+    // lower corners inside the ellipse). At the top it is simply the colour of what is there: the stage's
+    // top row, averaged over terracotta, the skin and the darkened top of the photograph by how much of the
+    // row each covers. Above the stage on phones Safari can only show a flat colour, so that colour is
+    // made to be exactly what the stage's top edge shows, and the edge dissolves into it.
     const shown = smooth(0.46, 0.62, p);
     const mixTo = (from, to, t) => from.map((v, i) => Math.round(v + (to[i] - v) * t));
     const cornerBottom = Math.hypot(Math.max(cx, s.width - cx) / rx, (s.height - cy) / ry);
     const floor = mixTo([180, 89, 42], [246, 239, 230], smooth(1, 0.92, cornerBottom));
-    const cornerTop = Math.hypot(Math.max(cx, s.width - cx) / rx, cy / ry);
-    hero.topMix = shown * smooth(1.35, 0.92, cornerTop);
-    const top = mixTo([180, 89, 42], [28, 19, 13], hero.topMix);
+    const span = (y, a, b) => {        // how much of row y lies inside an ellipse around the fruit
+      const d = cy - y;
+      if (d >= b) return 0;
+      const half = a * Math.sqrt(1 - (d / b) ** 2);
+      return Math.max(0, Math.min(s.width, cx + half) - Math.max(0, cx - half)) / s.width;
+    };
+    const kg = k * grow;
+    const terra = [180, 89, 42];
+    const photoTop = mixTo(terra, [28, 19, 13], shown);
+    const skin = mixTo(terra, [217, 191, 156], 1 - smooth(0.9, 0.99, p));
+    // averaged over the rows the top fade covers, nearest first, so the colour turns as the skin comes up
+    // rather than at the moment it reaches the edge
+    const top = [0, 0, 0];
+    let weights = 0;
+    for (let y = 0; y <= 44; y += 11) {
+      const w = 1 - y / 55;
+      const inside = span(y, rx, ry);
+      const ring = Math.max(0, span(y, (RX + SKIN / 2) * kg, (RY + SKIN / 2) * kg) - inside);
+      terra.forEach((v, i) => { top[i] += w * (v * (1 - inside - ring) + photoTop[i] * inside + skin[i] * ring); });
+      weights += w;
+    }
+    top.forEach((v, i) => { top[i] = Math.round(v / weights); });
     hero.style.setProperty('--floor', floor.join(', '));
     hero.style.setProperty('--top', top.join(', '));
     // what main.js needs to colour the bar over the hero: the top colour, turning into the floor colour
