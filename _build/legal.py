@@ -28,7 +28,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
 
     <h2>Betreiber</h2>
     <address>
-      {TODO("Name des Unternehmens")}<br>
+      Cascarup<br>
       Schülerunternehmen im Company Programme von Young Enterprise Switzerland (YES)<br>
       c/o Collège Saint-Michel<br>
       Fribourg, Schweiz
@@ -44,13 +44,13 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
     <p>{TODO("Name der betreuenden Lehrperson, Collège Saint-Michel")}</p>
 
     <h2>Hinweis zum Schülerunternehmen</h2>
-    <p>{TODO("Name des Unternehmens")} ist ein Miniunternehmen im Company Programme von Young Enterprise Switzerland. Schülerinnen und Schüler führen es während des Schuljahres 2026/27 am Collège Saint-Michel. Die Schule und YES sind nicht Betreiber dieser Website.</p>
+    <p>Cascarup ist ein Miniunternehmen im Company Programme von Young Enterprise Switzerland. Schülerinnen und Schüler führen es während des Schuljahres 2026/27 am Collège Saint-Michel. Die Schule und YES sind nicht Betreiber dieser Website.</p>
 
     <h2>Haftung</h2>
     <p>Wir prüfen die Inhalte dieser Website sorgfältig. Für Vollständigkeit, Richtigkeit und Aktualität übernehmen wir keine Gewähr. Für die Inhalte verlinkter Websites sind ausschliesslich deren Betreiber verantwortlich.</p>
 
     <h2>Urheberrecht</h2>
-    <p>Texte, Logo und Gestaltung: {TODO("Name des Unternehmens")}. Die Fotos stammen von Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
+    <p>Texte, Logo und Gestaltung: Cascarup. Die Fotos stammen von Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
 
     <h2 id="bildnachweis">Bildnachweis</h2>
     {credits}
@@ -67,7 +67,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
 
     <h2>Verantwortlich</h2>
     <address>
-      {TODO("Name des Unternehmens")}<br>
+      Cascarup<br>
       c/o Collège Saint-Michel, Fribourg<br>
       E-Mail: {TODO("E-Mail-Adresse")}
     </address>

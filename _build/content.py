@@ -1,8 +1,8 @@
 # Copy for the Cascara landing page. Every factual sentence is backed by a source listed in
 # SOURCES (shown in the Impressum). Plans are written as plans, never as facts.
 
-COMPANY = '<span class="todo">[Name des Unternehmens]</span>'
-COMPANY_PLAIN = '[Name des Unternehmens]'
+COMPANY = 'Cascarup'
+COMPANY_PLAIN = 'Cascarup'
 
 def facts(rows):
     return '\n          '.join(f'<div><dt>{a}</dt><dd>{b}</dd></div>' for a, b in rows)
