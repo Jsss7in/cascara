@@ -9,11 +9,17 @@
   // The bar is a veil in the colour of what lies beneath it. When the edge between two sections passes
   // under it, the veil splits at exactly that line, so the edge simply slides under the bar instead of the
   // bar changing colour. Safari's status bar takes the colour of the veil's top. In the hero, hero.js
-  // reports how far the dark photograph has reached the top (hero.topMix).
+  // reports its colours (hero.edge): the top colour, dissolving into the floor colour at the bottom.
   const RGB = { terra: [180, 89, 42], paper: [246, 239, 230], night: [43, 24, 16], photo: [28, 19, 13] };
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
-  const colourOf = (el) => (el === hero ? mix(RGB.terra, RGB.photo, hero.topMix || 0) : RGB[el.dataset.tone]);
+  const colourOf = (el, y) => {
+    if (el !== hero) return RGB[el.dataset.tone];
+    const e = hero.edge;
+    if (!e) return RGB.terra;
+    const t = e.fadeH ? Math.min(1, Math.max(0, (y - e.fadeFrom) / e.fadeH)) : +(y > e.fadeFrom);
+    return mix(e.top, e.floor, t * t);
+  };
   const sectionAt = (y) => {
     let found = toned[0];
     for (const el of toned) if (el.getBoundingClientRect().top <= y) found = el;
@@ -24,28 +30,82 @@
   function paintNav() {
     const h = nav.offsetHeight;
     const above = sectionAt(0), below = sectionAt(h);
-    const top = colourOf(above);
+    // within one section the veil is a single colour, the one halfway down it
+    const top = colourOf(above, below === above ? h / 2 : 0);
     let under = top, split = h;
     if (below !== above) {
-      under = colourOf(below);
+      under = colourOf(below, h);
       split = Math.max(0, below.getBoundingClientRect().top);
     }
     // Safari colours its status bar from the bar's background colour (not the picture drawn over it), so
     // that colour is whichever section fills most of the bar; a sliver at the top never decides it.
     const main = split <= h * 0.5 ? under : top;
-    nav.style.setProperty('--nav-c', `rgb(${top})`);
-    nav.style.setProperty('--nav-c2', `rgb(${under})`);
-    nav.style.setProperty('--nav-main', `rgb(${main})`);
+    // With a mouse there is no status bar to colour, so while the story is told on the pinned stage the
+    // bar is simply clear; once the stage scrolls on beneath it, it takes the colours like everywhere else.
+    const clear = !touch.matches && hero && !hero.classList.contains('is-released');
+    const css = (c, el) => (clear && el === hero ? 'transparent' : `rgb(${c})`);
+    nav.style.setProperty('--nav-c', css(top, above));
+    nav.style.setProperty('--nav-c2', css(under, below));
+    nav.style.setProperty('--nav-main', css(main, split <= h * 0.5 ? below : above));
     nav.style.setProperty('--nav-split', `${split.toFixed(1)}px`);
-    nav.dataset.ink = light(main) ? 'dark' : 'light';
+    // the links take the contrast of what runs behind them, their own line
+    const inner = nav.firstElementChild;
+    const behindText = split <= inner.offsetTop + inner.offsetHeight / 2 ? below : above;
+    const textColour = behindText === below ? under : top;
+    nav.dataset.ink = light(textColour) && !(clear && behindText === hero) ? 'dark' : 'light';
   }
 
+  // On touch screens the bar sits at the top of the page and scrolls away with it. Scrolling back up slides it in, pinned;
+  // reading on lets go of it right where it is, so it scrolls away with the page again. It is fixed only
+  // while it is in view: once fixed, iOS Safari paints its status bar in the bar's colour and keeps that
+  // until the page scrolls with nothing fixed at the top.
+  let lastY = window.scrollY, state = 'rest';
+  const restAt = (y) => {
+    state = 'rest';
+    nav.classList.remove('is-pinned', 'is-out');
+    nav.style.top = `${y}px`;
+  };
+  // With a mouse there is no status bar to worry about, and the bar simply stays.
+  const touch = window.matchMedia('(pointer: coarse)');
+  function placeNav() {
+    if (!touch.matches) {
+      if (state !== 'in') { state = 'in'; nav.style.top = ''; nav.classList.add('is-pinned'); nav.classList.remove('is-out'); }
+      return;
+    }
+    const y = window.scrollY, dy = y - lastY, h = nav.offsetHeight;
+    if (state === 'rest' && y > h && parseFloat(nav.style.top || 0) && y > parseFloat(nav.style.top) + h) {
+      nav.style.top = '0px';            // out of sight either way: back to the top of the page
+    }
+    if (y <= 0 && state !== 'rest') { restAt(0); lastY = y; return; }
+    if (Math.abs(dy) < 6) return;
+    lastY = y;
+    // (the spring-back at the end of the page is no reason to bring it in)
+    const bottom = document.documentElement.scrollHeight - window.innerHeight;
+    if (dy < 0 && state === 'rest' && y > h && y < bottom - 4) {
+      state = 'in';
+      nav.style.top = '';
+      nav.classList.add('is-pinned', 'is-out');
+      void nav.offsetHeight;            // start from above the screen
+      nav.classList.remove('is-out');
+    } else if (dy > 0 && state === 'in') {
+      restAt(y);
+    }
+  }
+  if (nav) {
+    nav.addEventListener('focusin', () => {
+      if (state === 'rest' && window.scrollY > nav.offsetHeight) { state = 'in'; nav.style.top = ''; nav.classList.add('is-pinned'); }
+    });
+  }
+
+  // With its toolbar out, Safari paints the strip behind the clock in the page colour; keep that the colour
+  // of whatever is at the top of the screen.
   let canvas = '';
   function update() {
     const vh = window.innerHeight;
+    if (nav) placeNav();
     if (nav && toned.length) paintNav();
     if (toned.length) {
-      const c = `rgb(${colourOf(sectionAt(vh - 1))})`;
+      const c = `rgb(${colourOf(sectionAt(0), 0)})`;
       if (c !== canvas) { canvas = c; root.style.backgroundColor = c; }
     }
     for (const el of reveals) {

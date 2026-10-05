@@ -34,12 +34,14 @@
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 
-/* links to a section land with its top edge at the screen edge; its own top padding clears the bar */
 html { -webkit-text-size-adjust: 100%; }
+/* A link to a section lands a little into its top padding, so the strip Safari shows above the page
+   (behind the clock, while its toolbar is out) is that section too, not the end of the one before. */
+main > section, footer { scroll-margin-top: -56px; }
 @media (prefers-reduced-motion: no-preference) { html.is-loaded { scroll-behavior: smooth; } }
 
-/* main.js keeps the page colour in step with the section at the bottom edge, which Safari uses while a
-   page is still settling; at either end of the page it is terracotta, like the hero and the footer */
+/* main.js keeps the page colour in step with the section at the top of the screen, which Safari paints
+   behind the clock while its toolbar is out; at either end of the page it is terracotta */
 html { background: var(--terra); }
 body {
   margin: 0;
@@ -115,7 +117,7 @@ p { text-wrap: pretty; }
 /* ---------- navigation ---------- */
 
 .nav {
-  position: fixed; inset: 0 0 auto; z-index: 50;
+  position: absolute; inset: 0 0 auto; z-index: 50;
   padding-top: env(safe-area-inset-top, 0px);
   color: var(--milk);
   transition: color .35s var(--ease);
@@ -129,6 +131,12 @@ p { text-wrap: pretty; }
   mask-image: linear-gradient(#000 0, #000 calc(100% - 44px), transparent 100%);
   pointer-events: none;   /* the fading veil below the links lets taps through */
 }
+/* On touch screens the bar sits at the top of the page and scrolls away with it, so the page runs to the
+   very top of the screen, under the clock. Scrolling back up brings it in, pinned; reading on sends it out again
+   (main.js). It is only fixed while it is shown: once fixed, iOS Safari paints its status bar in the
+   bar's colour and stops showing the page beneath. */
+.nav.is-pinned { position: fixed; transition: color .35s var(--ease), transform .45s var(--ease); }
+.nav.is-out { transform: translate3d(0, -100%, 0); }
 .nav[data-ink="dark"] { color: var(--ink); }
 .nav[data-ink="dark"] .mark__ink { stroke: var(--terra); }
 .nav__inner {
@@ -172,14 +180,16 @@ p { text-wrap: pretty; }
   color: var(--milk);
   --p: 0; --open: 0;
 }
-.hero__stage { background-color: var(--terra); }
+/* The last few pixels of the stage are already the colour below it, and the photograph stops above
+   them, so the stage's lower edge never shows as a line, however it falls between device pixels. */
+.hero__stage { background: linear-gradient(to top, rgb(var(--floor, 180, 89, 42)) 0 6px, var(--terra) 6px); }
 .hero__stage {
   position: sticky; top: 0;
   height: 100lvh; min-height: 560px;
   overflow: hidden;
 }
 
-.hero__photo { position: absolute; inset: 0; background: var(--terra-deep); }
+.hero__photo { position: absolute; inset: 0 0 6px; background: var(--terra-deep); }
 .hero__photo img {
   width: 100%; height: 100%; object-fit: cover;
   transform: scale(calc(1.16 - var(--open) * .16));
@@ -300,8 +310,8 @@ p { text-wrap: pretty; }
 
 .hero__after {
   position: absolute; z-index: 2;
-  /* clear of the paper the photograph dissolves into */
-  left: var(--gutter); bottom: calc(clamp(56px, 11svh, 120px) + 64px);
+  /* above all but the faintest part of the dissolve */
+  left: var(--gutter); bottom: calc(var(--fade) * .62 + 24px);
   max-width: 34rem;
   opacity: var(--after, 0);
   transform: translate3d(0, calc((1 - var(--after, 0)) * 40px), 0);
@@ -562,7 +572,7 @@ html:has(.is-legal) { background: var(--paper); }
   .hero__lede { margin-top: 20px; font-size: 1rem; }
   .hero__cta { margin-top: 22px; }
   /* placed against the small viewport, so it sits clear of Safari's toolbar in both states */
-  .hero__fruit { --fw: min(82vw, 44svh); left: 50%; top: calc(min(96svh, 100svh - 32px) - var(--fw)); bottom: auto; width: var(--fw); transform: translate(-50%, 0); }
+  .hero__fruit { --fw: min(82vw, 44svh); left: 50%; top: calc(min(96%, 100% - 32px) - var(--fw)); bottom: auto; width: var(--fw); transform: translate(-50%, 0); }
   .fruit__labels-in { display: none; }
   .hero__story { top: calc(var(--nav-h) + 32px); transform: none; right: var(--gutter); width: auto; }
   .hero__beat { font-size: clamp(2.25rem, 10.5vw, 3.25rem); }
@@ -635,6 +645,7 @@ html:has(.is-legal) { background: var(--paper); }
 /* ---------- reduced motion: no pinning, no travelling ---------- */
 
 @media (prefers-reduced-motion: reduce) {
+  .nav { transition: none; }
   *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0s !important; animation: none !important; }
   [data-reveal] { opacity: 1; transform: none; }
   .mark__ink { stroke-dashoffset: 0 !important; }
@@ -675,25 +686,50 @@ html:has(.is-legal) { background: var(--paper); }
 /* ---------- short phones (iPhone SE and friends) ---------- */
 
 @media (max-width: 900px) and (max-height: 640px) {
+  .hero { --fade: 30svh; }
   .hero__title { font-size: clamp(3.25rem, 16vw, 4.5rem); }
   .hero__lede { font-size: .9375rem; margin-top: 16px; }
-  .hero__fruit { --fw: min(70vw, 40svh); top: calc(100svh - 32px - var(--fw)); }
+  .hero__fruit { --fw: min(70vw, 40svh); top: calc(100% - 24px - var(--fw)); }
   .hero__copy { top: calc(var(--nav-h) + 18px); }
 }
 
-/* Once the photograph reaches the bottom of the screen, it dissolves into paper there: the next section
-   begins in that colour, so the hero hands over without an edge. hero.js sets --gap. */
+/* Towards the bottom the photograph dissolves into the floor colour below the stage (hero.js sets --floor):
+   terracotta while the fruit opens, paper once the photograph fills the screen, which is where the next
+   section begins, so the hero hands over without an edge. */
+.hero { --fade: clamp(170px, 36svh, 320px); --floor: 180, 89, 42; }
 .hero__stage::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 150px; z-index: 1; pointer-events: none;
-  background: linear-gradient(rgba(246, 239, 230, 0) 0%, rgba(246, 239, 230, .18) 35%, rgba(246, 239, 230, .72) 72%, var(--paper) 100%);
-  opacity: var(--gap, 0);
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--fade); z-index: 1; pointer-events: none;
+  /* eased stops, so the dissolve has no visible start and no grey middle */
+  background: linear-gradient(
+    rgba(var(--floor), 0) 0%, rgba(var(--floor), .013) 12%, rgba(var(--floor), .05) 24%, rgba(var(--floor), .11) 36%,
+    rgba(var(--floor), .2) 48%, rgba(var(--floor), .32) 60%, rgba(var(--floor), .46) 70%, rgba(var(--floor), .62) 80%,
+    rgba(var(--floor), .78) 86%, rgba(var(--floor), .92) 92%, rgb(var(--floor)) calc(100% - 6px));
+  opacity: var(--photo, 0);
 }
 
-/* iOS Safari turns its bottom bar into a solid band, frozen in the colour of any pinned element that has
-   once touched the bottom edge – and keeps it for the rest of the page. So on touch screens the pinned
-   stage stops 24px short of the edge. Below it the hero itself shows through, in the colour the stage
-   ends in, and the page runs on under Safari's bar to the very edge of the screen. */
+/* The same at the top on touch screens (with a mouse the bar does it): the top of the stage settles into
+   the colour of the strip above it (hero.js sets --top), so the photograph never ends in a line there. */
+.hero { --top: 180, 89, 42; }
 @media (pointer: coarse) {
-  .hero { background-color: color-mix(in srgb, var(--terra), var(--paper) calc(var(--gap, 0) * 100%)); }
-  .hero__stage { height: calc(100svh - 24px); min-height: 0; }
+  .hero__stage::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 96px; z-index: 2; pointer-events: none;
+    background: linear-gradient(rgb(var(--top)) 0%, rgba(var(--top), .78) 18%, rgba(var(--top), .46) 42%,
+      rgba(var(--top), .2) 66%, rgba(var(--top), .05) 86%, rgba(var(--top), 0) 100%);
+    opacity: var(--photo, 0);
+  }
 }
+
+/* iOS Safari paints its status bar and bottom toolbar as solid bands, frozen in the colour of any pinned
+   element (or anything inside it) that has touched the top or bottom of the screen, for the rest of the
+   page. So on touch screens the pinned stage keeps 24px clear of both. In those gaps the hero itself shows,
+   and since it is ordinary page content, Safari lets it run to the very edges of the screen. hero.js paints
+   it in the colours the stage meets there: the top colour above, the floor below. */
+@media (pointer: coarse) {
+  .hero { padding-top: 24px; background: rgb(var(--top)); }
+  .hero__stage { top: 24px; height: calc(100svh - 48px); min-height: 0; }
+}
+/* The pin ends a little before the hero does, and the stage leaves as ordinary content, from the same
+   place: a sticky element crossing the top of the screen, even for a frame in a fast swipe, would freeze
+   Safari's status bar in its colour. Below it the hero shows the floor colour, paper by then. */
+.hero { --release: 120px; }
+.hero.is-released .hero__stage { position: absolute; left: 0; right: 0; top: auto; bottom: var(--release); }

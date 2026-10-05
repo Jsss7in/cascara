@@ -18,13 +18,20 @@
   const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   const window_ = (inA, inB, outA, outB, v) => smooth(inA, inB, v) * (1 - smooth(outA, outB, v));
 
+  // The story runs while the stage is pinned, which ends --release before the hero does (styles.css).
+  let pinTop = 0;
+  const release = () => parseFloat(getComputedStyle(hero).getPropertyValue('--release')) || 0;
   function progress() {
     const r = hero.getBoundingClientRect();
-    const run = r.height - window.innerHeight;
+    const run = r.height - pinTop - stage.offsetHeight - release();
     return run > 0 ? clamp(-r.top / run, 0, 1) : 0;
   }
 
   function update() {
+    // Past the end of the pin the stage scrolls on as ordinary content, exactly where it was pinned.
+    // (The sticky offset is read only while pinned, as releasing resets it.)
+    if (!hero.classList.contains('is-released')) pinTop = parseFloat(getComputedStyle(stage).top) || 0;
+    hero.classList.toggle('is-released', hero.getBoundingClientRect().bottom <= pinTop + stage.offsetHeight + release() + 0.5);
     const p = reduceMotion ? 0 : progress();
     const set = (k, v) => hero.style.setProperty(k, v.toFixed(4));
 
@@ -53,15 +60,27 @@
     const rx = (RX - SKIN / 2) * k * grow;
     const ry = (RY - SKIN / 2) * k * grow;
     photo.style.setProperty('--clip', `ellipse(${rx.toFixed(1)}px ${ry.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`);
-    // The photograph dissolves into paper at the bottom only once it covers the whole bottom edge, i.e.
-    // both lower corners lie inside the ellipse; before that the fade would mist over the terracotta.
-    const corner = Math.hypot(Math.max(cx, s.width - cx) / rx, (s.height - cy) / ry);
-    set('--gap', smooth(1, 0.82, corner));
-    // How far the dark photograph has reached the top bar (main.js blends the bar with it) and the
-    // bottom of the stage, where it dissolves into the paper of the next section (styles.css).
+    // Edge colours. At the bottom the photograph dissolves into the floor colour, which turns from
+    // terracotta to the paper of the next section once the photograph covers the whole bottom edge (both
+    // lower corners inside the ellipse). At the top the dark of the photograph takes over in the same way
+    // (both upper corners); the bar (main.js) and the fade at the top of the stage take that colour.
     const shown = smooth(0.46, 0.62, p);
-    const bar = nav ? nav.offsetHeight : 76;
-    hero.topMix = shown * clamp((bar - (cy - ry)) / bar, 0, 1);
+    const mixTo = (from, to, t) => from.map((v, i) => Math.round(v + (to[i] - v) * t));
+    const cornerBottom = Math.hypot(Math.max(cx, s.width - cx) / rx, (s.height - cy) / ry);
+    const floor = mixTo([180, 89, 42], [246, 239, 230], smooth(1, 0.92, cornerBottom));
+    const cornerTop = Math.hypot(Math.max(cx, s.width - cx) / rx, cy / ry);
+    hero.topMix = shown * smooth(1.35, 0.92, cornerTop);
+    const top = mixTo([180, 89, 42], [28, 19, 13], hero.topMix);
+    hero.style.setProperty('--floor', floor.join(', '));
+    hero.style.setProperty('--top', top.join(', '));
+    // what main.js needs to colour the bar over the hero: the top colour, turning into the floor colour
+    // over the dissolve at the bottom of the stage
+    const fadeH = parseFloat(getComputedStyle(stage, '::after').height) || 0;
+    hero.edge = { top, floor, fadeFrom: s.bottom - fadeH, fadeH };
+    // The hero's own background shows around the stage (on touch screens above and below it, and below it
+    // once released): the top colour above the stage's middle, the floor below.
+    const split = s.top - hero.getBoundingClientRect().top + s.height / 2;
+    hero.style.backgroundImage = `linear-gradient(rgb(${top}) ${split.toFixed(0)}px, rgb(${floor}) ${split.toFixed(0)}px)`;
     hero.dispatchEvent(new Event('tone'));
   }
 
