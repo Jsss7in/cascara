@@ -1,0 +1,218 @@
+<body>
+  <a class="skip" href="#main">Zum Inhalt springen</a>
+
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <defs>
+      <path id="lg-fill" fill-rule="evenodd" d="{{LOGO_FILL}}"/>
+      <path id="lg-line" pathLength="1" d="{{LOGO_LINE}}"/>
+    </defs>
+  </svg>
+
+  <header class="nav" data-nav>
+    <nav class="nav__inner" aria-label="Hauptnavigation">
+      <ul class="nav__links">
+        <li><a href="#cascara">Cascara</a></li>
+        <li><a href="#ideen">Ideen</a></li>
+        <li><a href="#projekt">Projekt</a></li>
+      </ul>
+      <a class="nav__mark" href="#top" aria-label="Cascara – zum Seitenanfang">
+        <svg class="mark" viewBox="{{LOGO_VB}}" aria-hidden="true">
+          <mask id="nav-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><use href="#lg-fill" fill="#fff"/></mask>
+          <use class="mark__ink" href="#lg-line" mask="url(#nav-mask)"/>
+        </svg>
+      </a>
+      <a class="nav__cta" href="#warteliste">Warteliste</a>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- Coming soon: a coffee cherry in cross-section. Scrolling sends the beans away,
+         leaves the skin – cascara – and opens it onto the photograph (hero.js). -->
+    <section class="hero" id="top" data-hero aria-labelledby="hero-title">
+      <div class="hero__stage" data-hero-stage>
+        <figure class="hero__photo" data-hero-photo>
+          <img src="{{IMG_HERO}}" srcset="assets/photos/kirschen-1280.jpg 1280w, assets/photos/kirschen.jpg 2560w" sizes="(max-aspect-ratio: 3/2) 155vh, 100vw" alt="{{IMG_HERO_ALT}}" width="2560" height="1707" decoding="async">
+        </figure>
+
+        <div class="hero__fruit" data-fruit aria-hidden="true">
+          <svg class="fruit" viewBox="0 0 500 500">
+            <g class="fruit__stem">
+              <path class="fruit__stalk" d="M250 86 C249 64 252 46 260 30"/>
+              <path class="fruit__leaf" d="M258 40 C282 8 334 -2 372 12 C352 44 306 60 258 40 Z"/>
+              <path class="fruit__rib" d="M262 39 C296 26 330 18 360 15"/>
+            </g>
+            <g class="fruit__pulp">
+              <ellipse cx="250" cy="274" rx="170" ry="186"/>
+              <ellipse class="fruit__fibre" cx="250" cy="274" rx="160" ry="176"/>
+              <ellipse class="fruit__fibre" cx="250" cy="274" rx="152" ry="168"/>
+              <ellipse class="fruit__fibre" cx="250" cy="274" rx="144" ry="160"/>
+            </g>
+            <clipPath id="fruit-inside"><ellipse cx="250" cy="274" rx="168" ry="184"/></clipPath>
+            <g class="fruit__beans" clip-path="url(#fruit-inside)">
+            <g class="fruit__bean fruit__bean--l">
+              <path class="fruit__parch" d="M241 160 C176 158 118 204 118 274 C118 346 176 390 241 388 C249 330 249 218 241 160 Z"/>
+              <path class="fruit__seed" d="M238 174 C182 174 133 214 133 274 C133 336 182 374 238 374 C245 324 245 224 238 174 Z"/>
+              <path class="fruit__fold" d="M238 212 C204 216 194 250 213 268 C230 284 237 300 222 324"/>
+            </g>
+            <g class="fruit__bean fruit__bean--r">
+              <path class="fruit__parch" d="M259 160 C324 158 382 204 382 274 C382 346 324 390 259 388 C251 330 251 218 259 160 Z"/>
+              <path class="fruit__seed" d="M262 174 C318 174 367 214 367 274 C367 336 318 374 262 374 C255 324 255 224 262 174 Z"/>
+              <path class="fruit__fold" d="M262 336 C296 332 306 298 287 280 C270 264 263 248 278 224"/>
+            </g>
+            </g>
+            <ellipse class="fruit__skin" cx="250" cy="274" rx="178" ry="194" pathLength="1"/>
+            <g class="fruit__labels-in"><g class="fruit__labels">
+              <g class="fruit__label"><path d="M425 210 L470 182 L524 182"/><circle cx="425" cy="210" r="3"/><text x="476" y="175">HAUT</text></g>
+              <g class="fruit__label"><path d="M400 330 L470 372 L560 372"/><circle cx="400" cy="330" r="3"/><text x="476" y="365">FRUCHTFLEISCH</text></g>
+              <g class="fruit__label"><path d="M160 300 L60 392 L-12 392"/><circle cx="160" cy="300" r="3"/><text x="-12" y="385">BOHNE</text></g>
+            </g></g>
+          </svg>
+        </div>
+
+        <div class="hero__copy">
+          <p class="eyebrow hero__eyebrow">Cascara · Fribourg</p>
+          <h1 class="hero__title" id="hero-title">
+            <span class="line"><span>Coming</span></span>
+            <span class="line"><span><em>soon.</em></span></span>
+          </h1>
+          <p class="hero__lede">{{HERO_LEDE}}</p>
+          <a class="button hero__cta" href="#warteliste">Auf die Warteliste</a>
+        </div>
+
+        <div class="hero__story" aria-hidden="true">
+          <p class="hero__beat hero__beat--1"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
+          <p class="hero__beat hero__beat--2"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
+        </div>
+
+        <div class="hero__after">
+          <p class="eyebrow">Die Frucht</p>
+          <p class="hero__after-title">Kaffee ist<br><em>eine Frucht.</em></p>
+          <p class="hero__after-text">{{FRUIT_TEXT}}</p>
+        </div>
+
+        <div class="hero__meta" aria-hidden="true">
+          <span>Ein YES-Schülerunternehmen am Collège Saint-Michel</span>
+          <span class="hero__scroll">Scrollen</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- What cascara is -->
+    <section class="intro" id="cascara" aria-labelledby="intro-title">
+      <p class="eyebrow" data-reveal>Cáscara – spanisch für Schale</p>
+      <h2 class="display" id="intro-title" data-reveal style="--d:1">Nichts an der Kirsche<br>ist Abfall.</h2>
+      <div class="intro__cols">
+        <p data-reveal style="--d:2">{{INTRO_P1}}</p>
+        <p data-reveal style="--d:3">{{INTRO_P2}}</p>
+      </div>
+    </section>
+
+    <!-- Cascara, up close -->
+    <section class="split" aria-labelledby="split-title">
+      <figure class="split__media" data-reveal>
+        <img src="{{IMG_DRY}}" srcset="assets/photos/trocknen-800.jpg 800w, assets/photos/trocknen.jpg 1400w" sizes="(max-width: 900px) 100vw, 46vw" alt="{{IMG_DRY_ALT}}" width="1400" height="1750" loading="lazy" decoding="async">
+      </figure>
+      <div class="split__copy">
+        <p class="eyebrow" data-reveal>Getrocknet</p>
+        <h2 class="display" id="split-title" data-reveal style="--d:1">{{SPLIT_TITLE}}</h2>
+        <p data-reveal style="--d:2">{{SPLIT_P}}</p>
+        <dl class="facts" data-reveal style="--d:3">
+          {{FACTS}}
+        </dl>
+      </div>
+    </section>
+
+    <!-- What we are making -->
+    <section class="plan" aria-labelledby="plan-title">
+      <div class="plan__head">
+        <p class="eyebrow" data-reveal>Unser Vorhaben</p>
+        <h2 class="display" id="plan-title" data-reveal style="--d:1">Ein Sirup.<br>Mehrere Sorten.</h2>
+        <figure class="plan__media" data-reveal style="--d:2">
+          <img src="assets/photos/bluete.jpg" srcset="assets/photos/bluete-900.jpg 900w, assets/photos/bluete.jpg 1800w" sizes="(max-width: 900px) 100vw, 40vw" alt="Kaffeezweig mit weissen Blüten und einer reifen Kirsche" width="1800" height="1200" loading="lazy" decoding="async">
+          <figcaption>Blüte und Frucht am selben Zweig</figcaption>
+        </figure>
+      </div>
+      <div class="plan__body">
+        <p class="plan__lead" data-reveal style="--d:2">{{PLAN_LEAD}}</p>
+        <ol class="steps">
+          {{STEPS}}
+        </ol>
+      </div>
+    </section>
+
+{{DRINKS}}
+
+    <!-- The project -->
+    <section class="project" id="projekt" aria-labelledby="projekt-title">
+      <div class="project__copy">
+        <p class="eyebrow" data-reveal>Das Projekt</p>
+        <h2 class="display" id="projekt-title" data-reveal style="--d:1">Ein Schuljahr.<br>Ein echtes Unternehmen.</h2>
+        <p data-reveal style="--d:2">{{PROJECT_P1}}</p>
+        <p data-reveal style="--d:3">{{PROJECT_P2}}</p>
+      </div>
+      <dl class="project__facts" data-reveal style="--d:2">
+        {{PROJECT_FACTS}}
+      </dl>
+    </section>
+
+    <!-- Waitlist -->
+    <section class="waitlist" id="warteliste" aria-labelledby="warteliste-title">
+      <div class="waitlist__card">
+        <svg class="waitlist__mark" viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>
+        <p class="eyebrow">Coming soon</p>
+        <h2 class="display" id="warteliste-title">Die erste Flasche<br>ist in Arbeit.</h2>
+        <p class="waitlist__text">Trag dich ein. Wir schreiben dir einmal: sobald Cascara erhältlich ist.</p>
+        <form class="notify" data-notify data-endpoint="{{FORM_ENDPOINT}}" novalidate>
+          <input type="hidden" name="_subject" value="Neue Anmeldung: Warteliste Cascara">
+          <input type="hidden" name="_template" value="table">
+          <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="notify__row">
+            <label class="sr-only" for="notify-email">E-Mail-Adresse</label>
+            <input id="notify-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse" required>
+            <button type="submit">Eintragen</button>
+          </div>
+          <label class="notify__consent">
+            <input type="checkbox" name="consent" id="notify-consent" required>
+            <span>Ich bin einverstanden, dass meine E-Mail-Adresse für diese eine Benachrichtigung gespeichert wird. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span>
+          </label>
+          <p class="notify__status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__top">
+      <a class="footer__brand" href="#top" aria-label="Zum Seitenanfang">
+        <svg viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>
+      </a>
+      <p class="footer__claim">Kaffee ist<br><em>eine Frucht.</em></p>
+      <nav class="footer__nav" aria-label="Seite">
+        <p class="eyebrow">Seite</p>
+        <ul>
+          <li><a href="#cascara">Cascara</a></li>
+          <li><a href="#ideen">Ideen</a></li>
+          <li><a href="#projekt">Projekt</a></li>
+          <li><a href="#warteliste">Warteliste</a></li>
+        </ul>
+      </nav>
+      <nav class="footer__nav" aria-label="Rechtliches">
+        <p class="eyebrow">Rechtliches</p>
+        <ul>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="datenschutz.html">Datenschutz</a></li>
+          <li><a href="impressum.html#bildnachweis">Bildnachweis</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer__base">
+      <span>© 2026 {{COMPANY}}</span>
+      <span>Ein Schülerunternehmen im YES Company Programme · Collège Saint-Michel, Fribourg</span>
+    </div>
+  </footer>
+
+  <script src="main.js?v={{VER}}" defer></script>
+  <script src="hero.js?v={{VER}}" defer></script>
+</body>
+</html>

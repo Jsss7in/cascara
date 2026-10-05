@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{TITLE}} – Cascara</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#B4592A">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/newsreader-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/fonts.css">
+  <link rel="stylesheet" href="styles.css?v={{VER}}">
+</head>
+<body class="is-legal">
+  <a class="skip" href="#main">Zum Inhalt springen</a>
+  <svg class="sprite" aria-hidden="true" focusable="false"><defs><path id="lg-fill" fill-rule="evenodd" d="{{LOGO_FILL}}"/></defs></svg>
+
+  <header class="legal-head">
+    <nav class="nav__inner" aria-label="Hauptnavigation">
+      <a class="legal-back" href="index.html">← Zur Startseite</a>
+      <a class="nav__mark" href="index.html" aria-label="Cascara – zur Startseite">
+        <svg class="mark mark--static" viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main class="legal" id="main">
+    <p class="eyebrow">{{EYEBROW}}</p>
+    <h1>{{TITLE}}</h1>
+    {{BODY}}
+  </main>
+
+  <footer class="footer footer--slim">
+    <div class="footer__base">
+      <span>© 2026 {{COMPANY}}</span>
+      <span><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></span>
+    </div>
+  </footer>
+</body>
+</html>
