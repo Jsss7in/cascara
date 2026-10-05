@@ -3,19 +3,40 @@
 (() => {
   const root = document.documentElement;
   const nav = document.querySelector('[data-nav]');
+  const edge = document.querySelector('[data-edge]');
   const hero = document.querySelector('[data-hero]');
   const reveals = [...document.querySelectorAll('[data-reveal]')];
+
+  // Safari tints its toolbars from the page: the top one from the fixed bar, the bottom one from the
+  // canvas. Both follow the section actually beneath them, so the page runs edge to edge without bands.
+  const TONES = { terra: '#B4592A', paper: '#F6EFE6', night: '#2B1810', photo: '#1C130D' };
+  const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
+  const toneAt = (y) => {
+    let tone = 'terra';
+    for (const el of toned) if (el.getBoundingClientRect().top <= y) tone = el.dataset.tone;
+    return tone;
+  };
+  let canvas = '';
 
   function update() {
     const vh = window.innerHeight;
     // The bar turns solid once the pinned hero has scrolled away.
     if (nav && hero) nav.classList.toggle('is-solid', hero.getBoundingClientRect().bottom <= nav.offsetHeight + 1);
+    // the bar takes the colour of what meets its lower edge, so that edge never shows
+    if (nav) nav.dataset.tone = toneAt(nav.offsetHeight + 2);
+    const bottom = toneAt(vh - 1);
+    if (bottom !== canvas) {
+      canvas = bottom;
+      root.style.backgroundColor = TONES[bottom];
+      if (edge) edge.style.setProperty('--edge', TONES[bottom]);
+    }
     for (const el of reveals) {
       if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < vh * 0.88) el.classList.add('is-in');
     }
   }
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+  if (hero) hero.addEventListener('tone', update);
   update();
 
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.

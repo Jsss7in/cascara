@@ -121,7 +121,7 @@ def drinks():
           </ul>
         </article>''')
     return f'''    <!-- Ideas for the glass: a bar menu, alcohol-free -->
-    <section class="drinks" id="ideen" aria-labelledby="ideen-title">
+    <section class="drinks" data-tone="night" id="ideen" aria-labelledby="ideen-title">
       <header class="drinks__head">
         <p class="eyebrow" data-reveal>Ideen fürs Glas</p>
         <h2 class="display" id="ideen-title" data-reveal style="--d:1">Heiss, kalt<br>oder im <em>Punsch.</em></h2>

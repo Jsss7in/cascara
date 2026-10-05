@@ -43,8 +43,8 @@
     const k = f.width / 500;
     const cx = f.left - s.left + CX * k;
     const cy = f.top - s.top + CY * k;
-    // the skin grows (ease-in) until its inner edge clears the farthest corner of the screen
-    const far = Math.hypot(Math.max(cx, s.width - cx), Math.max(cy, s.height - cy));
+    // the skin grows (ease-in) until its inner edge clears the farthest corner of the photo
+    const far = Math.hypot(Math.max(cx, s.width - cx), Math.max(cy, photo.offsetHeight - cy));
     const innerR = (RX - SKIN / 2) * k;
     const grow = 1 + Math.pow(smooth(0.56, 0.97, p), 2.2) * Math.max(0, far / innerR * 1.08 - 1);
     set('--grow', grow);
@@ -52,9 +52,27 @@
     const rx = (RX - SKIN / 2) * k * grow;
     const ry = (RY - SKIN / 2) * k * grow;
     photo.style.setProperty('--clip', `ellipse(${rx.toFixed(1)}px ${ry.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`);
+    // Once the photograph fills the screen, Safari's bars should take its dark tone, not terracotta;
+    // main.js listens and recolours the page.
+    const tone = p > 0.46 && cy - ry <= 0 ? 'photo' : 'terra';
+    if (hero.dataset.tone !== tone) { hero.dataset.tone = tone; hero.dispatchEvent(new Event('tone')); }
+  }
+
+  // On phones the words sit above the fruit; when the screen is short, the fruit gives way so the
+  // two never touch (it is placed from the bottom, so a smaller width lowers its top by as much).
+  const copy = hero.querySelector('.hero__copy');
+  const phone = window.matchMedia('(max-width: 900px)');
+  function fit() {
+    fruit.style.removeProperty('--fw');
+    if (phone.matches && copy) {
+      const overlap = copy.offsetTop + copy.offsetHeight + 20 - fruit.offsetTop;
+      if (overlap > 0) fruit.style.setProperty('--fw', `${Math.max(fruit.offsetWidth - overlap, 180)}px`);
+    }
+    update();
   }
 
   window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-  update();
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  fit();
 })();

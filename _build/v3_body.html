@@ -8,6 +8,7 @@
     </defs>
   </svg>
 
+  <div class="edge" data-edge aria-hidden="true"></div>
   <header class="nav" data-nav>
     <nav class="nav__inner" aria-label="Hauptnavigation">
       <ul class="nav__links">
@@ -29,14 +30,14 @@
 
     <!-- Coming soon: a coffee cherry in cross-section. Scrolling sends the beans away,
          leaves the skin – cascara – and opens it onto the photograph (hero.js). -->
-    <section class="hero" id="top" data-hero aria-labelledby="hero-title">
+    <section class="hero" id="top" data-hero data-tone="terra" aria-labelledby="hero-title">
       <div class="hero__stage" data-hero-stage>
         <figure class="hero__photo" data-hero-photo>
           <img src="{{IMG_HERO}}" srcset="assets/photos/kirschen-1280.jpg 1280w, assets/photos/kirschen.jpg 2560w" sizes="(max-aspect-ratio: 3/2) 155vh, 100vw" alt="{{IMG_HERO_ALT}}" width="2560" height="1707" decoding="async">
         </figure>
 
         <div class="hero__fruit" data-fruit aria-hidden="true">
-          <svg class="fruit" viewBox="0 0 500 500">
+          <svg class="fruit" viewBox="-750 -750 2000 2000">
             <g class="fruit__stem">
               <path class="fruit__stalk" d="M250 86 C249 64 252 46 260 30"/>
               <path class="fruit__leaf" d="M258 40 C282 8 334 -2 372 12 C352 44 306 60 258 40 Z"/>
@@ -99,7 +100,7 @@
     </section>
 
     <!-- What cascara is -->
-    <section class="intro" id="cascara" aria-labelledby="intro-title">
+    <section class="intro" data-tone="paper" id="cascara" aria-labelledby="intro-title">
       <p class="eyebrow" data-reveal>Cáscara – spanisch für Schale</p>
       <h2 class="display" id="intro-title" data-reveal style="--d:1">Nichts an der Kirsche<br>ist Abfall.</h2>
       <div class="intro__cols">
@@ -109,7 +110,7 @@
     </section>
 
     <!-- Cascara, up close -->
-    <section class="split" aria-labelledby="split-title">
+    <section class="split" data-tone="paper" aria-labelledby="split-title">
       <figure class="split__media" data-reveal>
         <img src="{{IMG_DRY}}" srcset="assets/photos/trocknen-800.jpg 800w, assets/photos/trocknen.jpg 1400w" sizes="(max-width: 900px) 100vw, 46vw" alt="{{IMG_DRY_ALT}}" width="1400" height="1750" loading="lazy" decoding="async">
       </figure>
@@ -124,7 +125,7 @@
     </section>
 
     <!-- What we are making -->
-    <section class="plan" aria-labelledby="plan-title">
+    <section class="plan" data-tone="paper" aria-labelledby="plan-title">
       <div class="plan__head">
         <p class="eyebrow" data-reveal>Unser Vorhaben</p>
         <h2 class="display" id="plan-title" data-reveal style="--d:1">Ein Sirup.<br>Mehrere Sorten.</h2>
@@ -144,7 +145,7 @@
 {{DRINKS}}
 
     <!-- The project -->
-    <section class="project" id="projekt" aria-labelledby="projekt-title">
+    <section class="project" data-tone="paper" id="projekt" aria-labelledby="projekt-title">
       <div class="project__copy">
         <p class="eyebrow" data-reveal>Das Projekt</p>
         <h2 class="display" id="projekt-title" data-reveal style="--d:1">Ein Schuljahr.<br>Ein echtes Unternehmen.</h2>
@@ -157,7 +158,7 @@
     </section>
 
     <!-- Waitlist -->
-    <section class="waitlist" id="warteliste" aria-labelledby="warteliste-title">
+    <section class="waitlist" data-tone="terra" id="warteliste" aria-labelledby="warteliste-title">
       <div class="waitlist__card">
         <svg class="waitlist__mark" viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>
         <p class="eyebrow">Coming soon</p>
@@ -182,7 +183,7 @@
     </section>
   </main>
 
-  <footer class="footer">
+  <footer class="footer" data-tone="terra">
     <div class="footer__top">
       <a class="footer__brand" href="#top" aria-label="Zum Seitenanfang">
         <svg viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>

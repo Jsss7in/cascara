@@ -8,7 +8,7 @@ line='M'+' L'.join(f'{x} {y}' for x,y in pts)
 spec=importlib.util.spec_from_file_location('content', f'{S}/content.py'); content=importlib.util.module_from_spec(spec); spec.loader.exec_module(content)
 V=dict(content.V)
 import time
-V['VER']=time.strftime('%Y%m%d%H%M')
+V['VER']=time.strftime('%Y%m%d%H%M%S')
 V.update({'LOGO_FILL':L['fill'],'LOGO_LINE':line,'LOGO_VB':L['vb']})
 html=open(f'{S}/v3_head.html').read()+open(f'{S}/v3_body.html').read()
 def sub(m):
