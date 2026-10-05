@@ -8,6 +8,7 @@
   const stage = hero.querySelector('[data-hero-stage]');
   const fruit = hero.querySelector('[data-fruit]');
   const photo = hero.querySelector('[data-hero-photo]');
+  const nav = document.querySelector('[data-nav]');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Fruit geometry in the SVG's 500 × 500 viewBox (see the markup): skin ellipse and its stroke.
@@ -52,10 +53,16 @@
     const rx = (RX - SKIN / 2) * k * grow;
     const ry = (RY - SKIN / 2) * k * grow;
     photo.style.setProperty('--clip', `ellipse(${rx.toFixed(1)}px ${ry.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`);
-    // Once the photograph fills the screen, Safari's bars should take its dark tone, not terracotta;
-    // main.js listens and recolours the page.
-    const tone = p > 0.46 && cy - ry <= 0 ? 'photo' : 'terra';
-    if (hero.dataset.tone !== tone) { hero.dataset.tone = tone; hero.dispatchEvent(new Event('tone')); }
+    // The photograph dissolves into paper at the bottom only once it covers the whole bottom edge, i.e.
+    // both lower corners lie inside the ellipse; before that the fade would mist over the terracotta.
+    const corner = Math.hypot(Math.max(cx, s.width - cx) / rx, (s.height - cy) / ry);
+    set('--gap', smooth(1, 0.82, corner));
+    // How far the dark photograph has reached the top bar (main.js blends the bar with it) and the
+    // bottom of the stage, where it dissolves into the paper of the next section (styles.css).
+    const shown = smooth(0.46, 0.62, p);
+    const bar = nav ? nav.offsetHeight : 76;
+    hero.topMix = shown * clamp((bar - (cy - ry)) / bar, 0, 1);
+    hero.dispatchEvent(new Event('tone'));
   }
 
   // On phones the words sit above the fruit; when the screen is short, the fruit gives way so the

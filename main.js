@@ -3,32 +3,50 @@
 (() => {
   const root = document.documentElement;
   const nav = document.querySelector('[data-nav]');
-  const edge = document.querySelector('[data-edge]');
   const hero = document.querySelector('[data-hero]');
   const reveals = [...document.querySelectorAll('[data-reveal]')];
 
-  // Safari tints its toolbars from the page: the top one from the fixed bar, the bottom one from the
-  // canvas. Both follow the section actually beneath them, so the page runs edge to edge without bands.
-  const TONES = { terra: '#B4592A', paper: '#F6EFE6', night: '#2B1810', photo: '#1C130D' };
+  // The bar is a veil in the colour of what lies beneath it. When the edge between two sections passes
+  // under it, the veil splits at exactly that line, so the edge simply slides under the bar instead of the
+  // bar changing colour. Safari's status bar takes the colour of the veil's top. In the hero, hero.js
+  // reports how far the dark photograph has reached the top (hero.topMix).
+  const RGB = { terra: [180, 89, 42], paper: [246, 239, 230], night: [43, 24, 16], photo: [28, 19, 13] };
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
-  const toneAt = (y) => {
-    let tone = 'terra';
-    for (const el of toned) if (el.getBoundingClientRect().top <= y) tone = el.dataset.tone;
-    return tone;
+  const colourOf = (el) => (el === hero ? mix(RGB.terra, RGB.photo, hero.topMix || 0) : RGB[el.dataset.tone]);
+  const sectionAt = (y) => {
+    let found = toned[0];
+    for (const el of toned) if (el.getBoundingClientRect().top <= y) found = el;
+    return found;
   };
-  let canvas = '';
+  const light = (c) => (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 > 0.6;
 
+  function paintNav() {
+    const h = nav.offsetHeight;
+    const above = sectionAt(0), below = sectionAt(h);
+    const top = colourOf(above);
+    let under = top, split = h;
+    if (below !== above) {
+      under = colourOf(below);
+      split = Math.max(0, below.getBoundingClientRect().top);
+    }
+    // Safari colours its status bar from the bar's background colour (not the picture drawn over it), so
+    // that colour is whichever section fills most of the bar; a sliver at the top never decides it.
+    const main = split <= h * 0.5 ? under : top;
+    nav.style.setProperty('--nav-c', `rgb(${top})`);
+    nav.style.setProperty('--nav-c2', `rgb(${under})`);
+    nav.style.setProperty('--nav-main', `rgb(${main})`);
+    nav.style.setProperty('--nav-split', `${split.toFixed(1)}px`);
+    nav.dataset.ink = light(main) ? 'dark' : 'light';
+  }
+
+  let canvas = '';
   function update() {
     const vh = window.innerHeight;
-    // The bar turns solid once the pinned hero has scrolled away.
-    if (nav && hero) nav.classList.toggle('is-solid', hero.getBoundingClientRect().bottom <= nav.offsetHeight + 1);
-    // the bar takes the colour of what meets its lower edge, so that edge never shows
-    if (nav) nav.dataset.tone = toneAt(nav.offsetHeight + 2);
-    const bottom = toneAt(vh - 1);
-    if (bottom !== canvas) {
-      canvas = bottom;
-      root.style.backgroundColor = TONES[bottom];
-      if (edge) edge.style.setProperty('--edge', TONES[bottom]);
+    if (nav && toned.length) paintNav();
+    if (toned.length) {
+      const c = `rgb(${colourOf(sectionAt(vh - 1))})`;
+      if (c !== canvas) { canvas = c; root.style.backgroundColor = c; }
     }
     for (const el of reveals) {
       if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < vh * 0.88) el.classList.add('is-in');
@@ -36,7 +54,7 @@
   }
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
-  if (hero) hero.addEventListener('tone', update);
+  if (hero) hero.addEventListener('tone', () => nav && paintNav());
   update();
 
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
