@@ -190,7 +190,7 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);
       form.classList.add('is-done');
-      status.textContent = 'Danke. Du hörst von uns, sobald Cascara erhältlich ist.';
+      status.textContent = 'Danke. Du hörst von uns, sobald die erste Flasche bereit ist.';
     } catch {
       status.textContent = 'Die Anmeldung ist nicht angekommen. Bitte versuch es in einem Moment noch einmal.';
       button.disabled = false;

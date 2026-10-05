@@ -76,7 +76,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <p>Diese Website liegt bei GitHub Pages, einem Dienst der GitHub, Inc., San Francisco, USA. Beim Aufruf einer Seite speichert GitHub deine IP-Adresse aus Sicherheitsgründen. Die Daten können dabei in den USA bearbeitet werden; GitHub ist nach dem Swiss-U.S. Data Privacy Framework zertifiziert. Wie lange GitHub diese Daten aufbewahrt, regelt die <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.</p>
 
     <h2>Warteliste</h2>
-    <p>Wenn du dich auf die Warteliste einträgst, speichern wir deine E-Mail-Adresse und den Zeitpunkt deiner Einwilligung. Wir verwenden die Adresse nur für einen Zweck: dich einmal zu benachrichtigen, sobald Cascara erhältlich ist. Wir geben sie nicht weiter und verkaufen sie nicht.</p>
+    <p>Wenn du dich auf die Warteliste einträgst, speichern wir deine E-Mail-Adresse und den Zeitpunkt deiner Einwilligung. Wir verwenden die Adresse nur für einen Zweck: dich einmal zu benachrichtigen, sobald die erste Flasche bereit ist. Wir geben sie nicht weiter und verkaufen sie nicht.</p>
     <p>Die Anmeldung läuft über den Dienst FormSubmit (formsubmit.co), der die Angaben aus dem Formular per E-Mail an uns weiterleitet. Dabei können die Daten im Ausland bearbeitet werden. FormSubmit verwendet sie nach eigenen Angaben nur, um den Dienst zu erbringen, und gibt sie nicht weiter. Bei uns liegen die Adressen danach in unserem E-Mail-Postfach.</p>
     <p>Wir löschen deine Adresse nach dem Versand der Benachrichtigung, spätestens aber mit dem Abschluss des Schulunternehmens am Ende des Schuljahres 2026/27. Du kannst deine Einwilligung jederzeit per E-Mail widerrufen.</p>
 
