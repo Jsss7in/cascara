@@ -12,7 +12,7 @@ def steps(rows):
         f'<li data-reveal><div><h3>{t}</h3><p>{p}</p><p class="step__who">{w}</p></div></li>' for t, p, w in rows)
 
 V = {
- 'SITE_URL': '',   # set to https://deine-domain.ch/ once the domain is live
+ 'SITE_URL': 'https://cascarup.ch/',
  'IMG_HERO': 'assets/photos/kirschen.jpg', 'IMG_HERO_ALT': 'Reife rote und unreife grüne Kaffeekirschen an einem Zweig',
  'IMG_DRY': 'assets/photos/trocknen.jpg', 'IMG_DRY_ALT': 'Kaffeekirschen trocknen in der Sonne, frische rote zwischen dunklen, schon getrockneten',
  'HERO_LEDE': 'Wir entwickeln einen Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche. '
