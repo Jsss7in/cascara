@@ -1,7 +1,7 @@
 /* ==========================================================================
    Cascara – Landingpage
    Colours: the logo's terracotta and cream (measured from the artwork),
-   a paper white for reading and a deep brown for ink. Nothing else.
+   a cream paper for reading and a deep brown for ink. Nothing else.
    ========================================================================== */
 
 :root {
@@ -11,7 +11,7 @@
   --cream: #D9BF9C;          /* the logo */
   --milk: #FFF7EE;           /* text on terracotta */
   --cream-light: #EBD7BA;    /* the logo's cream, lifted to 3:1 on terracotta for large type */
-  --paper: #F6EFE6;
+  --paper: #EEE2D0;          /* a cream paper, the logo's cream lightened; not white */
   --night: #2B1810;          /* espresso, for the bar menu */
   --ink: #3A2116;
   --ink-2: rgba(58, 33, 22, .76);
@@ -418,7 +418,7 @@ p { text-wrap: pretty; }
 .drinks__tabs { display: none; }
 .drinks__menu {
   max-width: var(--max); margin: clamp(64px, 7vw, 104px) auto 0;
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0;
   border-top: 1px solid var(--line-light);
 }
 .drinks__group { padding: 40px clamp(18px, 2vw, 32px) 8px; border-left: 1px solid var(--line-light); }
@@ -560,9 +560,6 @@ html:has(.is-legal) { background: var(--paper); }
    ========================================================================== */
 
 @media (max-width: 1100px) {
-  .drinks__menu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .drinks__group:nth-child(3) { border-left: 0; padding-left: 0; }
-  .drinks__group:nth-child(2) { padding-right: 0; }
   .hero__fruit { left: 70%; width: min(56svh, 46vw); }
   .hero__copy { width: min(46vw, 520px); }
 }

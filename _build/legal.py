@@ -8,6 +8,8 @@ def load(name):
 
 content = load('content')
 L = json.load(open(f'{S}/logo3.json'))
+EMAIL = 'info@cascarup.ch'
+MAIL = f'<a href="mailto:{EMAIL}">{EMAIL}</a>'
 TODO = lambda t: f'<span class="todo">[{t}]</span>'
 tpl = open(f'{S}/legal_tpl.html').read()
 
@@ -35,7 +37,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
     </address>
 
     <h3>Kontakt</h3>
-    <p>E-Mail: {TODO("E-Mail-Adresse")}</p>
+    <p>E-Mail: {MAIL}</p>
 
     <h3>Vertretungsberechtigte Personen</h3>
     <p>{TODO("Vorname Name, Funktion – z. B. Geschäftsführung")}</p>
@@ -69,7 +71,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <address>
       Cascarup<br>
       c/o Collège Saint-Michel, Fribourg<br>
-      E-Mail: {TODO("E-Mail-Adresse")}
+      E-Mail: {MAIL}
     </address>
 
     <h2>Besuch der Website</h2>
@@ -87,7 +89,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <p>Wir setzen keine Cookies, keine Analyse- oder Tracking-Werkzeuge und keine Social-Media-Plugins ein.</p>
 
     <h2>Deine Rechte</h2>
-    <p>Du kannst jederzeit Auskunft darüber verlangen, welche Daten wir über dich bearbeiten, und sie berichtigen oder löschen lassen. Schreib uns dafür an {TODO("E-Mail-Adresse")}. Wenn du findest, dass wir deine Daten nicht richtig bearbeiten, kannst du dich an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) wenden: <a href="https://www.edoeb.admin.ch" target="_blank" rel="noopener">www.edoeb.admin.ch</a>.</p>
+    <p>Du kannst jederzeit Auskunft darüber verlangen, welche Daten wir über dich bearbeiten, und sie berichtigen oder löschen lassen. Schreib uns dafür an {MAIL}. Wenn du findest, dass wir deine Daten nicht richtig bearbeiten, kannst du dich an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) wenden: <a href="https://www.edoeb.admin.ch" target="_blank" rel="noopener">www.edoeb.admin.ch</a>.</p>
 
     <h2>Änderungen</h2>
     <p>Ändert sich etwas an dieser Website, passen wir diese Erklärung an. Es gilt die hier veröffentlichte Fassung.</p>

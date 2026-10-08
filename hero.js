@@ -80,7 +80,7 @@
     const shown = smooth(0.46, 0.62, p);
     const mixTo = (from, to, t) => from.map((v, i) => Math.round(v + (to[i] - v) * t));
     const cornerBottom = Math.hypot(Math.max(cx, s.width - cx) / rx, (s.height - cy) / ry);
-    const floor = mixTo([180, 89, 42], [246, 239, 230], smooth(1, 0.92, cornerBottom));
+    const floor = mixTo([180, 89, 42], [238, 226, 208], smooth(1, 0.92, cornerBottom));
     const span = (y, a, b) => {        // how much of row y lies inside an ellipse around the fruit
       const d = cy - y;
       if (d >= b) return 0;

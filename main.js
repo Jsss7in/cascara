@@ -10,7 +10,7 @@
   // under it, the veil splits at exactly that line, so the edge simply slides under the bar instead of the
   // bar changing colour. Safari's status bar takes the colour of the veil's top. In the hero, hero.js
   // reports its colours (hero.edge): the top colour, dissolving into the floor colour at the bottom.
-  const RGB = { terra: [180, 89, 42], paper: [246, 239, 230], night: [43, 24, 16], photo: [28, 19, 13] };
+  const RGB = { terra: [180, 89, 42], paper: [238, 226, 208], night: [43, 24, 16], photo: [28, 19, 13] };
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
   const colourOf = (el, y) => {
