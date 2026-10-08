@@ -127,7 +127,7 @@ def drinks():
         <h2 class="display" id="ideen-title" data-reveal style="--d:1">Heiss, kalt<br>oder im <em>Punsch.</em></h2>
         <p class="drinks__intro" data-reveal style="--d:2">So stellen wir uns Cascara vor: als Sirup, der in viele Gläser passt. Alle Ideen sind alkoholfrei; die genauen Mengen verraten wir mit dem fertigen Sirup.</p>
       </header>
-      <div class="drinks__tabs" aria-label="Kategorien">
+      <div class="drinks__tabs" role="group" aria-label="Kategorien">
 {chr(10).join(f'        <button type="button" class="drinks__tab" data-drinks-tab aria-pressed="{str(i == 0).lower()}">{t}</button>' for i, (k, t, items) in enumerate(GROUPS))}
       </div>
       <div class="drinks__menu" data-drinks-menu>

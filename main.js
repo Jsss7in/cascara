@@ -40,9 +40,11 @@
     // Safari colours its status bar from the bar's background colour (not the picture drawn over it), so
     // that colour is whichever section fills most of the bar; a sliver at the top never decides it.
     const main = split <= h * 0.5 ? under : top;
-    // With a mouse there is no status bar to colour, so while the story is told on the pinned stage the
-    // bar is simply clear; once the stage scrolls on beneath it, it takes the colours like everywhere else.
-    const clear = !touch.matches && hero && !hero.classList.contains('is-released');
+    // With a mouse there is no status bar to colour, so over the hero the bar is simply clear – also once the
+    // stage scrolls on, where a painted bar would lie as a dark band across the photograph and vanish the
+    // moment the stage pins again on the way back up.
+    const released = hero && hero.classList.contains('is-released');
+    const clear = !touch.matches && !!hero;
     const css = (c, el) => (clear && el === hero ? 'transparent' : `rgb(${c})`);
     nav.style.setProperty('--nav-c', css(top, above));
     nav.style.setProperty('--nav-c2', css(under, below));
@@ -52,7 +54,9 @@
     const inner = nav.firstElementChild;
     const behindText = split <= inner.offsetTop + inner.offsetHeight / 2 ? below : above;
     const textColour = behindText === below ? under : top;
-    nav.dataset.ink = light(textColour) && !(clear && behindText === hero) ? 'dark' : 'light';
+    // (on the pinned stage the links stay light over the story; once it scrolls on, the colour beneath decides,
+    // so they turn dark in time where the photograph dissolves into paper)
+    nav.dataset.ink = light(textColour) && !(clear && behindText === hero && !released) ? 'dark' : 'light';
   }
 
   // On touch screens the bar sits at the top of the page and scrolls away with it. Scrolling back up slides it in, pinned;
@@ -100,21 +104,23 @@
   // With its toolbar out, Safari paints the strip behind the clock in the page colour; keep that the colour
   // of whatever is at the top of the screen.
   let canvas = '';
+  function paintCanvas() {
+    const c = `rgb(${colourOf(sectionAt(0), 0)})`;
+    if (c !== canvas) { canvas = c; root.style.backgroundColor = c; }
+  }
   function update() {
     const vh = window.innerHeight;
     if (nav) placeNav();
     if (nav && toned.length) paintNav();
-    if (toned.length) {
-      const c = `rgb(${colourOf(sectionAt(0), 0)})`;
-      if (c !== canvas) { canvas = c; root.style.backgroundColor = c; }
-    }
+    if (toned.length) paintCanvas();
     for (const el of reveals) {
       if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < vh * 0.88) el.classList.add('is-in');
     }
   }
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
-  if (hero) hero.addEventListener('tone', () => nav && paintNav());
+  // hero.js reports its colours after this script has run for the same scroll, so repaint with them
+  if (hero) hero.addEventListener('tone', () => { if (nav) paintNav(); if (toned.length) paintCanvas(); });
   update();
 
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
@@ -122,7 +128,9 @@
     if (root.classList.contains('is-loaded')) return;
     // A link straight to a section (…/#warteliste) lands there once the type has settled;
     // smooth scrolling only switches on afterwards, because it swallows that first jump.
-    const target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    let id = location.hash.slice(1);
+    try { id = decodeURIComponent(id); } catch { /* a malformed link (…/#%) simply lands at the top */ }
+    const target = id && document.getElementById(id);
     if (target) target.scrollIntoView();
     root.classList.add('is-loaded');
   };
@@ -138,12 +146,15 @@
     const cards = [...menu.children];
     const step = () => (cards[1] ? cards[1].offsetLeft - cards[0].offsetLeft : 1) || 1;
     const mark = (i) => tabs.forEach((t, k) => t.setAttribute('aria-pressed', String(k === i)));
+    let lock = 0;   // while a tap glides the row along, the tabs it passes don't light up one by one
     tabs.forEach((tab, i) => tab.addEventListener('click', () => {
       const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      lock = smooth ? performance.now() + 700 : 0;
       menu.scrollTo({ left: cards[i].offsetLeft - cards[0].offsetLeft, behavior: smooth ? 'smooth' : 'auto' });
       mark(i);
     }));
     menu.addEventListener('scroll', () => {
+      if (performance.now() < lock) return;
       // The last card can't snap to the left edge, so reaching the end counts as the last tab.
       const atEnd = menu.scrollLeft + menu.clientWidth >= menu.scrollWidth - 2;
       mark(atEnd ? cards.length - 1 : Math.round(menu.scrollLeft / step()));

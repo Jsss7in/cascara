@@ -8,6 +8,8 @@
   const stage = hero.querySelector('[data-hero-stage]');
   const fruit = hero.querySelector('[data-fruit]');
   const photo = hero.querySelector('[data-hero-photo]');
+  const after = hero.querySelector('.hero__after');
+  const copy = hero.querySelector('.hero__copy');
   const nav = document.querySelector('[data-nav]');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -31,11 +33,13 @@
     // Past the end of the pin the stage scrolls on as ordinary content, exactly where it was pinned.
     // (The sticky offset is read only while pinned, as releasing resets it.)
     if (!hero.classList.contains('is-released')) pinTop = parseFloat(getComputedStyle(stage).top) || 0;
-    hero.classList.toggle('is-released', hero.getBoundingClientRect().bottom <= pinTop + stage.offsetHeight + release() + 0.5);
+    // (with reduced motion the hero is no taller than the stage, so there is nothing to release – it would collapse)
+    hero.classList.toggle('is-released', !reduceMotion && hero.getBoundingClientRect().bottom <= pinTop + stage.offsetHeight + release() + 0.5);
     const p = reduceMotion ? 0 : progress();
     const set = (k, v) => hero.style.setProperty(k, v.toFixed(4));
 
     set('--copy-out', smooth(0.02, 0.14, p));
+    if (copy) copy.inert = p > 0.14;    // faded out: no longer reachable by Tab or click
     set('--labels-out', smooth(0.03, 0.12, p));
     set('--beans', smooth(0.12, 0.4, p));
     set('--beat1', window_(0.14, 0.22, 0.36, 0.44, p));
@@ -57,6 +61,13 @@
     const grow = 1 + Math.pow(smooth(0.56, 0.97, p), 2.2) * Math.max(0, far / innerR * 1.08 - 1);
     set('--grow', grow);
     set('--gone', smooth(0.9, 0.99, p));
+    // Once the stage scrolls on, the closing words fade before they reach the bar, so they never run beneath
+    // its links (the bar stays pinned only with a mouse; styles.css applies the fade there).
+    if (after) {
+      const past = Math.max(0, pinTop + stage.offsetHeight + release() - hero.getBoundingClientRect().bottom);
+      const reach = Math.max(1, pinTop + after.offsetTop - (nav ? nav.firstElementChild.offsetHeight : 0));
+      set('--leave', smooth(reach * 0.2, reach, past));
+    }
     const rx = (RX - SKIN / 2) * k * grow;
     const ry = (RY - SKIN / 2) * k * grow;
     photo.style.setProperty('--clip', `ellipse(${rx.toFixed(1)}px ${ry.toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`);
@@ -107,8 +118,7 @@
 
   // On phones the words sit above the fruit; when the screen is short, the fruit gives way so the
   // two never touch (it is placed from the bottom, so a smaller width lowers its top by as much).
-  const copy = hero.querySelector('.hero__copy');
-  const phone = window.matchMedia('(max-width: 900px)');
+  const phone = window.matchMedia('(max-width: 900px) and (min-height: 501px)');   // stacked layout only
   function fit() {
     fruit.style.removeProperty('--fw');
     if (phone.matches && copy) {
