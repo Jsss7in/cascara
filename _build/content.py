@@ -13,7 +13,7 @@ def steps(rows):
 
 V = {
  'SITE_URL': 'https://cascarup.ch/',
- 'IMG_HERO': 'assets/photos/kirschen.jpg', 'IMG_HERO_ALT': 'Reife rote und unreife grüne Kaffeekirschen an einem Zweig',
+ 'IMG_HERO': 'assets/photos/kaffeekirschen.jpg', 'IMG_HERO_ALT': 'Eine Traube reifer, roter Kaffeekirschen mit Regentropfen an einem Zweig',
  'IMG_DRY': 'assets/photos/trocknen.jpg', 'IMG_DRY_ALT': 'Kaffeekirschen trocknen in der Sonne, frische rote zwischen dunklen, schon getrockneten',
  'HERO_LEDE': 'Wir entwickeln einen Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche. '
               'Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.',

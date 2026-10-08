@@ -206,6 +206,15 @@ p { text-wrap: pretty; }
     linear-gradient(180deg, #1C130D 0, rgba(28, 19, 13, .8) var(--nav-h), rgba(28, 19, 13, 0) 30%),
     linear-gradient(20deg, rgba(42, 20, 10, .62) 0%, rgba(42, 20, 10, .18) 46%, rgba(42, 20, 10, 0) 70%);
 }
+@media (min-width: 901px) {
+  /* with the words on the left, the light falls off a little towards that edge too */
+  .hero__photo::after {
+    background:
+      linear-gradient(180deg, #1C130D 0, rgba(28, 19, 13, .8) var(--nav-h), rgba(28, 19, 13, 0) 30%),
+      linear-gradient(90deg, rgba(28, 19, 13, .5) 0%, rgba(28, 19, 13, .22) 30%, rgba(28, 19, 13, 0) 50%),
+      linear-gradient(20deg, rgba(42, 20, 10, .62) 0%, rgba(42, 20, 10, .18) 46%, rgba(42, 20, 10, 0) 70%);
+  }
+}
 
 /* The coffee cherry. hero.js reads this box for the fruit's place and size. */
 .hero__fruit {
@@ -324,6 +333,8 @@ p { text-wrap: pretty; }
   /* the bar stays pinned and clear over the photograph, so the words fade before they reach it (hero.js) */
   .hero__after { opacity: calc(var(--after, 0) * (1 - var(--leave, 0))); }
 }
+/* the closing words sit on glossy cherries: a soft shadow keeps them calm to read, without a visible box */
+.hero__after { text-shadow: 0 1px 2px rgba(28, 19, 13, .4), 0 2px 26px rgba(28, 19, 13, .6); }
 .hero__after .eyebrow { color: var(--milk); opacity: .85; }
 .hero__after-title {
   margin-top: 20px;
@@ -584,7 +595,7 @@ html:has(.is-legal) { background: var(--paper); }
   .hero__beat--1 { transform: translate3d(0, calc((1 - var(--beat1, 0)) * 20px), 0); }
   .hero__beat--2 { transform: translate3d(0, calc((1 - var(--beat2, 0)) * 20px), 0); }
   /* the cherries sit high in the photo; start it lower so they appear inside the fruit */
-  .hero__photo img { object-position: 42% 50%; transform: translate3d(0, calc((1 - var(--open)) * 24%), 0) scale(calc(1.16 - var(--open) * .16)); }
+  .hero__photo img { object-position: 52% 50%; transform: translate3d(0, calc((1 - var(--open)) * 24%), 0) scale(calc(1.16 - var(--open) * .16)); }
   .hero__meta { display: none; }
   .hero__after { right: var(--gutter); }
   /* on phones the fruit sits in the middle, so the words above it do too */

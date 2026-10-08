@@ -21,7 +21,7 @@ except FileNotFoundError:
 credits = '\n    '.join(
     f'<p class="credit"><strong>{p["use"]}:</strong> {p["title"]}. Foto: {p["author"]}, '
     f'<a href="{p["license_url"]}" rel="license noopener" target="_blank">{p["license"]}</a>, '
-    f'via <a href="{p["page"]}" target="_blank" rel="noopener">Wikimedia Commons</a>. {p.get("changes", "Zugeschnitten und farblich angepasst.")}</p>'
+    f'via <a href="{p["page"]}" target="_blank" rel="noopener">{p.get("source", "Wikimedia Commons")}</a>. {p.get("changes", "Zugeschnitten und farblich angepasst.")}</p>'
     for p in photos) or '<p>Bildnachweise folgen.</p>'
 
 sources = '\n      '.join(f'<li><a href="{u}" target="_blank" rel="noopener">{t}</a></li>' for t, u in content.SOURCES)
@@ -52,7 +52,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
     <p>Wir prüfen die Inhalte dieser Website sorgfältig. Für Vollständigkeit, Richtigkeit und Aktualität übernehmen wir keine Gewähr. Für die Inhalte verlinkter Websites sind ausschliesslich deren Betreiber verantwortlich.</p>
 
     <h2>Urheberrecht</h2>
-    <p>Texte, Logo und Gestaltung: Cascarup. Die Fotos stammen von Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
+    <p>Texte, Logo und Gestaltung: Cascarup. Die Fotos stammen von Flickr und Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
 
     <h2 id="bildnachweis">Bildnachweis</h2>
     {credits}
