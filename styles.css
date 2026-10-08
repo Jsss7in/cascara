@@ -7,15 +7,15 @@
 :root {
   --terra: #B4592A;
   --terra-deep: #9C4B23;
-  --terra-ink: #A24D23;      /* terracotta dark enough for small text on paper */
+  --terra-ink: #8E401C;      /* terracotta dark enough for small text on the cream paper (5:1) */
   --cream: #D9BF9C;          /* the logo */
   --milk: #FFF7EE;           /* text on terracotta */
   --cream-light: #EBD7BA;    /* the logo's cream, lifted to 3:1 on terracotta for large type */
-  --paper: #EEE2D0;          /* a cream paper, the logo's cream lightened; not white */
+  --paper: #E6D3B7;          /* cream paper: the logo's cream, only a little lighter */
   --night: #2B1810;          /* espresso, for the bar menu */
   --ink: #3A2116;
   --ink-2: rgba(58, 33, 22, .76);
-  --ink-3: rgba(58, 33, 22, .54);
+  --ink-3: rgba(58, 33, 22, .72);   /* small labels stay readable on the cream (4.5:1) */
   --line: rgba(58, 33, 22, .16);
   --line-light: rgba(255, 247, 238, .22);
 
@@ -134,12 +134,9 @@ p { text-wrap: pretty; }
   mask-image: linear-gradient(#000 0, #000 calc(100% - 44px), transparent 100%);
   pointer-events: none;   /* the fading veil below the links lets taps through */
 }
-/* On touch screens the bar sits at the top of the page and scrolls away with it, so the page runs to the
-   very top of the screen, under the clock. Scrolling back up brings it in, pinned; reading on sends it out again
-   (main.js). It is only fixed while it is shown: once fixed, iOS Safari paints its status bar in the
-   bar's colour and stops showing the page beneath. */
-.nav.is-pinned { position: fixed; transition: color .35s var(--ease), transform .45s var(--ease); }
-.nav.is-out { transform: translate3d(0, -100%, 0); }
+/* With a mouse the bar is pinned. On touch screens it sits at the top of the page and scrolls away with it, so
+   the page runs to the very top of the screen, under the clock (main.js says why it never comes back pinned). */
+.nav.is-pinned { position: fixed; }
 .nav[data-ink="dark"] { color: var(--ink); }
 .nav[data-ink="dark"] .mark__ink { stroke: var(--terra); }
 .nav__inner {

@@ -10,7 +10,7 @@
   // under it, the veil splits at exactly that line, so the edge simply slides under the bar instead of the
   // bar changing colour. Safari's status bar takes the colour of the veil's top. In the hero, hero.js
   // reports its colours (hero.edge): the top colour, dissolving into the floor colour at the bottom.
-  const RGB = { terra: [180, 89, 42], paper: [238, 226, 208], night: [43, 24, 16], photo: [28, 19, 13] };
+  const RGB = { terra: [180, 89, 42], paper: [230, 211, 183], night: [43, 24, 16], photo: [28, 19, 13] };
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
   const colourOf = (el, y) => {
@@ -59,46 +59,13 @@
     nav.dataset.ink = light(textColour) && !(clear && behindText === hero && !released) ? 'dark' : 'light';
   }
 
-  // On touch screens the bar sits at the top of the page and scrolls away with it. Scrolling back up slides it in, pinned;
-  // reading on lets go of it right where it is, so it scrolls away with the page again. It is fixed only
-  // while it is in view: once fixed, iOS Safari paints its status bar in the bar's colour and keeps that
-  // until the page scrolls with nothing fixed at the top.
-  let lastY = window.scrollY, state = 'rest';
-  const restAt = (y) => {
-    state = 'rest';
-    nav.classList.remove('is-pinned', 'is-out');
-    nav.style.top = `${y}px`;
-  };
-  // With a mouse there is no status bar to worry about, and the bar simply stays.
+  // With a mouse the bar stays pinned. On touch screens it sits at the top of the page and scrolls away with
+  // it, and stays away: a fixed bar makes iOS Safari freeze the strip behind the clock in the bar's colour,
+  // which then shows as a stripe of the wrong colour once the page beneath has turned another colour.
   const touch = window.matchMedia('(pointer: coarse)');
   function placeNav() {
-    if (!touch.matches) {
-      if (state !== 'in') { state = 'in'; nav.style.top = ''; nav.classList.add('is-pinned'); nav.classList.remove('is-out'); }
-      return;
-    }
-    const y = window.scrollY, dy = y - lastY, h = nav.offsetHeight;
-    if (state === 'rest' && y > h && parseFloat(nav.style.top || 0) && y > parseFloat(nav.style.top) + h) {
-      nav.style.top = '0px';            // out of sight either way: back to the top of the page
-    }
-    if (y <= 0 && state !== 'rest') { restAt(0); lastY = y; return; }
-    if (Math.abs(dy) < 6) return;
-    lastY = y;
-    // (the spring-back at the end of the page is no reason to bring it in)
-    const bottom = document.documentElement.scrollHeight - window.innerHeight;
-    if (dy < 0 && state === 'rest' && y > h && y < bottom - 4) {
-      state = 'in';
-      nav.style.top = '';
-      nav.classList.add('is-pinned', 'is-out');
-      void nav.offsetHeight;            // start from above the screen
-      nav.classList.remove('is-out');
-    } else if (dy > 0 && state === 'in') {
-      restAt(y);
-    }
-  }
-  if (nav) {
-    nav.addEventListener('focusin', () => {
-      if (state === 'rest' && window.scrollY > nav.offsetHeight) { state = 'in'; nav.style.top = ''; nav.classList.add('is-pinned'); }
-    });
+    const pin = !touch.matches;
+    if (nav.classList.contains('is-pinned') !== pin) nav.classList.toggle('is-pinned', pin);
   }
 
   // With its toolbar out, Safari paints the strip behind the clock in the page colour; keep that the colour
