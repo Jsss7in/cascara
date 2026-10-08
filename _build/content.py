@@ -16,7 +16,7 @@ V = {
  'IMG_HERO': 'assets/photos/kirschen.jpg', 'IMG_HERO_ALT': 'Reife rote und unreife grüne Kaffeekirschen an einem Zweig',
  'IMG_DRY': 'assets/photos/trocknen.jpg', 'IMG_DRY_ALT': 'Kaffeekirschen trocknen in der Sonne, frische rote zwischen dunklen, schon getrockneten',
  'HERO_LEDE': 'Wir entwickeln einen Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche. '
-              'Ein Schülerunternehmen des <span class="nowrap">Collège Saint-Michel</span> in Fribourg.',
+              'Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.',
 
  'FRUIT_TEXT': 'Jede Kaffeebohne ist der Samen einer Kirsche. Meist liegen zwei davon in einer Frucht, '
                'umhüllt von Fruchtfleisch und einer roten Haut.',
