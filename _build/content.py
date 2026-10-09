@@ -130,5 +130,5 @@ V['DRINKS'] = drinks()
 
 # Waitlist: each sign-up arrives by e-mail through FormSubmit (formsubmit.co); the first one asks
 # to confirm the address once. Left empty, the form says the list opens soon and stores nothing.
-WAITLIST_EMAIL = ''
+WAITLIST_EMAIL = 'info@cascarup.ch'
 V['FORM_ENDPOINT'] = f'https://formsubmit.co/ajax/{WAITLIST_EMAIL}' if WAITLIST_EMAIL else ''

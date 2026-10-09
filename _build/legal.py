@@ -73,7 +73,10 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <p>Diese Website liegt bei GitHub Pages, einem Dienst der GitHub, Inc., San Francisco, USA. Beim Aufruf einer Seite speichert GitHub deine IP-Adresse aus Sicherheitsgründen. Die Daten können dabei in den USA bearbeitet werden; GitHub ist nach dem Swiss-U.S. Data Privacy Framework zertifiziert. Wie lange GitHub diese Daten aufbewahrt, regelt die <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.</p>
 
     <h2>Warteliste</h2>
-    <p>Die Warteliste ist noch nicht geöffnet: Das Formular speichert und übermittelt derzeit nichts. Bevor sie öffnet, ergänzen wir hier, wie wir die Adressen bearbeiten, wo sie liegen und wann wir sie löschen.</p>
+    <p>Wenn du dich auf die Warteliste einträgst, erhalten wir deine E-Mail-Adresse und den Zeitpunkt deiner Einwilligung. Wir verwenden die Adresse nur für einen Zweck: dich einmal zu benachrichtigen, sobald die erste Flasche bereit ist. Zu eigenen Zwecken geben wir sie niemandem weiter und verkaufen sie nicht.</p>
+    <p>Die Anmeldung läuft über den Dienst FormSubmit (formsubmit.co) von Devro LABS. FormSubmit erhält deine E-Mail-Adresse und deine IP-Adresse und leitet die Angaben per E-Mail an {MAIL} weiter. Sitz und Speicherort gibt FormSubmit nicht verbindlich an; nach öffentlichen Angaben liegt der Sitz in Sri Lanka. Dort besteht kein dem Schweizer Recht gleichwertiger Datenschutz, und FormSubmit bietet keine vertraglichen Garantien. Wir übermitteln deine Adresse deshalb nur mit deiner ausdrücklichen Einwilligung (Art. 17 Abs. 1 Bst. a DSG), die du mit dem Häkchen im Formular gibst.</p>
+    <p>Bei uns liegen die Anmeldungen im E-Mail-Postfach {MAIL} bei Microsoft 365 (Microsoft Corporation). Dabei können Daten auch in den USA bearbeitet werden; Microsoft ist nach dem Swiss-U.S. Data Privacy Framework zertifiziert.</p>
+    <p>Wir löschen deine Adresse nach dem Versand der Benachrichtigung, spätestens aber mit dem Abschluss des Schülerunternehmens am Ende des Schuljahres 2026/27. Du kannst deine Einwilligung jederzeit per E-Mail an {MAIL} widerrufen.</p>
 
     <h2>Schriften</h2>
     <p>Die Schriften «Newsreader» und «Jost» liegen auf dieser Website selbst. Für ihre Anzeige werden keine Daten an Dritte übermittelt.</p>
