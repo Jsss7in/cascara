@@ -513,6 +513,14 @@ p { text-wrap: pretty; }
 }
 .notify__consent input:focus-visible { outline: 2px solid var(--milk); outline-offset: 3px; }
 .notify__consent a { text-decoration: underline; text-underline-offset: 3px; }
+/* a plain link to Instagram, drawn in the same fine line as the drink icons: no embed, nothing loads from Meta */
+.social { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: inherit; }
+.social svg { flex: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.social .social__dot { fill: currentColor; stroke: none; }
+.social:hover > span { text-decoration: underline; text-underline-offset: 4px; }
+.social strong { font-weight: 400; }
+.waitlist__social { margin-top: 28px; font-size: .9375rem; letter-spacing: .02em; opacity: .92; }
+.footer__social { margin-top: 22px; font-size: 1rem; opacity: .9; }
 .notify__status { min-height: 1.6em; margin-top: 14px; padding: 0 8px; font-size: .9375rem; }
 .notify.is-done .notify__row, .notify.is-done .notify__consent { display: none; }
 .notify.is-done .notify__status { font: 300 1.5rem/1.35 var(--serif); text-align: center; }
@@ -526,7 +534,8 @@ p { text-wrap: pretty; }
 }
 .footer__brand { grid-column: 1 / span 1; width: 54px; }
 .footer__brand svg { width: 54px; height: auto; fill: var(--cream); }
-.footer__claim { grid-column: 2 / span 5; padding-left: 12px; font: 300 clamp(1.75rem, 2.6vw, 2.5rem)/1.05 var(--serif); letter-spacing: -.015em; }
+.footer__about { grid-column: 2 / span 5; padding-left: 12px; }
+.footer__claim { font: 300 clamp(1.75rem, 2.6vw, 2.5rem)/1.05 var(--serif); letter-spacing: -.015em; }
 .footer__claim em { font-style: italic; }
 .footer__nav { grid-column: span 3; }
 .footer__nav .eyebrow { color: var(--milk); opacity: .7; }
@@ -642,7 +651,7 @@ html:has(.is-legal) { background: var(--paper); }
 
 
   .footer__top { grid-template-columns: 1fr 1fr; row-gap: 40px; }
-  .footer__claim { grid-column: 1 / -1; padding-left: 0; }
+  .footer__about { grid-column: 1 / -1; padding-left: 0; }
   .footer__nav { grid-column: span 1; }
 }
 
