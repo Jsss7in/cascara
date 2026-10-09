@@ -141,6 +141,25 @@ SOCIALS = [
   '<circle cx="12" cy="12" r="9.2"/><path d="M13.4 21.2V10.6c0-1.6.9-2.5 2.5-2.5h1.2"/><path d="M10.4 13.6h5.6"/>'),
 ]
 V['HANDLE'] = HANDLE
+
+# Our latest Instagram posts, newest first, updated by hand on request (at most three are shown).
+# Each picture is saved square into assets/instagram/, so the page loads nothing from Instagram.
+# dict(url='https://www.instagram.com/p/…/', img='assets/instagram/….jpg', alt='what the picture shows')
+IG_POSTS = []
+
+def ig_feed():
+    posts = IG_POSTS[:3]
+    if not posts:
+        return ''
+    tiles = [f'<li><a class="feed__post" href="{p["url"]}" target="_blank" rel="noopener">'
+             f'<img src="{p["img"]}" alt="{p["alt"]}" width="900" height="900" loading="lazy" decoding="async"></a></li>'
+             for p in posts]
+    if len(posts) < 3:   # until there are three, the row ends in a tile that leads to the profile
+        icon = SOCIALS[0][2]
+        tiles.append(f'<li><a class="feed__more" href="{SOCIALS[0][1]}" target="_blank" rel="noopener">'
+                     f'<svg viewBox="0 0 24 24" aria-hidden="true">{icon}</svg><span>Mehr auf Instagram<br><strong>@{HANDLE}</strong></span></a></li>')
+    return (f'<ul class="feed" style="--n:{len(tiles)}" aria-label="Unsere neuesten Beiträge auf Instagram">'
+            + ''.join(tiles) + '</ul>')
 V['SOCIALS'] = ('<ul class="socials" aria-label="Cascarup in den sozialen Medien">' + ''.join(
     f'<li><a href="{url}" target="_blank" rel="noopener" aria-label="{COMPANY} auf {name}" title="{name}">'
     f'<svg viewBox="0 0 24 24" aria-hidden="true">{svg}</svg></a></li>' for name, url, svg in SOCIALS) + '</ul>')
@@ -149,3 +168,5 @@ V['SOCIALS'] = ('<ul class="socials" aria-label="Cascarup in den sozialen Medien
 # to confirm the address once. Left empty, the form says the list opens soon and stores nothing.
 WAITLIST_EMAIL = 'info@cascarup.ch'
 V['FORM_ENDPOINT'] = f'https://formsubmit.co/ajax/{WAITLIST_EMAIL}' if WAITLIST_EMAIL else ''
+
+V['IG_FEED'] = ig_feed()
