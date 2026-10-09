@@ -460,6 +460,63 @@ p { text-wrap: pretty; }
 .project__facts dt { font: 400 .75rem/1.9 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
 .project__facts dd { font-size: 1.0625rem; line-height: 1.5; }
 
+/* ---------- stands: where to find us, a skyline and a map each ---------- */
+
+.stands { max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto; padding: 0 var(--gutter) var(--section); }
+.stands__inner { padding-top: calc(var(--section) * .7); border-top: 1px solid var(--line); }
+.stands__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
+.stands__head .eyebrow { grid-column: 1 / -1; }
+.stands__head .display { grid-column: 1 / span 6; margin-top: 26px; }
+.stands__intro { grid-column: 8 / span 5; color: var(--ink-2); max-width: 30em; }
+.stands__list { --gap: clamp(32px, 3.8vw, 56px); list-style: none; margin: clamp(56px, 6vw, 88px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--gap); border-top: 1px solid var(--line); }
+.stand { position: relative; display: flex; flex-direction: column; padding-top: 36px; }
+/* the hairline between stands sits in the middle of the gap, so every column (and map) is equally wide */
+.stand + .stand::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--gap) / -2); border-left: 1px solid var(--line); }
+/* the town's skyline draws itself in, like the glasses above */
+.stand__icon { width: 56px; height: 56px; fill: none; stroke: var(--terra); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.stand__icon path { stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; transition: stroke-dashoffset 1.8s var(--ease-io); transition-delay: calc(var(--d, 0) * 140ms + 200ms); }
+.stand.is-in .stand__icon path { stroke-dashoffset: 0; }
+.stand__date { margin-top: 26px; font: 300 clamp(2rem, 2.7vw, 2.625rem)/1 var(--serif); letter-spacing: -.02em; }
+.stand__day { color: var(--terra-ink); }
+.stand__when { margin-top: 12px; font: 400 .6875rem/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
+.stand__title { margin-top: 24px; font: 400 1.3125rem/1.2 var(--serif); letter-spacing: -.01em; }
+.stand__place { margin: 6px 0 26px; font-size: .9375rem; line-height: 1.5; color: var(--ink-2); }
+/* the maps sit on one line across the row, whatever the text above them */
+.stand__map { display: block; margin-top: auto; border-radius: var(--radius); }
+.stand__map img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: var(--radius); box-shadow: 0 0 0 1px var(--line); transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+.stand__map:hover img { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--line), 0 14px 28px -18px rgba(58, 33, 22, .5); }
+.stand__links { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 12px; font-size: .875rem; }
+.stand__links a { display: inline-flex; align-items: center; min-height: 32px; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 5px; transition: color .3s, text-decoration-color .3s; }
+.stand__links a:hover { color: var(--terra-ink); text-decoration-color: currentColor; }
+/* «Als Nächstes» on the next stand, «Vorbei» once its day has passed (main.js) */
+.stand__badge { position: absolute; top: 36px; right: 0; padding: 6px 11px 5px; border-radius: 999px; background: var(--terra); color: var(--milk); font: 400 .625rem/1 var(--sans); letter-spacing: .18em; text-transform: uppercase; }
+.stand.is-past .stand__badge { background: none; color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line); }
+.stand.is-past > :not(.stand__badge) { opacity: .5; }
+.stand.is-past .stand__map img { filter: grayscale(.7); }
+.stands__credit { margin-top: 32px; font-size: .75rem; color: var(--ink-3); }
+.stands__credit a { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+
+@media (max-width: 1100px) {
+  .stands__list { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 56px; }
+  .stand:nth-child(odd)::before { content: none; }
+  .stand:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .stand:nth-child(n+3)::before { top: -1px; }
+}
+/* phones: the stands lie side by side and slide, the next one peeking in */
+@media (max-width: 900px) {
+  .stands__head { display: block; }
+  .stands__intro { margin-top: 24px; }
+  .stands__list {
+    display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin: 48px calc(var(--gutter) * -1) 0; padding: 0 var(--gutter) 6px; scroll-padding: 0 var(--gutter);
+    border-top: 0; scrollbar-width: none;
+  }
+  .stands__list::-webkit-scrollbar { display: none; }
+  .stand, .stand:nth-child(n+3) { flex: 0 0 min(80vw, 340px); scroll-snap-align: start; padding-top: 28px; border-top: 1px solid var(--line); }
+  .stand::before, .stand + .stand::before { content: none; }
+  .stand__badge { top: 28px; }
+}
+
 /* ---------- waitlist + footer: the page closes on terracotta ---------- */
 
 .waitlist { background: var(--terra); color: var(--milk); padding: var(--section) var(--gutter) calc(var(--section) * .7); }

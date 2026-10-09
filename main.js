@@ -106,6 +106,22 @@
     document.fonts.ready.then(() => { clearTimeout(fallback); setTimeout(start, 60); });
   }
 
+  // Stands: the next one is marked, and once a stand's day has passed it says so.
+  const stands = [...document.querySelectorAll('[data-stand]')];
+  if (stands.length) {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const next = stands.find((el) => el.dataset.stand >= today);
+    for (const el of stands) {
+      const past = el.dataset.stand < today;
+      const badge = el.querySelector('[data-stand-badge]');
+      const text = past ? 'Vorbei' : el === next ? (el.dataset.stand === today ? 'Heute' : 'Als Nächstes') : '';
+      el.classList.toggle('is-past', past);
+      el.classList.toggle('is-next', el === next);
+      if (badge) { badge.textContent = text; badge.hidden = !text; }
+    }
+  }
+
   // Drinks on phones: tabs jump the card row; swiping moves the active tab along.
   const menu = document.querySelector('[data-drinks-menu]');
   const tabs = [...document.querySelectorAll('[data-drinks-tab]')];

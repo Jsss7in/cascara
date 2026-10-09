@@ -17,4 +17,8 @@ def sub(m):
     return V[k]
 html=re.sub(r'\{\{([A-Z0-9_]+)\}\}', sub, html)
 open(f'{C}/index.html','w').write(html)
+# one calendar file per stand, next to the page
+ics_dir=pathlib.Path(C)/'assets'/'staende'; ics_dir.mkdir(parents=True, exist_ok=True)
+for st in content.STANDS:
+    (ics_dir/f"{st['date']}.ics").write_text(content.ics(st))
 print('built', len(html))

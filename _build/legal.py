@@ -48,6 +48,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
 
     <h2>Urheberrecht</h2>
     <p>Texte, Logo und Gestaltung: Cascarup. Die Fotos stammen von Flickr und Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
+    <p>Karten bei den Ständen: gezeichnet aus Daten von © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkenden</a>, verfügbar unter der Open Database License (ODbL).</p>
 
     <h2 id="bildnachweis">Bildnachweis</h2>
     {credits}
@@ -80,6 +81,9 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
 
     <h2>Schriften</h2>
     <p>Die Schriften «Newsreader» und «Jost» liegen auf dieser Website selbst. Für ihre Anzeige werden keine Daten an Dritte übermittelt.</p>
+
+    <h2>Karten</h2>
+    <p>Die Karten bei unseren Ständen liegen als Bilder auf dieser Website selbst; beim Anschauen wird nichts an einen Kartendienst übermittelt. Erst ein Klick auf «Route» oder auf eine Karte öffnet Google Maps, und dort gilt die Datenschutzerklärung von Google.</p>
 
     <h2>Soziale Medien</h2>
     <p>Wir verlinken auf unsere Profile bei Instagram, TikTok, X und Facebook. Das sind einfache Links: Solange du keinen davon anklickst, wird nichts an diese Dienste übermittelt. Auf den Plattformen selbst gelten deren eigene Datenschutzerklärungen.</p>

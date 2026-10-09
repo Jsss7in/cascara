@@ -128,6 +128,93 @@ def drinks():
 
 V['DRINKS'] = drinks()
 
+# ---------------------------------------------------------------------------
+# Where our stand is. Dates in 2026; a stand turns «Vorbei» by itself once its day has passed (main.js).
+# The maps are drawn from OpenStreetMap by _build/maps.py; «at» is the pin, at the centre of each map.
+SKYLINES = {
+ # Fribourg: the cathedral tower over the old town, the bridge across the Sarine below
+ 'fribourg': '<path d="M4 56h56"/><path d="M3 47h20"/><path d="M4 47v9m18-9v9"/><path d="M4 56a4.5 4.5 0 0 1 9 0a4.5 4.5 0 0 1 9 0"/>'
+             '<path d="M25 56V24h10v32"/><path d="M24 24h12"/><path d="M26 24v-6h8v6"/><path d="M26 18l1-3 1 3m1 0l1-5 1 5m1 0l1-3 1 3"/>'
+             '<path d="M28.5 30v6m3-6v6"/><path d="M35 40l7-6 7 6v16"/><path d="M49 44l5-5 5 5v12"/><path d="M40 47h4m8 2h4"/>',
+ # Estavayer-le-Lac: the Château de Chenaux, its keep and round towers, the lake in front
+ 'estavayer': '<path d="M6 50h52"/><path d="M8 56c2.5-2 5-2 7.5 0s5 2 7.5 0 5-2 7.5 0 5 2 7.5 0 5-2 7.5 0 5 2 7.5 0"/>'
+              '<path d="M26 50V20h12v30"/><path d="M26 20v-4h3v4h3v-4h3v4h3v-4"/><path d="M30.5 27v5m3-5v5"/>'
+              '<path d="M14 50V31h8v19"/><path d="M13 31l5-10 5 10"/><path d="M42 50V29h8v21"/><path d="M41 29l5-10 5 10"/><path d="M22 40h4m12 0h4"/>',
+ # Avenches: the arches of the Roman amphitheatre and the lone column of the Cigognier
+ 'avenches': '<path d="M4 56h56"/><path d="M6 56V40h28v16"/><path d="M6 46h28"/>'
+             '<path d="M10 56v-5a3 3 0 0 1 6 0v5m3 0v-5a3 3 0 0 1 6 0v5m3 0v-5a3 3 0 0 1 6 0v5"/>'
+             '<path d="M44 56V24m8 32V24"/><path d="M42 24h12"/><path d="M43 24l1-4h8l1 4"/><path d="M39 20h18v-4H39z"/><path d="M42 56h12"/>',
+}
+STANDS = [
+ dict(date='2026-10-29', weekday='Donnerstag', day='29', month='Oktober', time='19:00', title='Eröffnungsfeier',
+      place='Aula, Collège de Gambach', town='Fribourg', icon='fribourg', map='gambach', at=(46.8069923, 7.1497324)),
+ dict(date='2026-11-14', weekday='Samstag', day='14', month='November', title='Wochenmarkt',
+      place='Altstadt', town='Estavayer-le-Lac', icon='estavayer', map='estavayer', at=(46.84918, 6.84732),
+      view=(46.8503, 6.8430)),   # framed towards the lake, so Estavayer-le-Lac shows its lake
+ dict(date='2026-12-05', weekday='Samstag', day='5', month='Dezember', title='Saint-Nicolas-Markt',
+      place='Collège Saint-Michel', town='Fribourg', icon='fribourg', map='stmichel', at=(46.8067246, 7.1579802)),
+ dict(date='2026-12-19', weekday='Samstag', day='19', month='Dezember', title='Weihnachtsmarkt',
+      place='Altstadt', town='Avenches', icon='avenches', map='avenches', at=(46.8794048, 7.0396615)),
+]
+
+def route(lat, lon):
+    return f'https://www.google.com/maps/search/?api=1&query={lat}%2C{lon}'
+
+
+def stands():
+    items = []
+    for n, s in enumerate(STANDS):
+        icon = SKYLINES[s['icon']].replace('<path ', '<path pathLength="1" ')
+        when = s['weekday'] + (f' · {s["time"]}' if s.get('time') else '')
+        stamp = s['date'] + (f'T{s["time"]}' if s.get('time') else '')
+        link = route(*s['at'])
+        items.append(
+            f'      <li class="stand" data-reveal data-stand="{s["date"]}" style="--d:{n}">\n'
+            f'        <p class="stand__badge" data-stand-badge hidden></p>\n'
+            f'        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true">{icon}</svg>\n'
+            f'        <p class="stand__date"><time datetime="{stamp}"><span class="stand__day">{s["day"]}.</span> {s["month"]}</time></p>\n'
+            f'        <p class="stand__when">{when}</p>\n'
+            f'        <h3 class="stand__title">{s["title"]}</h3>\n'
+            f'        <p class="stand__place">{s["place"]}<br>{s["town"]}</p>\n'
+            f'        <a class="stand__map" href="{link}" target="_blank" rel="noopener" aria-label="{s["title"]} in {s["town"]}: Karte öffnen">'
+            f'<img src="assets/maps/{s["map"]}.svg" alt="Karte: {s["place"]}, {s["town"]}" width="600" height="400" loading="lazy" decoding="async"></a>\n'
+            f'        <p class="stand__links"><a href="{link}" target="_blank" rel="noopener">Route</a>'
+            f'<a href="assets/staende/{s["date"]}.ics" download>In den Kalender</a></p>\n'
+            f'      </li>')
+    return (
+        '    <!-- Where our stand is: four dates, a skyline and a map each -->\n'
+        '    <section class="stands" data-tone="paper" id="staende" aria-labelledby="staende-title">\n'
+        '      <div class="stands__inner">\n'
+        '        <header class="stands__head">\n'
+        '          <p class="eyebrow" data-reveal>Unterwegs</p>\n'
+        '          <h2 class="display" id="staende-title" data-reveal style="--d:1">Hier findest<br>du <em>uns.</em></h2>\n'
+        '          <p class="stands__intro" data-reveal style="--d:2">Vier Daten, vier Orte. An diesen Tagen sind wir mit unserem Stand vor Ort: Komm vorbei und lern uns kennen.</p>\n'
+        '        </header>\n'
+        '        <ol class="stands__list">\n' + '\n'.join(items) + '\n        </ol>\n'
+        '        <p class="stands__credit">Karten: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende</p>\n'
+        '      </div>\n'
+        '    </section>')
+
+
+def ics(s):
+    """One calendar entry per stand: all day, or from the start time when there is one."""
+    d = s['date'].replace('-', '')
+    if s.get('time'):
+        start = f'DTSTART;TZID=Europe/Zurich:{d}T{s["time"].replace(":", "")}00'
+    else:
+        start = f'DTSTART;VALUE=DATE:{d}'
+    esc = lambda t: t.replace('\\', '\\\\').replace(';', '\\;').replace(',', '\\,')
+    zone = ['BEGIN:VTIMEZONE', 'TZID:Europe/Zurich',
+            'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000',
+            'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU', 'END:DAYLIGHT',
+            'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000',
+            'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU', 'END:STANDARD', 'END:VTIMEZONE'] if s.get('time') else []
+    lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cascarup//Staende//DE', 'CALSCALE:GREGORIAN', *zone, 'BEGIN:VEVENT',
+             f'UID:{d}-{s["map"]}@cascarup.ch', 'DTSTAMP:20261009T000000Z', start,
+             f'SUMMARY:{esc("Cascarup: " + s["title"])}', f'LOCATION:{esc(s["place"] + ", " + s["town"])}',
+             f'GEO:{s["at"][0]};{s["at"][1]}', 'URL:https://cascarup.ch/#staende', 'END:VEVENT', 'END:VCALENDAR']
+    return '\r\n'.join(lines) + '\r\n'
+
 # Our profiles: plain links (nothing loads from the platforms), all under the same name.
 HANDLE = 'cascarup'
 SOCIALS = [
@@ -173,3 +260,4 @@ WAITLIST_EMAIL = 'info@cascarup.ch'
 V['FORM_ENDPOINT'] = f'https://formsubmit.co/ajax/{WAITLIST_EMAIL}' if WAITLIST_EMAIL else ''
 
 V['IG_FEED'] = ig_feed()
+V['STANDS'] = stands()

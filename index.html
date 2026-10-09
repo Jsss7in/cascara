@@ -21,7 +21,7 @@
   <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/fonts.css">
-  <link rel="stylesheet" href="styles.css?v=20261009090645">
+  <link rel="stylesheet" href="styles.css?v=20261009092646">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -39,6 +39,7 @@
         <li><a href="#cascara">Cascara</a></li>
         <li><a href="#ideen">Ideen</a></li>
         <li><a href="#projekt">Projekt</a></li>
+        <li><a href="#staende">Stände</a></li>
       </ul>
       <a class="nav__mark" href="#top" aria-label="Cascara – zum Seitenanfang">
         <svg class="mark" viewBox="0 0 587 614" aria-hidden="true">
@@ -228,6 +229,60 @@
     </section>
 
     <!-- Waitlist -->
+    <!-- Where our stand is: four dates, a skyline and a map each -->
+    <section class="stands" data-tone="paper" id="staende" aria-labelledby="staende-title">
+      <div class="stands__inner">
+        <header class="stands__head">
+          <p class="eyebrow" data-reveal>Unterwegs</p>
+          <h2 class="display" id="staende-title" data-reveal style="--d:1">Hier findest<br>du <em>uns.</em></h2>
+          <p class="stands__intro" data-reveal style="--d:2">Vier Daten, vier Orte. An diesen Tagen sind wir mit unserem Stand vor Ort: Komm vorbei und lern uns kennen.</p>
+        </header>
+        <ol class="stands__list">
+      <li class="stand" data-reveal data-stand="2026-10-29" style="--d:0">
+        <p class="stand__badge" data-stand-badge hidden></p>
+        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M4 56h56"/><path pathLength="1" d="M3 47h20"/><path pathLength="1" d="M4 47v9m18-9v9"/><path pathLength="1" d="M4 56a4.5 4.5 0 0 1 9 0a4.5 4.5 0 0 1 9 0"/><path pathLength="1" d="M25 56V24h10v32"/><path pathLength="1" d="M24 24h12"/><path pathLength="1" d="M26 24v-6h8v6"/><path pathLength="1" d="M26 18l1-3 1 3m1 0l1-5 1 5m1 0l1-3 1 3"/><path pathLength="1" d="M28.5 30v6m3-6v6"/><path pathLength="1" d="M35 40l7-6 7 6v16"/><path pathLength="1" d="M49 44l5-5 5 5v12"/><path pathLength="1" d="M40 47h4m8 2h4"/></svg>
+        <p class="stand__date"><time datetime="2026-10-29T19:00"><span class="stand__day">29.</span> Oktober</time></p>
+        <p class="stand__when">Donnerstag · 19:00</p>
+        <h3 class="stand__title">Eröffnungsfeier</h3>
+        <p class="stand__place">Aula, Collège de Gambach<br>Fribourg</p>
+        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.8069923%2C7.1497324" target="_blank" rel="noopener" aria-label="Eröffnungsfeier in Fribourg: Karte öffnen"><img src="assets/maps/gambach.svg" alt="Karte: Aula, Collège de Gambach, Fribourg" width="600" height="400" loading="lazy" decoding="async"></a>
+        <p class="stand__links"><a href="https://www.google.com/maps/search/?api=1&query=46.8069923%2C7.1497324" target="_blank" rel="noopener">Route</a><a href="assets/staende/2026-10-29.ics" download>In den Kalender</a></p>
+      </li>
+      <li class="stand" data-reveal data-stand="2026-11-14" style="--d:1">
+        <p class="stand__badge" data-stand-badge hidden></p>
+        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M6 50h52"/><path pathLength="1" d="M8 56c2.5-2 5-2 7.5 0s5 2 7.5 0 5-2 7.5 0 5 2 7.5 0 5-2 7.5 0 5 2 7.5 0"/><path pathLength="1" d="M26 50V20h12v30"/><path pathLength="1" d="M26 20v-4h3v4h3v-4h3v4h3v-4"/><path pathLength="1" d="M30.5 27v5m3-5v5"/><path pathLength="1" d="M14 50V31h8v19"/><path pathLength="1" d="M13 31l5-10 5 10"/><path pathLength="1" d="M42 50V29h8v21"/><path pathLength="1" d="M41 29l5-10 5 10"/><path pathLength="1" d="M22 40h4m12 0h4"/></svg>
+        <p class="stand__date"><time datetime="2026-11-14"><span class="stand__day">14.</span> November</time></p>
+        <p class="stand__when">Samstag</p>
+        <h3 class="stand__title">Wochenmarkt</h3>
+        <p class="stand__place">Altstadt<br>Estavayer-le-Lac</p>
+        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.84918%2C6.84732" target="_blank" rel="noopener" aria-label="Wochenmarkt in Estavayer-le-Lac: Karte öffnen"><img src="assets/maps/estavayer.svg" alt="Karte: Altstadt, Estavayer-le-Lac" width="600" height="400" loading="lazy" decoding="async"></a>
+        <p class="stand__links"><a href="https://www.google.com/maps/search/?api=1&query=46.84918%2C6.84732" target="_blank" rel="noopener">Route</a><a href="assets/staende/2026-11-14.ics" download>In den Kalender</a></p>
+      </li>
+      <li class="stand" data-reveal data-stand="2026-12-05" style="--d:2">
+        <p class="stand__badge" data-stand-badge hidden></p>
+        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M4 56h56"/><path pathLength="1" d="M3 47h20"/><path pathLength="1" d="M4 47v9m18-9v9"/><path pathLength="1" d="M4 56a4.5 4.5 0 0 1 9 0a4.5 4.5 0 0 1 9 0"/><path pathLength="1" d="M25 56V24h10v32"/><path pathLength="1" d="M24 24h12"/><path pathLength="1" d="M26 24v-6h8v6"/><path pathLength="1" d="M26 18l1-3 1 3m1 0l1-5 1 5m1 0l1-3 1 3"/><path pathLength="1" d="M28.5 30v6m3-6v6"/><path pathLength="1" d="M35 40l7-6 7 6v16"/><path pathLength="1" d="M49 44l5-5 5 5v12"/><path pathLength="1" d="M40 47h4m8 2h4"/></svg>
+        <p class="stand__date"><time datetime="2026-12-05"><span class="stand__day">5.</span> Dezember</time></p>
+        <p class="stand__when">Samstag</p>
+        <h3 class="stand__title">Saint-Nicolas-Markt</h3>
+        <p class="stand__place">Collège Saint-Michel<br>Fribourg</p>
+        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.8067246%2C7.1579802" target="_blank" rel="noopener" aria-label="Saint-Nicolas-Markt in Fribourg: Karte öffnen"><img src="assets/maps/stmichel.svg" alt="Karte: Collège Saint-Michel, Fribourg" width="600" height="400" loading="lazy" decoding="async"></a>
+        <p class="stand__links"><a href="https://www.google.com/maps/search/?api=1&query=46.8067246%2C7.1579802" target="_blank" rel="noopener">Route</a><a href="assets/staende/2026-12-05.ics" download>In den Kalender</a></p>
+      </li>
+      <li class="stand" data-reveal data-stand="2026-12-19" style="--d:3">
+        <p class="stand__badge" data-stand-badge hidden></p>
+        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M4 56h56"/><path pathLength="1" d="M6 56V40h28v16"/><path pathLength="1" d="M6 46h28"/><path pathLength="1" d="M10 56v-5a3 3 0 0 1 6 0v5m3 0v-5a3 3 0 0 1 6 0v5m3 0v-5a3 3 0 0 1 6 0v5"/><path pathLength="1" d="M44 56V24m8 32V24"/><path pathLength="1" d="M42 24h12"/><path pathLength="1" d="M43 24l1-4h8l1 4"/><path pathLength="1" d="M39 20h18v-4H39z"/><path pathLength="1" d="M42 56h12"/></svg>
+        <p class="stand__date"><time datetime="2026-12-19"><span class="stand__day">19.</span> Dezember</time></p>
+        <p class="stand__when">Samstag</p>
+        <h3 class="stand__title">Weihnachtsmarkt</h3>
+        <p class="stand__place">Altstadt<br>Avenches</p>
+        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.8794048%2C7.0396615" target="_blank" rel="noopener" aria-label="Weihnachtsmarkt in Avenches: Karte öffnen"><img src="assets/maps/avenches.svg" alt="Karte: Altstadt, Avenches" width="600" height="400" loading="lazy" decoding="async"></a>
+        <p class="stand__links"><a href="https://www.google.com/maps/search/?api=1&query=46.8794048%2C7.0396615" target="_blank" rel="noopener">Route</a><a href="assets/staende/2026-12-19.ics" download>In den Kalender</a></p>
+      </li>
+        </ol>
+        <p class="stands__credit">Karten: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende</p>
+      </div>
+    </section>
+
     <section class="waitlist" data-tone="terra" id="warteliste" aria-labelledby="warteliste-title">
       <div class="waitlist__card">
         <svg class="waitlist__mark" viewBox="0 0 587 614" aria-hidden="true"><use href="#lg-fill"/></svg>
@@ -270,6 +325,7 @@
           <li><a href="#cascara">Cascara</a></li>
           <li><a href="#ideen">Ideen</a></li>
           <li><a href="#projekt">Projekt</a></li>
+          <li><a href="#staende">Stände</a></li>
           <li><a href="#warteliste">Warteliste</a></li>
         </ul>
       </nav>
@@ -288,7 +344,7 @@
     </div>
   </footer>
 
-  <script src="main.js?v=20261009090645" defer></script>
-  <script src="hero.js?v=20261009090645" defer></script>
+  <script src="main.js?v=20261009092646" defer></script>
+  <script src="hero.js?v=20261009092646" defer></script>
 </body>
 </html>
