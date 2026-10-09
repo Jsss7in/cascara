@@ -513,14 +513,18 @@ p { text-wrap: pretty; }
 }
 .notify__consent input:focus-visible { outline: 2px solid var(--milk); outline-offset: 3px; }
 .notify__consent a { text-decoration: underline; text-underline-offset: 3px; }
-/* a plain link to Instagram, drawn in the same fine line as the drink icons: no embed, nothing loads from Meta */
-.social { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: inherit; }
-.social svg { flex: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-.social .social__dot { fill: currentColor; stroke: none; }
-.social:hover > span { text-decoration: underline; text-underline-offset: 4px; }
-.social strong { font-weight: 400; }
-.waitlist__social { margin-top: 28px; font-size: .9375rem; letter-spacing: .02em; opacity: .92; }
-.footer__social { margin-top: 22px; font-size: 1rem; opacity: .9; }
+/* our profiles: plain links in the same fine line as the drink icons; no embeds, nothing loads from the platforms */
+.socials { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.socials a { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: inherit; opacity: .9; transition: background-color .3s, opacity .3s; }
+.socials a:hover, .socials a:focus-visible { opacity: 1; background: rgba(255, 247, 238, .12); }
+.socials svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.socials .socials__dot { fill: currentColor; stroke: none; }
+.waitlist__social { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .9375rem; letter-spacing: .02em; }
+.waitlist__social p { opacity: .92; }
+.waitlist__social strong { font-weight: 400; }
+/* the first icon's line sits flush with the claim above it */
+.footer__social { margin: 18px 0 0 -11px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 1rem; }
+.footer__social > span { opacity: .9; }
 .notify__status { min-height: 1.6em; margin-top: 14px; padding: 0 8px; font-size: .9375rem; }
 .notify.is-done .notify__row, .notify.is-done .notify__consent { display: none; }
 .notify.is-done .notify__status { font: 300 1.5rem/1.35 var(--serif); text-align: center; }

@@ -128,6 +128,23 @@ def drinks():
 
 V['DRINKS'] = drinks()
 
+# Our profiles: plain links (nothing loads from the platforms), all under the same name.
+HANDLE = 'cascarup'
+SOCIALS = [
+ ('Instagram', f'https://www.instagram.com/{HANDLE}/',
+  '<rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/>'),
+ ('TikTok', f'https://www.tiktok.com/@{HANDLE}',
+  '<path d="M14.4 2.8v12.6a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14.4 2.8c.6 3.2 2.9 5.4 6.2 5.6"/>'),
+ ('X', f'https://x.com/{HANDLE}',
+  '<path d="M4.6 4.5h4l10.8 15h-4z"/><path d="M19 4.5l-5.9 6.5M10.9 13.4 5 19.5"/>'),
+ ('Facebook', f'https://www.facebook.com/{HANDLE}',
+  '<circle cx="12" cy="12" r="9.2"/><path d="M13.4 21.2V10.6c0-1.6.9-2.5 2.5-2.5h1.2"/><path d="M10.4 13.6h5.6"/>'),
+]
+V['HANDLE'] = HANDLE
+V['SOCIALS'] = ('<ul class="socials" aria-label="Cascarup in den sozialen Medien">' + ''.join(
+    f'<li><a href="{url}" target="_blank" rel="noopener" aria-label="{COMPANY} auf {name}" title="{name}">'
+    f'<svg viewBox="0 0 24 24" aria-hidden="true">{svg}</svg></a></li>' for name, url, svg in SOCIALS) + '</ul>')
+
 # Waitlist: each sign-up arrives by e-mail through FormSubmit (formsubmit.co); the first one asks
 # to confirm the address once. Left empty, the form says the list opens soon and stores nothing.
 WAITLIST_EMAIL = 'info@cascarup.ch'

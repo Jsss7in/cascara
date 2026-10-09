@@ -81,8 +81,8 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <h2>Schriften</h2>
     <p>Die Schriften «Newsreader» und «Jost» liegen auf dieser Website selbst. Für ihre Anzeige werden keine Daten an Dritte übermittelt.</p>
 
-    <h2>Instagram</h2>
-    <p>Wir verlinken auf unser Instagram-Profil. Das ist ein einfacher Link: Solange du ihn nicht anklickst, wird nichts an Instagram übermittelt. Auf Instagram selbst gilt die Datenschutzerklärung von Meta.</p>
+    <h2>Soziale Medien</h2>
+    <p>Wir verlinken auf unsere Profile bei Instagram, TikTok, X und Facebook. Das sind einfache Links: Solange du keinen davon anklickst, wird nichts an diese Dienste übermittelt. Auf den Plattformen selbst gelten deren eigene Datenschutzerklärungen.</p>
 
     <h2>Cookies und Analyse</h2>
     <p>Wir setzen keine Cookies, keine Analyse- oder Tracking-Werkzeuge und keine Social-Media-Plugins ein.</p>
