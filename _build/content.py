@@ -143,16 +143,19 @@ SOCIALS = [
 V['HANDLE'] = HANDLE
 
 # Our latest Instagram posts, newest first, updated by hand on request (at most three are shown).
-# Each picture is saved square into assets/instagram/, so the page loads nothing from Instagram.
+# Each picture is saved at 1080 × 1350 (Instagram's 4:5) into assets/instagram/, so the page loads nothing from Instagram.
 # dict(url='https://www.instagram.com/p/…/', img='assets/instagram/….jpg', alt='what the picture shows')
-IG_POSTS = []
+IG_POSTS = [
+ dict(url='https://www.instagram.com/p/DeKD0cnCoG1/', img='assets/instagram/2026-10-06-eroeffnungsfeier.jpg',
+      alt='Plakat: Eröffnungsfeier von Cascarup und Young Enterprise Switzerland, Donnerstag, 29. Oktober 2026, 19 Uhr, Aula Kollegium Gambach'),
+]
 
 def ig_feed():
     posts = IG_POSTS[:3]
     if not posts:
         return ''
     tiles = [f'<li><a class="feed__post" href="{p["url"]}" target="_blank" rel="noopener">'
-             f'<img src="{p["img"]}" alt="{p["alt"]}" width="900" height="900" loading="lazy" decoding="async"></a></li>'
+             f'<img src="{p["img"]}" alt="{p["alt"]}" width="1080" height="1350" loading="lazy" decoding="async"></a></li>'
              for p in posts]
     if len(posts) < 3:   # until there are three, the row ends in a tile that leads to the profile
         icon = SOCIALS[0][2]
