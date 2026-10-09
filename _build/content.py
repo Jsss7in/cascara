@@ -222,12 +222,11 @@ SOCIALS = [
   '<rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/>'),
  ('TikTok', f'https://www.tiktok.com/@{HANDLE}',
   '<path d="M14.4 2.8v12.6a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14.4 2.8c.6 3.2 2.9 5.4 6.2 5.6"/>'),
+ ('X', 'https://x.com/cascarup_ch',   # on X the name is cascarup_ch
+  '<path d="M4.6 4.5h4l10.8 15h-4z"/><path d="M19 4.5l-5.9 6.5M10.9 13.4 5 19.5"/>'),
 ]
-# Not live: on 9.10.2026 there was no account @cascarup on X or Facebook (x.com: «Nutzerprofil nicht gefunden»,
-# facebook.com: only the login wall). Once the profiles exist, move these back into SOCIALS above (fix the URL if
-# the name differs) and add the platform to the «Soziale Medien» paragraph in legal.py.
-# ('X', f'https://x.com/{HANDLE}',
-#  '<path d="M4.6 4.5h4l10.8 15h-4z"/><path d="M19 4.5l-5.9 6.5M10.9 13.4 5 19.5"/>'),
+# Not live: on 9.10.2026 there was no public Facebook page @cascarup (facebook.com showed only the login wall).
+# Once it exists, move it back into SOCIALS above and add Facebook to the «Soziale Medien» paragraph in legal.py.
 # ('Facebook', f'https://www.facebook.com/{HANDLE}',
 #  '<circle cx="12" cy="12" r="9.2"/><path d="M13.4 21.2V10.6c0-1.6.9-2.5 2.5-2.5h1.2"/><path d="M10.4 13.6h5.6"/>'),
 
