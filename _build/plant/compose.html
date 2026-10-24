@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Zweig – Komposition</title>
+<style>
+  html, body { margin: 0; background: transparent; overflow: hidden; }
+  #stage { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+  #plate { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  #plate img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
+  .note { position: absolute; left: 8px; bottom: 6px; font: 12px monospace; color: #3A2116; }
+</style></head>
+<body><div id="stage"><div id="plate"></div><div class="note" id="note"></div></div>
+<script type="module">
+// Lays the plant's layers out in the branch photo's own pixels (zweig.png), the hero cherry on top, and shows the
+// whole as the page would at a given screen place: ?cfg=<json file>&x=<cherry centre x>&y=<y>&rx=<cherry half width px>&roll=<deg>
+const q = new URLSearchParams(location.search);
+const cfg = await (await fetch(q.get('cfg') + '?' + Date.now())).json();
+const plate = document.getElementById('plate');
+// Everything from the SAplants photograph is mirrored (the branch then runs off to the right, away from the words):
+// the plate is the mirrored branch photo, x' = 4992 − x. kirsche.webp, mirrored too, sits in it by this matrix.
+const K2Z = 'matrix(0.923214043, 0.38428613, -0.38428613, 0.923214043, 655.85, -285.21) matrix(-1, 0, 0, 1, 1011, 0)';
+const HERO = [883.11, 481.39], HRX = 457.7;
+const add = (src, w, h, transform, z, extra = '') => {
+  const img = new Image(); img.src = src; img.style.width = w + 'px'; img.style.height = h + 'px';
+  img.style.transform = transform; img.style.zIndex = z; img.style.cssText += extra; plate.append(img); return img;
+};
+for (const L of cfg.layers) {
+  // a layer: its centre (x, y), width w and turn rot in plate px; its natural proportions are kept
+  const im = await new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = L.src; });
+  const w = L.w, h = w * im.naturalHeight / im.naturalWidth;
+  const t = `translate(${L.x}px, ${L.y}px) rotate(${L.rot || 0}deg) scaleX(${L.flip ? -1 : 1}) translate(${-w / 2}px, ${-h / 2}px)`;
+  add(L.src, w, h, t, L.z ?? 0, L.filter ? `filter:${L.filter};` : '');
+}
+add(cfg.zweig.src, 4992, 2527, 'matrix(-1, 0, 0, 1, 4992, 0)', 1, cfg.zweig.clip ? `clip-path:${cfg.zweig.clip};` : '');
+if (!q.has('nohero')) add(cfg.hero, 1011, 1253, K2Z, 5);
+const X = +q.get('x') || 1000, Y = +q.get('y') || 450, RX = +q.get('rx') || 160, roll = +q.get('roll') || 0;
+const k = RX / HRX, th = roll - 22.59943;
+plate.style.transform = `translate(${X}px, ${Y}px) rotate(${th}deg) scale(${k}) translate(${-HERO[0]}px, ${-HERO[1]}px)`;
+document.getElementById('note').textContent = `roll ${roll}  k ${k.toFixed(3)}`;
+document.body.dataset.ready = '1';
+</script></body></html>

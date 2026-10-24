@@ -46,12 +46,12 @@ const fbm = (x, y, z, o = 4) => { let a = .5, f = 1, n = 0; for (let i = 0; i < 
 // ---------------------------------------------------------------------------------------------------------------
 // light: a small photo studio, baked into the environment map – warm cream walls, one large softbox above left,
 // two tall strips at the sides and dark flags, so the fruit gets one broad sheen and the glass dark edges
-export function studio() {
+export function studio(mx = 1) {   // mx = -1: the same studio, mirrored left to right
   const s = new Scene();
   s.add(new Mesh(new BoxGeometry(24, 16, 24), new MeshBasicMaterial({ color: new Color(.5, .43, .35), side: BackSide })));
   const panel = (w, h, rgb, pos) => {
     const m = new Mesh(new PlaneGeometry(w, h), new MeshBasicMaterial({ color: new Color(...rgb), side: DoubleSide }));
-    m.position.set(...pos); m.lookAt(0, 0, 0); s.add(m);
+    m.position.set(pos[0] * mx, pos[1], pos[2]); m.lookAt(0, 0, 0); s.add(m);
   };
   panel(8, 6, [7, 6.6, 6], [-5, 7, 5]);           // the key: a large softbox, upper left, in front
   panel(1.4, 10, [3.2, 3.1, 3], [-9, 0, -1]);      // strip, left
@@ -353,14 +353,16 @@ export function createHero(canvas, { onFrame, photo } = {}) {
   const scene = new Scene();
   scene.background = new Color('#E6D3B7');
   const pmrem = new PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(studio(), .03).texture;
+  // the photograph is shown mirrored (its branch runs off to the right), so its flash comes from the upper right:
+  // the studio is mirrored to match, or the photo's highlight and the model's would sit on opposite sides
+  scene.environment = pmrem.fromScene(studio(-1), .03).texture;
   scene.environmentIntensity = .9;
 
   const camera = new PerspectiveCamera(24, 1, .1, 100);
   camera.position.set(0, 0, 12.6);
 
-  const key = new DirectionalLight('#fff1df', 1.5); key.position.set(-4, 6, 6); scene.add(key);
-  const rim = new DirectionalLight('#ffe9da', 1.3); rim.position.set(5, 3, -6); scene.add(rim);
+  const key = new DirectionalLight('#fff1df', 1.5); key.position.set(4, 6, 6); scene.add(key);
+  const rim = new DirectionalLight('#ffe9da', 1.3); rim.position.set(-5, 3, -6); scene.add(rim);
   scene.add(new HemisphereLight('#fff6ea', '#9a6a48', .25));
 
   const world = new Group(); scene.add(world);
@@ -527,8 +529,10 @@ export function createHero(canvas, { onFrame, photo } = {}) {
 
     // camera: right of the words, centred for the exploded view, up a little for the pour, down for the still life
     const camY = lerp(lerp(lerp(0, .62, smooth(.6, .67, p)), .14, smooth(.7, .79, p)), -.2, endPhase);
-    if (wide) aim(-.2 * (1 - open), 0, 1, camY);
-    else aim(0, lerp(lerp(-.21, -.03, open), -.06, pourCam), 1 + .3 * open - .2 * pourCam, camY);
+    // At first the camera stands back, so the cherry has room for its branch; as it is picked, the camera comes in.
+    const intro = 1 - smooth(.04, .2, p);
+    if (wide) aim(-.2 * (1 - open) - .02 * intro, .08 * intro, 1 + .32 * intro, camY);
+    else aim(0, lerp(lerp(-.21, -.03, open), -.06, pourCam) - .02 * intro, 1 + .3 * open - .2 * pourCam + .38 * intro, camY);
 
     // the whole fruit floats; for the exploded view a three-quarter view (on phones a diagonal)
     world.rotation.y = -.35 * explode * (1 - together);
@@ -537,7 +541,8 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     // with the photograph the fruit faces the camera exactly, as the picture does; without it, it turns a little
     const turn = hasPhoto ? 0 : (1 - smooth(.06, .14, p)) * Math.sin(time * .35) * .55;
     cherry.rotation.set(0, turn, tilt);
-    cherry.position.y = Math.sin(time * 1.1) * .05 * (1 - gather);
+    const pluck = .14 * smooth(.006, .05, p) * (1 - smooth(.12, .24, p));
+    cherry.position.y = Math.sin(time * 1.1) * .05 * (1 - gather) * smooth(.02, .1, p) + pluck;
 
     for (const s of sides) {
       const k = s.side * explode;
@@ -547,7 +552,8 @@ export function createHero(canvas, { onFrame, photo } = {}) {
       const mat = s.skin.material;
       mat.userData.dry.value = dryC;
       mat.roughness = lerp(.34, .58, dryC);
-      mat.clearcoat = lerp(.9, .16, dryC);
+      // while it takes over from the photograph its gloss is the photo's own (soft); it shines up once it opens
+      mat.clearcoat = lerp(lerp(.35, .9, smooth(.1, .22, p)), .16, dryC);
       mat.clearcoatRoughness = lerp(.14, .4, dryC);
       mat.sheen = lerp(.25, .4, dryC);
       mat.sheenColor.set(dryC > .5 ? '#c07a5c' : '#ff9b8a');
@@ -652,7 +658,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     // the cherry's shadow, until the halves rise
     shadow.position.set(0, -RY - .55, 0);
     shadow.scale.set(2.5 * (1 + explode * .6 * (1 - together)), 1.7, 1);
-    shadow.material.opacity = .6 * (1 - explode * .35 * (1 - together)) * (1 - smooth(.59, .65, p));
+    shadow.material.opacity = .6 * (1 - explode * .35 * (1 - together)) * (1 - smooth(.59, .65, p)) * smooth(.03, .1, p);
     shadow.visible = p < .65;
   }
 

@@ -21,6 +21,8 @@ import { createHero, CHAPTERS } from './hero3d.js';
   const photo = hero.querySelector('[data-hero-cherry]');
   const cue = hero.querySelector('[data-hero-cue]');       // «Scroll für mehr», under the cherry
   const name = hero.querySelector('[data-hero-name]');     // the cherry's name, on its first screen
+  const plant = hero.querySelector('[data-hero-plant]');   // its branch, with leaves and other cherries
+  const pl = plant && { cx: +plant.dataset.cx, cy: +plant.dataset.cy, rx: +plant.dataset.rx, turn: +plant.dataset.turn };
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -120,22 +122,37 @@ import { createHero, CHAPTERS } from './hero3d.js';
 
   // Words follow the 3D scene's own (softly following) progress, so they never run ahead of the picture.
   // Only what changes is written, and only on these few elements.
-  let photoShown = -1, introShown = -1;
+  let photoShown = -1, introShown = -1, plantShown = -1;
   function onFrame(p, labels, fruitBox) {
     // the first screen: the cherry is named, and beneath it the invitation to scroll; both go with the first move
     const intro = Math.round((1 - smooth(.012, .05, p)) * 500) / 500;
     if (intro > 0 && (cue || name)) {
-      const b = fruitBox(), h = stage.clientHeight;
+      const b = fruitBox(), w = stage.clientWidth, h = stage.clientHeight, narrow = w < 700;
       if (cue) {
+        // at the foot of the picture, below the cherry
         cue.style.setProperty('--x', `${b.x.toFixed(1)}px`);
-        cue.style.setProperty('--y', `${Math.min(b.y + b.ry + 30, h - 76).toFixed(1)}px`);
+        cue.style.setProperty('--y', `${(h - (narrow ? 64 : 76)).toFixed(1)}px`);
       }
       if (name) {
-        // on the side of the fruit with room for the words
-        const right = b.x - b.rx < 230;
-        name.classList.toggle('is-right', right);
-        name.style.setProperty('--x', `${(b.x + (right ? .66 : -.66) * b.rx).toFixed(1)}px`);
-        name.style.setProperty('--y', `${(b.y + b.ry * .36).toFixed(1)}px`);
+        // beside the cherry where there is room for the words; on a phone above it, under the buttons
+        name.classList.toggle('is-up', narrow);
+        name.style.setProperty('--x', `${(b.x - (narrow ? .3 : .5) * b.rx).toFixed(1)}px`);
+        name.style.setProperty('--y', `${(b.y - (narrow ? .82 : .8) * b.ry).toFixed(1)}px`);
+      }
+    }
+    // The branch: it holds the cherry until the first move, then springs back and away, down to the right, while
+    // the cherry stays where it was picked.
+    if (pl) {
+      const go = smooth(.006, .07, p), o = Math.round((1 - smooth(.048, .07, p)) * 500) / 500;
+      if (o > 0) {
+        const b = fruitBox(), k = b.rx / pl.rx, w = stage.clientWidth, h = stage.clientHeight;
+        const dx = go * go * w * .6, dy = go * go * h * .75, turn = pl.turn + go * 9;
+        plant.style.transform = `translate3d(${(b.x + dx).toFixed(1)}px, ${(b.y + dy).toFixed(1)}px, 0) rotate(${turn.toFixed(2)}deg) scale(${k.toFixed(4)}) translate(${-pl.cx}px, ${-pl.cy}px)`;
+      }
+      if (o !== plantShown) {
+        plantShown = o;
+        plant.style.opacity = o;
+        plant.style.visibility = o > 0 ? 'visible' : 'hidden';
       }
     }
     if (intro !== introShown) {
@@ -167,7 +184,8 @@ import { createHero, CHAPTERS } from './hero3d.js';
     }
     // the photograph lies exactly over the model and hands over as the halves begin to part
     if (pic) {
-      const o = three && three.photoReady ? 1 - smooth(.095, .13, p) : (p < .12 ? 1 : 0);
+      // the photograph hands over to the model after the branch has gone and before the halves part
+      const o = three && three.photoReady ? 1 - smooth(.068, .095, p) : (p < .1 ? 1 : 0);
       if (o > 0) {
         const b = fruitBox();
         const w = b.rx / pic.rx, h = w * photo.naturalHeight / Math.max(1, photo.naturalWidth);
