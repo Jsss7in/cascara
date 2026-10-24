@@ -4,7 +4,7 @@ import { createHero } from './hero3d.js';
 
 (() => {
   // ?debug: errors and the progress shown on the page itself (for testing on phones without an inspector)
-  const debug = /[?&]debug\b/.test(location.search);
+  const debug = /[?&]debug=ui\b/.test(location.search);
   const out = debug ? Object.assign(document.createElement('pre'), { style: 'position:fixed;left:8px;top:60px;z-index:99;margin:0;padding:6px 8px;font:11px/1.3 monospace;background:#fffd;color:#300;max-width:90vw;white-space:pre-wrap' }) : null;
   if (out) { document.body.append(out); addEventListener('error', (e) => { out.textContent += `\nERR ${e.message} @${e.lineno}:${e.colno}`; }); }
   const hero = document.querySelector('[data-hero]');

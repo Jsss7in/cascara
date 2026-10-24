@@ -453,7 +453,7 @@ export function createHero(canvas, { onFrame } = {}) {
     // the timeline – one move at a time
     const intro = 1 - smooth(.06, .14, p);
     const explode = ease(.12, .3, p);                 // the layers come apart
-    const open = smooth(.1, .22, p) * (1 - smooth(.41, .48, p));  // the camera frames the exploded view
+    const open = smooth(.1, .22, p) * (1 - smooth(.38, .44, p));  // the camera frames the exploded view
     const beansGo = ease(.38, .46, p);                // the beans leave for the roaster
     const layersGo = smooth(.39, .45, p);             // pulp and parchment go with them
     const together = ease(.41, .49, p);               // the halves close in behind them
