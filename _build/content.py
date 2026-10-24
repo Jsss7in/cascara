@@ -40,8 +40,8 @@ V = {
      ('Koffein', 'natürlich enthalten; wie viel, hängt von Rohstoff und Zubereitung ab'),
  ]),
 
- 'PLAN_LEAD': 'Unser Sirup soll den Geschmack von Cascara ins Glas bringen: mit Wasser verdünnt, im Kaffee '
-              'oder in Drinks. Wir arbeiten an mehreren Sorten; welche es werden, zeigen wir zur Lancierung.',
+ 'PLAN_LEAD': 'Unser Sirup bringt den Geschmack von Cascara ins Glas: mit Wasser verdünnt, im Kaffee oder in '
+              'Drinks. Zum Start gibt es zwei Sorten, das Original und Cozy Spice mit Zimt und Anis. Weitere sollen folgen.',
  'STEPS': steps([
      ('Reifen und ernten', 'Nach der Blüte brauchen Arabica-Kirschen rund sieben bis neun Monate, bis sie reif und rot sind. Dann werden sie geerntet.', 'Auf der Plantage'),
      ('Trennen und trocknen', 'Die Bohnen werden aus der Frucht gelöst. Haut und Fruchtfleisch werden getrocknet: Das ist Cascara.', 'Bei der Aufbereitung'),
@@ -263,14 +263,20 @@ V['SOCIALS'] = ('<ul class="socials" aria-label="Cascarup in den sozialen Medien
 import json
 ORDER_EMAIL = 'info@cascarup.ch'
 V['ORDER_ENDPOINT'] = f'https://formsubmit.co/ajax/{ORDER_EMAIL}'
+# The two kinds we start with (Management Summary: «das Original» and «Cozy Spice mit Zimt und Anis, vom
+# regionalen Gifferstee inspiriert»). Each picture is a studio shot of the bottle in its size, rendered by
+# _build/hero3d/shots.js until the photographs of the real bottles arrive.
 PRODUCTS = [
- dict(id='cascara', name='Cascara', tone='#7a2a0e',
-      text='Der Klassiker aus der Schale der Kaffeekirsche: fruchtig, mit Noten von Honig und Dörrpflaume.',
+ dict(id='cascara', name='Cascara', tag='Das Original',
+      text='Unser Klassiker aus der Schale der Kaffeekirsche: fruchtig, mit Noten von Honig und Dörrpflaume.',
+      notes=['Fruchtig', 'Honig', 'Dörrpflaume'],
       sizes=[(200, 6.95), (500, 12.95)]),
- dict(id='gifferstee', name='Gifferstee', tone='#8a4a16',
-      text='Unsere zweite Sorte.',
+ dict(id='cozy-spice', name='Cozy Spice', tag='Mit Zimt und Anis',
+      text='Cascara mit Zimt und Anis, inspiriert vom Gifferstee aus unserer Region.',
+      notes=['Zimt', 'Anis', 'Cascara'],
       sizes=[(200, 7.95), (500, 13.95)]),
 ]
+SHOT = (1200, 800)   # the studio shots' size in pixels (3:2)
 # What a buyer must be able to read before ordering food online (LIV Art. 44); «folgt» until we have it.
 PRODUCT_FACTS = [
  ('Zutaten', None), ('Allergene', None), ('Füllmenge', '200 ml oder 500 ml'),
@@ -279,44 +285,15 @@ PRODUCT_FACTS = [
 ]
 chf = lambda x: f'{x:.2f}'
 
-# A drawn bottle in the shape of the one in the opening, until the photographs of the real bottles arrive.
-_PROFILE = [(0, 0), (.52, 0), (.6, .03), (.62, .1), (.62, 1.12), (.6, 1.24), (.5, 1.4), (.3, 1.56), (.215, 1.66),
-            (.21, 1.92), (.235, 1.95), (.235, 2.02)]
-
-
-def bottle_svg(name, tone, ml):
-    k = 118 if ml == 500 else 92
-    X = lambda r, side: 100 + side * r * k
-    Y = lambda y: 292 - y * k
-    right = ' '.join(f'{X(r, 1):.1f},{Y(y):.1f}' for r, y in _PROFILE[1:])
-    left = ' '.join(f'{X(r, -1):.1f},{Y(y):.1f}' for r, y in reversed(_PROFILE[1:]))
-    body = f'M{X(0, 1):.1f},{Y(0):.1f} L{right} L{left} Z'
-    fill_top = Y(1.46)
-    lab_t, lab_b = Y(.98), Y(.42)
-    lab_l, lab_w = X(.628, -1), X(.628, 1) - X(.628, -1)
-    cap_t, cap_b = Y(2.29), Y(1.99)
-    uid = f'{name.lower()}{ml}'
-    mid = (lab_t + lab_b) / 2
-    return (
-        f'<svg class="product__bottle" viewBox="0 0 200 300" role="img" aria-label="{name}, {ml} ml">'
-        f'<defs><clipPath id="cl-{uid}"><path d="{body}"/></clipPath>'
-        f'<linearGradient id="sy-{uid}" x1="0" x2="1"><stop offset="0" stop-color="{tone}" stop-opacity=".78"/>'
-        f'<stop offset=".45" stop-color="{tone}"/><stop offset="1" stop-color="#3a1206"/></linearGradient>'
-        f'<linearGradient id="gl-{uid}" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/>'
-        f'<stop offset=".25" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".02"/>'
-        f'<stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs>'
-        f'<ellipse cx="100" cy="293" rx="{.78 * k:.0f}" ry="6" fill="#3a2116" opacity=".16"/>'
-        f'<g clip-path="url(#cl-{uid})"><rect x="0" y="{fill_top:.1f}" width="200" height="{300 - fill_top:.1f}" fill="url(#sy-{uid})"/></g>'
-        f'<path d="{body}" fill="url(#gl-{uid})" stroke="#3a2116" stroke-opacity=".22" stroke-width="1.2"/>'
-        f'<rect x="{lab_l:.1f}" y="{lab_t:.1f}" width="{lab_w:.1f}" height="{lab_b - lab_t:.1f}" fill="#F7F0E4"/>'
-        f'<rect x="{lab_l:.1f}" y="{lab_t + 4:.1f}" width="{lab_w:.1f}" height="1.6" fill="#9C4B23"/>'
-        f'<rect x="{lab_l:.1f}" y="{lab_b - 5.6:.1f}" width="{lab_w:.1f}" height="1.6" fill="#9C4B23"/>'
-        f'<text x="100" y="{mid - 2:.1f}" text-anchor="middle" font-family="DynaPuff, sans-serif" font-weight="700" '
-        f'font-size="{k * .19:.1f}" fill="#9C4B23">Cascarup</text>'
-        f'<text x="100" y="{mid + k * .13:.1f}" text-anchor="middle" font-family="Jost, sans-serif" font-size="{k * .07:.1f}" '
-        f'letter-spacing="1.5" fill="#3a2116">{name.upper()} · {ml} ML</text>'
-        f'<rect x="{X(.262, -1):.1f}" y="{cap_t:.1f}" width="{X(.262, 1) - X(.262, -1):.1f}" height="{cap_b - cap_t:.1f}" rx="3" fill="#9C4B23"/>'
-        '</svg>')
+# small line icons for what comes with every order, in the drawn style of the drink icons
+PERKS = [
+ ('Abholen', 'An einem unserer Stände oder am Collège Saint-Michel.',
+  '<path d="M12 27h40l-4 29H16z"/><path d="M23 27v-6a9 9 0 0 1 18 0v6"/><path d="M25 39c2 3 12 3 14 0"/>'),
+ ('Bezahlen', 'Erst bei der Abholung, bar oder mit TWINT.',
+  '<rect x="9" y="19" width="46" height="30" rx="5"/><path d="M9 28h46"/><path d="M17 40h10"/><circle cx="45" cy="40" r="3.5"/>'),
+ ('Von Hand', 'In kleinen Chargen in Fribourg abgefüllt, jede mit eigener Nummer.',
+  '<path d="M27 8h10v8l4 6v32a4 4 0 0 1-4 4H27a4 4 0 0 1-4-4V22l4-6z"/><path d="M23 32h18v14H23z"/><path d="M27 8h10"/>'),
+]
 
 
 def shop():
@@ -325,19 +302,25 @@ def shop():
         data = json.dumps({'id': pr['id'], 'name': pr['name'],
                            'sizes': [{'ml': ml, 'price': price} for ml, price in pr['sizes']]}, ensure_ascii=False)
         sizes = ''.join(
-            f'<button type="button" class="product__size" data-size="{ml}" aria-pressed="{str(i == 0).lower()}">{ml} ml</button>'
-            for i, (ml, _) in enumerate(pr['sizes']))
+            f'<button type="button" class="product__size" data-size="{ml}" aria-pressed="{str(i == 0).lower()}">'
+            f'<span class="product__ml">{ml} ml</span><span class="product__each">CHF {chf(price)}</span></button>'
+            for i, (ml, price) in enumerate(pr['sizes']))
         shots = ''.join(
-            f'<div class="product__shot" data-shot="{ml}"{"" if i == 0 else " hidden"}>{bottle_svg(pr["name"], pr["tone"], ml)}</div>'
+            f'<img class="product__shot{" is-shown" if i == 0 else ""}" data-shot="{ml}" src="assets/shop/{pr["id"]}-{ml}.webp" '
+            f'width="{SHOT[0]}" height="{SHOT[1]}" alt="{pr["name"]}, Flasche mit {ml} ml" loading="lazy" decoding="async">'
             for i, (ml, _) in enumerate(pr['sizes']))
+        notes = ''.join(f'<li>{t}</li>' for t in pr['notes'])
         cards.append(
-            f'        <article class="product" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
-            f'          <div class="product__media">{shots}</div>\n'
+            f'        <article class="product product--{pr["id"]}" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
+            f'          <div class="product__stage"><p class="product__tag">{pr["tag"]}</p>{shots}</div>\n'
             '          <div class="product__body">\n'
-            f'            <h3 class="product__name">{pr["name"]}</h3>\n'
+            '            <div class="product__top">\n'
+            f'              <h3 class="product__name">{pr["name"]}</h3>\n'
+            f'              <p class="product__price" data-price>CHF {chf(pr["sizes"][0][1])}</p>\n'
+            '            </div>\n'
             f'            <p class="product__text">{pr["text"]}</p>\n'
+            f'            <ul class="product__notes" aria-label="Geschmack">{notes}</ul>\n'
             f'            <div class="product__sizes" role="group" aria-label="Grösse">{sizes}</div>\n'
-            f'            <p class="product__price" data-price>CHF {chf(pr["sizes"][0][1])}</p>\n'
             '            <div class="product__buy">\n'
             '              <div class="qty" data-qty>\n'
             '                <button type="button" data-step="-1" aria-label="Eine Flasche weniger">−</button>\n'
@@ -351,6 +334,10 @@ def shop():
     facts = '\n'.join(
         f'            <div><dt>{k}</dt><dd>{v if v else chr(60) + "span class=" + chr(34) + "muted" + chr(34) + ">folgt</span>"}</dd></div>'
         for k, v in PRODUCT_FACTS)
+    perks = '\n'.join(
+        f'          <li data-reveal style="--d:{i}"><svg viewBox="0 0 64 64" aria-hidden="true">{svg.replace("<path ", "<path pathLength=" + chr(34) + "1" + chr(34) + " ")}</svg>'
+        f'<div><h3>{t}</h3><p>{p}</p></div></li>'
+        for i, (t, p, svg) in enumerate(PERKS))
     return (
         '    <!-- The shop: two kinds, two sizes; ordered here, collected at a stand or at school, paid on collection -->\n'
         '    <section class="shop" data-tone="terra" id="shop" aria-labelledby="shop-title">\n'
@@ -359,16 +346,64 @@ def shop():
         '          <p class="eyebrow" data-reveal>Shop</p>\n'
         '          <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>\n'
         '          <p class="shop__intro" data-reveal style="--d:2">Zwei Sorten, zwei Grössen. Bestell hier und hol deine Flaschen '
-        'an einem unserer Stände oder am Collège Saint-Michel ab. Bezahlt wird bei der Abholung, bar oder mit TWINT.</p>\n'
+        'an einem unserer Stände oder am Collège Saint-Michel ab. Bezahlt wird erst bei der Abholung.</p>\n'
         '        </header>\n'
         '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
+        '        <ul class="shop__perks">\n' + perks + '\n        </ul>\n'
         '        <details class="shop__facts">\n'
         '          <summary>Zutaten und Hinweise</summary>\n'
         '          <dl class="facts">\n' + facts + '\n          </dl>\n'
         '        </details>\n'
         '        <p class="shop__note">Alle Preise in Schweizer Franken. Mit der Bestellung akzeptierst du unsere '
         '<a href="bestellbedingungen.html">Bestellbedingungen</a>.</p>\n'
-        f'        <div class="shop__social"><p>Neues von uns: <strong>@{HANDLE}</strong></p>{V["SOCIALS"]}</div>\n'
+        '      </div>\n'
+        '    </section>')
+
+
+# ---------------------------------------------------------------------------
+# The team (Management Summary, autumn 2026). The portraits come from it, cut out as in the document.
+TEAM = [
+ ('joel', 'Joël Schaller', 'CEO', (110, 131)),
+ ('luis', 'Luis Brülhart', 'CMO · stv. CEO', (95, 123)),
+ ('lucile', 'Lucile Bapst', 'CAO', (124, 123)),
+ ('jaelle', 'Jaëlle Brügger', 'CFO', (124, 118)),
+ ('justin', 'Justin Meissner', 'CTO', (106, 118)),
+ ('niklas', 'Niklas Broch', 'CPO', (110, 117)),
+]
+V['TEAM_P'] = ('Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Fribourg. Im Rahmen unserer '
+               'Maturaarbeit und des YES Company Programme haben wir Cascarup gegründet. Jede und jeder von uns führt '
+               'einen eigenen Bereich und bringt die eigenen Stärken ein.')
+
+
+# the programme in one paragraph (the first sentence of PROJECT_P1 would repeat TEAM_P)
+V['TEAM_P2'] = ('Im Company Programme von Young Enterprise Switzerland gründen und führen Schülerinnen und Schüler '
+                'zwischen 16 und 20 Jahren während eines Schuljahres ein eigenes Miniunternehmen. ' + V['PROJECT_P2'])
+
+
+def team():
+    people = '\n'.join(
+        f'          <li class="member" data-reveal style="--d:{i}">\n'
+        f'            <div class="member__pic"><img src="assets/team/{key}.webp" alt="{name}" width="{w}" height="{h}" loading="lazy" decoding="async"></div>\n'
+        f'            <p class="member__role">{role}</p>\n'
+        f'            <h3 class="member__name">{name}</h3>\n'
+        '          </li>'
+        for i, (key, name, role, (w, h)) in enumerate(TEAM))
+    return (
+        '    <!-- The team: six students, one company -->\n'
+        '    <section class="team" data-tone="paper" id="team" aria-labelledby="team-title">\n'
+        '      <div class="team__inner">\n'
+        '        <div class="team__head">\n'
+        '          <div class="team__copy">\n'
+        '            <p class="eyebrow" data-reveal>Das Team</p>\n'
+        '            <h2 class="display" id="team-title" data-reveal style="--d:1">Ein Schuljahr.<br>Ein echtes <em>Unternehmen.</em></h2>\n'
+        f'            <p data-reveal style="--d:2">{V["TEAM_P"]}</p>\n'
+        f'            <p data-reveal style="--d:3">{V["TEAM_P2"]}</p>\n'
+        '          </div>\n'
+        f'          <dl class="team__facts" data-reveal style="--d:2">\n            {V["PROJECT_FACTS"]}\n          </dl>\n'
+        '        </div>\n'
+        '        <span class="ranke" aria-hidden="true"></span>\n'
+        '        <ul class="team__grid">\n' + people + '\n        </ul>\n'
+        f'        <div class="team__social"><p>Neues von uns: <strong>@{HANDLE}</strong></p>{V["SOCIALS"]}</div>\n'
         f'        {ig_feed()}\n'
         '      </div>\n'
         '    </section>')
@@ -435,3 +470,4 @@ V['IG_FEED'] = ig_feed()
 V['STANDS'] = stands()
 V['SHOP'] = shop()
 V['CART'] = cart()
+V['TEAM'] = team()

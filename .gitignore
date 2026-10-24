@@ -2,3 +2,4 @@
 __pycache__/
 _dev/
 _build/maps/*.json
+_build/hero3d/shots.bundle.js

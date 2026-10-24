@@ -116,6 +116,26 @@
     }
   }
 
+  // The menu on phones: a sheet with the page's chapters. A chosen chapter is reached once the sheet has closed
+  // (while it is open the page beneath cannot scroll).
+  const menuSheet = document.querySelector('[data-menu]');
+  if (menuSheet && menuSheet.showModal) {
+    const close = () => menuSheet.open && menuSheet.close();
+    menuSheet.addEventListener('close', () => root.classList.remove('has-menu'));
+    document.querySelector('[data-menu-open]')?.addEventListener('click', () => { menuSheet.showModal(); root.classList.add('has-menu'); });
+    menuSheet.querySelector('[data-menu-close]')?.addEventListener('click', close);
+    menuSheet.addEventListener('click', (e) => { if (e.target === menuSheet) close(); });   // a tap beside the sheet
+    menuSheet.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', (e) => {
+      const target = document.getElementById(a.hash.slice(1));
+      if (!target) return;
+      e.preventDefault();
+      // the page must be scrollable again before it can glide there ('close' arrives a moment later)
+      root.classList.remove('has-menu');
+      close();
+      setTimeout(() => { target.scrollIntoView(); history.replaceState(null, '', a.hash); }, 30);
+    }));
+  }
+
   // Drinks on phones: tabs jump the card row; swiping moves the active tab along.
   const menu = document.querySelector('[data-drinks-menu]');
   const tabs = [...document.querySelectorAll('[data-drinks-tab]')];

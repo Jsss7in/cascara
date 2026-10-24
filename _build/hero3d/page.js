@@ -8,12 +8,19 @@ import { createHero, CHAPTERS } from './hero3d.js';
   // ?debug=ui: errors and the 3D state shown on the page itself (for testing on phones without an inspector)
   const debug = /[?&]debug=ui\b/.test(location.search);
   const out = debug ? Object.assign(document.createElement('pre'), { style: 'position:fixed;left:8px;top:60px;z-index:99;margin:0;padding:6px 8px;font:11px/1.3 monospace;background:#fffd;color:#300;max-width:90vw;white-space:pre-wrap' }) : null;
-  if (out) { document.body.append(out); addEventListener('error', (e) => { out.textContent += `\nERR ${e.message} @${e.lineno}:${e.colno}`; }); }
+  if (out) {
+    document.body.append(out);
+    addEventListener('error', (e) => { out.textContent += `\nERR ${e.message} @${e.lineno}:${e.colno}`; });
+    // which element each tap reaches (touch screens only show what they do, not why)
+    for (const ev of ['pointerdown', 'click']) addEventListener(ev, (e) => { out.dataset.taps = `${out.dataset.taps || ''} ${ev}:${e.target.tagName}.${String(e.target.className).split(' ')[0]}`.slice(-220); }, true);
+  }
   const hero = document.querySelector('[data-hero]');
   if (!hero) return;
   const stage = hero.querySelector('[data-hero-stage]');
   const canvas = hero.querySelector('[data-hero-canvas]');
   const photo = hero.querySelector('[data-hero-cherry]');
+  const cue = hero.querySelector('[data-hero-cue]');       // «Scroll für mehr», under the cherry
+  const name = hero.querySelector('[data-hero-name]');     // the cherry's name, on its first screen
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -43,7 +50,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
   }
   if (!three) { hero.classList.add('is-flat'); if (out) out.textContent = 'kein WebGL'; return; }
   if (out) setInterval(() => {
-    out.textContent = JSON.stringify(three.state()) + ` reduce=${reduce} y=${Math.round(scrollY)} cls=${hero.className}`;
+    out.textContent = JSON.stringify(three.state()) + ` reduce=${reduce} y=${Math.round(scrollY)} cls=${hero.className}\n${out.dataset.taps || ''}`;
   }, 400);
   hero.classList.add('is-3d');
   three.background = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#E6D3B7';
@@ -110,8 +117,28 @@ import { createHero, CHAPTERS } from './hero3d.js';
 
   // Words follow the 3D scene's own (softly following) progress, so they never run ahead of the picture.
   // Only what changes is written, and only on these few elements.
-  let photoShown = -1;
+  let photoShown = -1, introShown = -1;
   function onFrame(p, labels, fruitBox) {
+    // the first screen: the cherry is named, and beneath it the invitation to scroll; both go with the first move
+    const intro = Math.round((1 - smooth(.012, .05, p)) * 500) / 500;
+    if (intro > 0 && (cue || name)) {
+      const b = fruitBox(), h = stage.clientHeight;
+      if (cue) {
+        cue.style.setProperty('--x', `${b.x.toFixed(1)}px`);
+        cue.style.setProperty('--y', `${Math.min(b.y + b.ry + 30, h - 76).toFixed(1)}px`);
+      }
+      if (name) {
+        // on the side of the fruit with room for the words
+        const right = b.x - b.rx < 230;
+        name.classList.toggle('is-right', right);
+        name.style.setProperty('--x', `${(b.x + (right ? .66 : -.66) * b.rx).toFixed(1)}px`);
+        name.style.setProperty('--y', `${(b.y + b.ry * .36).toFixed(1)}px`);
+      }
+    }
+    if (intro !== introShown) {
+      introShown = intro;
+      for (const el of [cue, name]) if (el) { el.style.opacity = intro; el.style.visibility = intro > 0 ? 'visible' : 'hidden'; }
+    }
     for (const b of beats) {
       const [a, bb, c, d] = b.win;
       const o = Math.round((d >= 1 ? smooth(a, bb, p) : span(a, bb, c, d, p)) * 500) / 500;

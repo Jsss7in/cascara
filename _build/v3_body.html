@@ -13,8 +13,8 @@
       <ul class="nav__links">
         <li><a href="#cascara">Cascara</a></li>
         <li><a href="#ideen">Ideen</a></li>
-        <li><a href="#projekt">Projekt</a></li>
         <li><a href="#staende">Stände</a></li>
+        <li><a href="#team">Team</a></li>
       </ul>
       <a class="nav__mark" href="#top" aria-label="Cascara – zum Seitenanfang">
         <svg class="mark" viewBox="{{LOGO_VB}}" aria-hidden="true">
@@ -22,9 +22,33 @@
           <use class="mark__ink" href="#lg-line" mask="url(#nav-mask)"/>
         </svg>
       </a>
-      <a class="nav__cta" href="#shop">Shop</a>
+      <div class="nav__end">
+        <a class="nav__cta" href="#shop">Shop</a>
+        <button class="nav__menu" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu"><span>Menü</span><i aria-hidden="true"></i></button>
+      </div>
     </nav>
   </header>
+
+  <!-- the menu on phones: the page's chapters, large, and the ways to reach us -->
+  <dialog class="menu" id="menu" data-menu aria-label="Menü">
+    <div class="menu__inner" tabindex="-1" autofocus>
+      <div class="menu__head">
+        <svg class="menu__logo" viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>
+        <button class="menu__close" type="button" data-menu-close aria-label="Menü schliessen">×</button>
+      </div>
+      <ol class="menu__list">
+        <li><a href="#shop" data-menu-link><span>Shop</span><small>Zwei Sorten, zwei Grössen</small></a></li>
+        <li><a href="#cascara" data-menu-link><span>Cascara</span><small>Was die Schale kann</small></a></li>
+        <li><a href="#ideen" data-menu-link><span>Ideen</span><small>Heiss, kalt oder im Punsch</small></a></li>
+        <li><a href="#staende" data-menu-link><span>Stände</span><small>Wo du uns findest</small></a></li>
+        <li><a href="#team" data-menu-link><span>Team</span><small>Wer hinter Cascarup steht</small></a></li>
+      </ol>
+      <div class="menu__foot">
+        {{SOCIALS}}
+        <a class="menu__mail" href="mailto:info@cascarup.ch">info@cascarup.ch</a>
+      </div>
+    </div>
+  </dialog>
 
   <main id="main">
 
@@ -40,6 +64,7 @@
         <div class="hero__copy" data-beat="-1,-.5,.04,.1">
           <p class="eyebrow hero__eyebrow">Cascara · Fribourg</p>
           <h1 class="hero__brand" id="hero-title">Cascarup</h1>
+          <p class="hero__claim">Die Kaffeekirsche kann mehr.</p>
           <p class="hero__lede">Sirup aus der Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.</p>
           <div class="hero__actions">
             <a class="button button--solid" href="#shop">Zum Shop</a>
@@ -57,7 +82,7 @@
 
         <p class="hero__beat" data-beat=".37,.4,.49,.52"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
         <p class="hero__beat" data-beat=".53,.56,.66,.69"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
-        <p class="hero__beat" data-beat=".71,.74,.84,.87"><span class="eyebrow">Der Sirup</span>Daraus kochen wir unseren Sirup.</p>
+        <p class="hero__beat" data-beat=".7,.73,.84,.87"><span class="eyebrow">Der Sirup</span>Aufgegossen und eingekocht wird sie zu <em>Sirup.</em></p>
 
         <div class="hero__end" data-beat=".89,.94,1,1">
           <p class="hero__end-brand">Cascarup</p>
@@ -68,9 +93,12 @@
           </div>
         </div>
 
-        <p class="hero__scroll" data-beat="-1,-.5,.02,.06" aria-hidden="true"><span>Scrollen</span></p>
+        <p class="hero__name" data-hero-name aria-hidden="true"><b>Kaffeekirsche</b><i>Coffea arabica</i></p>
+        <p class="hero__scroll" data-hero-cue aria-hidden="true"><span>Scroll für mehr</span></p>
       </div>
     </section>
+
+{{SHOP}}
 
     <section class="intro" data-tone="paper" id="cascara" aria-labelledby="intro-title">
       <p class="eyebrow" data-reveal>Cáscara – spanisch für Schale</p>
@@ -100,7 +128,7 @@
     <section class="plan" data-tone="paper" aria-labelledby="plan-title">
       <div class="plan__head">
         <p class="eyebrow" data-reveal>Unser Vorhaben</p>
-        <h2 class="display" id="plan-title" data-reveal style="--d:1">Ein Sirup.<br>Mehrere Sorten.</h2>
+        <h2 class="display" id="plan-title" data-reveal style="--d:1">Ein Sirup.<br>Zwei Sorten.</h2>
         <figure class="plan__media" data-reveal style="--d:2">
           <img src="assets/photos/bluete.jpg" srcset="assets/photos/bluete-900.jpg 900w, assets/photos/bluete.jpg 1800w" sizes="(max-width: 900px) 100vw, 40vw" alt="Kaffeezweig mit weissen Blüten und einer reifen Kirsche" width="1800" height="1200" loading="lazy" decoding="async">
           <figcaption>Blüte und Frucht am selben Zweig</figcaption>
@@ -116,22 +144,9 @@
 
 {{DRINKS}}
 
-    <!-- The project -->
-    <section class="project" data-tone="paper" id="projekt" aria-labelledby="projekt-title">
-      <div class="project__copy">
-        <p class="eyebrow" data-reveal>Das Projekt</p>
-        <h2 class="display" id="projekt-title" data-reveal style="--d:1">Ein Schuljahr.<br>Ein echtes Unternehmen.</h2>
-        <p data-reveal style="--d:2">{{PROJECT_P1}}</p>
-        <p data-reveal style="--d:3">{{PROJECT_P2}}</p>
-      </div>
-      <dl class="project__facts" data-reveal style="--d:2">
-        {{PROJECT_FACTS}}
-      </dl>
-    </section>
-
 {{STANDS}}
 
-{{SHOP}}
+{{TEAM}}
   </main>
 
   <footer class="footer" data-tone="terra">
@@ -146,11 +161,11 @@
       <nav class="footer__nav" aria-label="Seite">
         <p class="eyebrow">Seite</p>
         <ul>
+          <li><a href="#shop">Shop</a></li>
           <li><a href="#cascara">Cascara</a></li>
           <li><a href="#ideen">Ideen</a></li>
-          <li><a href="#projekt">Projekt</a></li>
           <li><a href="#staende">Stände</a></li>
-          <li><a href="#shop">Shop</a></li>
+          <li><a href="#team">Team</a></li>
         </ul>
       </nav>
       <nav class="footer__nav" aria-label="Rechtliches">

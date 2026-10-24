@@ -6,7 +6,7 @@
   const dialog = document.querySelector('[data-cart]');
   if (!products.length || !dialog) return;
 
-  const KEY = 'cascarup.cart.v1';
+  const KEY = 'cascarup.cart.v2';   // v2: the second kind is called Cozy Spice
   const fmt = (x) => `CHF ${x.toFixed(2)}`;
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* private mode: the basket lives as long as the page */ } };
@@ -36,7 +36,7 @@
     const pick = (m) => {
       ml = m;
       sizes.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.size === m)));
-      shots.forEach((s) => { s.hidden = +s.dataset.shot !== m; });
+      shots.forEach((s) => s.classList.toggle('is-shown', +s.dataset.shot === m));   // one shot fades into the other
       price.textContent = fmt(data.sizes.find((s) => s.ml === m).price);
     };
     sizes.forEach((b) => b.addEventListener('click', () => pick(+b.dataset.size)));
