@@ -3,6 +3,22 @@
   "src": "src/zweig.png"
  },
  "hero": "../../assets/cherry/kirsche.webp",
+ "hole": {
+  "src": "../../assets/cherry/kirsche.webp",
+  "matrix": [
+   0.923214043,
+   0.38428613,
+   -0.38428613,
+   0.923214043,
+   655.85,
+   -285.21
+  ],
+  "centre": [
+   883.11,
+   481.39
+  ],
+  "shrink": 0.985
+ },
  "layers": [
   {
    "src": "src/blatt-1.png",

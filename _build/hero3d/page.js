@@ -131,7 +131,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
       if (cue) {
         // at the foot of the picture, below the cherry
         cue.style.setProperty('--x', `${b.x.toFixed(1)}px`);
-        cue.style.setProperty('--y', `${(h - (narrow ? 64 : 76)).toFixed(1)}px`);
+        cue.style.setProperty('--y', `${(h - (narrow ? 92 : 76)).toFixed(1)}px`);
       }
       if (name) {
         // beside the cherry where there is room for the words; on a phone above it, under the buttons
@@ -216,6 +216,12 @@ import { createHero, CHAPTERS } from './hero3d.js';
   if (reduce) { three.jump(0); three.stop(); }
   else three.begin();
   if (photo && !photo.complete) photo.addEventListener('load', () => three.jump(three.progress), { once: true });
-  // the cherry fades in once the page is ready, together with the words
+  // the cherry fades in once the page is ready, together with the words; the real cherry and its branch arrive
+  // together, once the branch's picture is there (never the cherry alone, then the branch popping in)
   requestAnimationFrame(() => hero.classList.add('is-ready'));
+  const arrive = () => { hero.classList.add('has-plant'); setTimeout(() => hero.classList.add('is-settled'), 1000); };
+  // loaded is not enough: a large picture is painted only once it is decoded
+  if (!plant) arrive();
+  else (plant.decode ? plant.decode() : Promise.resolve()).then(arrive, () => plant.addEventListener('load', arrive, { once: true }));
+  setTimeout(arrive, 4000);   // never keep the cherry hidden for long
 })();

@@ -9,4 +9,6 @@ layers = [
  fruit('kirsche-extra-1', (-150, 150), 250, -12, z=2),            # a ripe one peeking out behind the hero
  fruit('kirsche-extra-3', (-62, 480), 175, 8, z=2),               # a green one hanging under the branch
 ]
-json.dump({'zweig': {'src': 'src/zweig.png'}, 'hero': '../../assets/cherry/kirsche.webp', 'layers': layers}, open('v3.json', 'w'), indent=1)
+# the mirrored kirsche.webp in the plate (its matrix in canvas order a, b, c, d, e, f), for the hole under it
+HOLE = dict(src='../../assets/cherry/kirsche.webp', matrix=[0.923214043, 0.38428613, -0.38428613, 0.923214043, 655.85, -285.21], centre=[883.11, 481.39], shrink=.985)
+json.dump({'zweig': {'src': 'src/zweig.png'}, 'hero': '../../assets/cherry/kirsche.webp', 'hole': HOLE, 'layers': layers}, open('v3.json', 'w'), indent=1)

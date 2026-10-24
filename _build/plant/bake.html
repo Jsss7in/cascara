@@ -39,6 +39,16 @@ window.bake = async (cfg, S, cropX) => {
     for (const it of items.filter((i) => i.z === z)) draw(it);
     if (z === 1) branch();
   }
+  // where the hero cherry lies, the picture is left empty (a hair inside its outline): the real cherry is laid on
+  // top by the page, and while both fade in or out nothing of the leaves behind it shows through it
+  if (cfg.hole) {
+    const k = await load(cfg.hole.src), [a, b, c, d, e, f] = cfg.hole.matrix, [hx, hy] = cfg.hole.centre, sh = cfg.hole.shrink || .985;
+    g.save(); shade(false); g.globalCompositeOperation = 'destination-out';
+    g.translate(hx, hy); g.scale(sh, sh); g.translate(-hx, -hy);
+    g.transform(a, b, c, d, e, f);
+    g.drawImage(k, 0, 0, 1011, 1253);
+    g.restore(); g.globalCompositeOperation = 'source-over';
+  }
   // beyond cropX the branch fades out, so on very wide screens it ends softly instead of in a cut
   g.setTransform(S, 0, 0, S, -x0 * S, -y0 * S); shade(false);
   g.globalCompositeOperation = 'destination-in';

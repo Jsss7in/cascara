@@ -304,6 +304,9 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* its branch, in the branch picture's own pixels; page.js scales and places it so its cherry is this one */
 .hero__plant { position: absolute; z-index: 1; left: 0; top: 0; max-width: none; height: auto; transform-origin: 0 0; pointer-events: none; will-change: transform, opacity; visibility: hidden; }
 .hero.is-flat .hero__plant { display: none; }
+/* the photographs come in together, softly, once the branch's picture has loaded (page.js) */
+.hero.is-3d:not(.has-plant) :is(.hero__cherry, .hero__plant) { opacity: 0 !important; }
+.hero.is-3d:not(.is-settled) :is(.hero__cherry, .hero__plant) { transition: opacity .8s var(--ease); }
 /* without WebGL the opening is a still: the words beside the real cherry */
 .hero.is-flat .hero__cherry { visibility: visible; left: auto; right: calc(var(--gutter) + 6vw); top: 50%; width: min(26vw, 340px); transform: translateY(-50%); filter: drop-shadow(0 30px 28px rgba(58, 33, 22, .22)); }
 @media (max-width: 900px) { .hero.is-flat .hero__cherry { right: auto; left: 50%; top: auto; bottom: 6svh; width: min(52vw, 240px); transform: translateX(-50%); } }
@@ -860,6 +863,12 @@ html:has(.is-legal) { background: var(--paper); }
    into the flat colour Safari shows above it, which the hero keeps equal to what that edge shows (--top). */
 .hero { --top: 230, 211, 183; }
 @media (pointer: coarse) {
+  /* at its foot the stage stops short of the screen's edge (see below): the branch fades into the paper there
+     instead of ending on a cut line */
+  .hero__stage::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 56px; z-index: 3; pointer-events: none;
+    background: linear-gradient(rgba(230, 211, 183, 0), rgba(230, 211, 183, .7) 55%, rgb(230, 211, 183));
+  }
   .hero__stage::before {
     content: ""; position: absolute; left: 0; right: 0; top: 0; height: 44px; z-index: 3; pointer-events: none;
     background: linear-gradient(rgb(var(--top)) 0%, rgba(var(--top), .84) 16%, rgba(var(--top), .58) 36%,
