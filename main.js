@@ -40,23 +40,17 @@
     // Safari colours its status bar from the bar's background colour (not the picture drawn over it), so
     // that colour is whichever section fills most of the bar; a sliver at the top never decides it.
     const main = split <= h * 0.5 ? under : top;
-    // With a mouse there is no status bar to colour, so over the hero the bar is simply clear – also once the
-    // stage scrolls on, where a painted bar would lie as a dark band across the photograph and vanish the
-    // moment the stage pins again on the way back up.
-    const released = hero && hero.classList.contains('is-released');
-    const clear = !touch.matches && !!hero;
-    const css = (c, el) => (clear && el === hero ? 'transparent' : `rgb(${c})`);
-    nav.style.setProperty('--nav-c', css(top, above));
-    nav.style.setProperty('--nav-c2', css(under, below));
-    nav.style.setProperty('--nav-main', css(main, split <= h * 0.5 ? below : above));
+    // The opening is paper like the bar, so the bar is simply the colour of what lies beneath, there too.
+    const css = (c) => `rgb(${c})`;
+    nav.style.setProperty('--nav-c', css(top));
+    nav.style.setProperty('--nav-c2', css(under));
+    nav.style.setProperty('--nav-main', css(main));
     nav.style.setProperty('--nav-split', `${split.toFixed(1)}px`);
     // the links take the contrast of what runs behind them, their own line
     const inner = nav.firstElementChild;
     const behindText = split <= inner.offsetTop + inner.offsetHeight / 2 ? below : above;
     const textColour = behindText === below ? under : top;
-    // (on the pinned stage the links stay light over the story; once it scrolls on, the colour beneath decides,
-    // so they turn dark in time where the photograph dissolves into paper)
-    nav.dataset.ink = light(textColour) && !(clear && behindText === hero && !released) ? 'dark' : 'light';
+    nav.dataset.ink = light(textColour) ? 'dark' : 'light';
   }
 
   // With a mouse the bar stays pinned. On touch screens it sits at the top of the page and scrolls away with

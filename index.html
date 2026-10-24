@@ -21,7 +21,7 @@
   <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/fonts.css">
-  <link rel="stylesheet" href="styles.css?v=20261009155237">
+  <link rel="stylesheet" href="styles.css?v=20261024203407">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -53,78 +53,47 @@
 
   <main id="main">
 
-    <!-- Coming soon: a coffee cherry in cross-section. Scrolling sends the beans away,
-         leaves the skin – cascara – and opens it onto the photograph (hero.js). -->
-    <section class="hero" id="top" data-hero data-tone="terra" aria-labelledby="hero-title">
+    <!-- The opening: a coffee cherry in 3D comes apart layer by layer. The beans leave for the roaster, the skin
+         stays, dries into cascara and becomes our syrup (hero3d.js; the words come and go with the story). -->
+    <section class="hero" id="top" data-hero data-tone="paper" aria-labelledby="hero-title">
       <div class="hero__stage" data-hero-stage>
-        <figure class="hero__photo" data-hero-photo>
-          <img src="assets/photos/kaffeekirschen.jpg" srcset="assets/photos/kaffeekirschen-1280.jpg 1280w, assets/photos/kaffeekirschen.jpg 2560w" sizes="(max-aspect-ratio: 3/2) 155vh, 100vw" alt="Eine Traube reifer, roter Kaffeekirschen mit Regentropfen an einem Zweig" width="2560" height="1707" decoding="async">
-        </figure>
+        <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
 
-        <div class="hero__fruit" data-fruit aria-hidden="true">
-          <svg class="fruit" viewBox="-750 -750 2000 2000">
-            <g class="fruit__stem">
-              <path class="fruit__stalk" d="M250 86 C249 64 252 46 260 30"/>
-              <path class="fruit__leaf" d="M258 40 C282 8 334 -2 372 12 C352 44 306 60 258 40 Z"/>
-              <path class="fruit__rib" d="M262 39 C296 26 330 18 360 15"/>
-            </g>
-            <g class="fruit__pulp">
-              <ellipse cx="250" cy="274" rx="170" ry="186"/>
-              <ellipse class="fruit__fibre" cx="250" cy="274" rx="160" ry="176"/>
-              <ellipse class="fruit__fibre" cx="250" cy="274" rx="152" ry="168"/>
-              <ellipse class="fruit__fibre" cx="250" cy="274" rx="144" ry="160"/>
-            </g>
-            <clipPath id="fruit-inside"><ellipse cx="250" cy="274" rx="168" ry="184"/></clipPath>
-            <g class="fruit__beans" clip-path="url(#fruit-inside)">
-            <g class="fruit__bean fruit__bean--l">
-              <path class="fruit__parch" d="M241 160 C176 158 118 204 118 274 C118 346 176 390 241 388 C249 330 249 218 241 160 Z"/>
-              <path class="fruit__seed" d="M238 174 C182 174 133 214 133 274 C133 336 182 374 238 374 C245 324 245 224 238 174 Z"/>
-              <path class="fruit__fold" d="M238 212 C204 216 194 250 213 268 C230 284 237 300 222 324"/>
-            </g>
-            <g class="fruit__bean fruit__bean--r">
-              <path class="fruit__parch" d="M259 160 C324 158 382 204 382 274 C382 346 324 390 259 388 C251 330 251 218 259 160 Z"/>
-              <path class="fruit__seed" d="M262 174 C318 174 367 214 367 274 C367 336 318 374 262 374 C255 324 255 224 262 174 Z"/>
-              <path class="fruit__fold" d="M262 336 C296 332 306 298 287 280 C270 264 263 248 278 224"/>
-            </g>
-            </g>
-            <ellipse class="fruit__skin" cx="250" cy="274" rx="178" ry="194" pathLength="1"/>
-            <g class="fruit__labels-in"><g class="fruit__labels">
-              <g class="fruit__label"><path d="M425 210 L470 182 L524 182"/><circle cx="425" cy="210" r="3"/><text x="476" y="175">HAUT</text></g>
-              <g class="fruit__label"><path d="M400 330 L470 372 L560 372"/><circle cx="400" cy="330" r="3"/><text x="476" y="365">FRUCHTFLEISCH</text></g>
-              <g class="fruit__label"><path d="M160 300 L60 392 L-12 392"/><circle cx="160" cy="300" r="3"/><text x="-12" y="385">BOHNE</text></g>
-            </g></g>
-          </svg>
-        </div>
-
-        <div class="hero__copy">
+        <div class="hero__copy" data-beat="-1,-.5,.05,.12">
           <p class="eyebrow hero__eyebrow">Cascara · Fribourg</p>
-          <h1 class="hero__title" id="hero-title">
-            <span class="line"><span>Coming</span></span>
-            <span class="line"><span><em>soon.</em></span></span>
-          </h1>
-          <p class="hero__lede">Wir entwickeln einen Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.</p>
-          <a class="button hero__cta" href="#warteliste">Auf die Warteliste</a>
+          <h1 class="hero__brand" id="hero-title">Cascarup</h1>
+          <p class="hero__lede">Sirup aus der Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.</p>
+          <div class="hero__actions">
+            <a class="button button--solid" href="#warteliste">Auf die Warteliste</a>
+            <a class="hero__more" href="#cascara">Was ist Cascara?</a>
+          </div>
         </div>
 
-        <div class="hero__story" aria-hidden="true">
-          <p class="hero__beat hero__beat--1"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
-          <p class="hero__beat hero__beat--2"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
+        <div class="hero__parts" aria-hidden="true">
+          <span class="hero__part hero__part--r" data-part="haut"><b>Haut</b></span>
+          <span class="hero__part hero__part--r" data-part="fleisch"><b>Fruchtfleisch</b></span>
+          <span class="hero__part hero__part--l" data-part="pergament"><b>Pergamenthaut</b></span>
+          <span class="hero__part hero__part--l" data-part="bohne"><b>Bohne</b></span>
+        </div>
+        <p class="hero__caption" data-beat=".24,.3,.34,.38">Eine Kaffeekirsche, Schicht für Schicht.</p>
+
+        <p class="hero__beat" data-beat=".36,.4,.47,.51"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
+        <p class="hero__beat" data-beat=".52,.56,.66,.7"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
+        <p class="hero__beat" data-beat=".72,.76,.84,.87"><span class="eyebrow">Der Sirup</span>Daraus kochen wir unseren Sirup.</p>
+
+        <div class="hero__end" data-beat=".88,.94,1,1">
+          <p class="hero__end-brand">Cascarup</p>
+          <p class="hero__end-text">Bald erhältlich. Trag dich ein, dann schreiben wir dir, sobald die erste Flasche bereit ist.</p>
+          <div class="hero__actions">
+            <a class="button button--solid" href="#warteliste">Auf die Warteliste</a>
+            <a class="hero__more" href="#staende">Wo du uns findest</a>
+          </div>
         </div>
 
-        <div class="hero__after">
-          <p class="eyebrow">Die Frucht</p>
-          <p class="hero__after-title">Kaffee ist<br><em>eine Frucht.</em></p>
-          <p class="hero__after-text">Jede Kaffeebohne ist der Samen einer Kirsche. Meist liegen zwei davon in einer Frucht, umhüllt von Fruchtfleisch und einer roten Haut.</p>
-        </div>
-
-        <div class="hero__meta" aria-hidden="true">
-          <span>Ein YES-Schülerunternehmen am Collège Saint-Michel</span>
-          <span class="hero__scroll">Scrollen</span>
-        </div>
+        <p class="hero__scroll" data-beat="-1,-.5,.02,.06" aria-hidden="true"><span>Scrollen</span></p>
       </div>
     </section>
 
-    <!-- What cascara is -->
     <section class="intro" data-tone="paper" id="cascara" aria-labelledby="intro-title">
       <p class="eyebrow" data-reveal>Cáscara – spanisch für Schale</p>
       <h2 class="display" id="intro-title" data-reveal style="--d:1">Nichts an der Kirsche<br>ist Abfall.</h2>
@@ -344,7 +313,7 @@
     </div>
   </footer>
 
-  <script src="main.js?v=20261009155237" defer></script>
-  <script src="hero.js?v=20261009155237" defer></script>
+  <script src="main.js?v=20261024203407" defer></script>
+  <script type="module" src="assets/hero3d.js?v=20261024203407"></script>
 </body>
 </html>
