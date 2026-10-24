@@ -127,6 +127,7 @@
     if (!email.value.trim() || !email.checkValidity()) return say('Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.', email);
     if (!form.querySelector('input[name="zustimmung"]').checked) return say('Bitte bestätige die Bestellbedingungen und die Übermittlung deiner Angaben.', form.querySelector('input[name="zustimmung"]'));
     if (f.get('_honey')) return;                                       // a bot filled the hidden field
+    if (!form.dataset.endpoint) return say('Vorschau: Hier wird keine Bestellung gesendet.');   // the preview copy has no inbox
     const no = number();
     const lines = items.map((it) => `${it.qty} × ${it.name} ${it.ml} ml à ${fmt(it.price)} = ${fmt(it.qty * it.price)}`).join('\n');
     const payload = {
