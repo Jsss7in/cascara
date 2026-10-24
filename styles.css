@@ -110,6 +110,9 @@ p { text-wrap: pretty; }
 
 /* ---------- reveal ---------- */
 
+/* Safari can run transitions while a page is still loading (links flash blue, buttons fade): none until it has */
+html:not(.is-loaded) *, html:not(.is-loaded) *::before, html:not(.is-loaded) *::after { transition: none !important; }
+
 [data-reveal] {
   opacity: 0;
   transform: translate3d(0, 26px, 0);
@@ -206,19 +209,20 @@ p { text-wrap: pretty; }
 .hero__beat { width: min(34vw, 470px); font: 300 clamp(2.25rem, 3.5vw, 3.5rem)/1.06 var(--serif); letter-spacing: -.02em; color: var(--ink); }
 .hero__beat .eyebrow { display: block; margin-bottom: 22px; color: var(--terra-ink); }
 .hero__beat em { font-style: italic; color: var(--terra-ink); }
-.hero__end-brand { font: 600 clamp(4rem, 8vw, 7.5rem)/.92 var(--brand); letter-spacing: -.012em; color: var(--terra); }
+.hero__end-brand { font: 600 clamp(3.25rem, 5.6vw, 5.5rem)/.92 var(--brand); letter-spacing: -.012em; color: var(--terra); }
 .hero__end-text { margin-top: 24px; max-width: 25em; color: var(--ink-2); line-height: 1.6; }
 
 /* the names of the layers on the opened fruit: a dot on the layer, a hairline, the name */
 .hero__parts { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .hero__part { position: absolute; left: 0; top: 0; width: 0; height: 0; visibility: hidden; opacity: 0; will-change: transform, opacity; }
 .hero__part::before { content: ""; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--terra); box-shadow: 0 0 0 3px rgba(239, 226, 203, .75); }
-.hero__part::after { content: ""; position: absolute; top: 0; width: 46px; height: 1px; background: var(--ink-3); }
-.hero__part b { position: absolute; top: 0; transform: translateY(-50%); font: 400 .6875rem/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
-.hero__part--r::after { left: 9px; }
-.hero__part--r b { left: 62px; }
-.hero__part--l::after { right: 9px; }
-.hero__part--l b { right: 62px; }
+.hero__part::after { content: ""; position: absolute; left: 0; width: 1px; height: 46px; background: var(--ink-3); }
+.hero__part b { position: absolute; left: 0; transform: translateX(-50%); font: 400 .6875rem/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
+/* callouts like a technical drawing: alternately above and below the layer they name */
+.hero__part--up::after { bottom: 9px; }
+.hero__part--up b { bottom: 64px; }
+.hero__part--down::after { top: 9px; }
+.hero__part--down b { top: 64px; }
 .hero__caption { position: absolute; z-index: 2; left: 50%; bottom: clamp(28px, 7svh, 72px); transform: translateX(-50%); font: 300 italic clamp(1.125rem, 1.5vw, 1.4rem)/1.3 var(--serif); color: var(--ink-2); white-space: nowrap; }
 
 .hero__scroll { position: absolute; z-index: 2; left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 12px; font: 400 .6875rem/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3); }
@@ -233,13 +237,12 @@ p { text-wrap: pretty; }
   .hero__actions { justify-content: center; margin-top: 22px; }
   .hero__beat { font-size: clamp(2rem, 9.4vw, 3rem); }
   .hero__beat .eyebrow { margin-bottom: 14px; }
-  .hero__end-brand { font-size: clamp(3.4rem, 16vw, 5.4rem); }
+  .hero__end-brand { font-size: clamp(3rem, 14vw, 4.6rem); }
   .hero__end-text { margin: 14px auto 0; text-wrap: balance; }
   .hero__caption { white-space: normal; text-align: center; width: calc(100% - 2 * var(--gutter)); bottom: 22px; }
-  .hero__part::after { width: 24px; }
-  .hero__part b { font-size: .5625rem; letter-spacing: .18em; padding: 4px 7px 3px; border-radius: 999px; background: rgba(239, 226, 203, .88); }
-  .hero__part--r b { left: 38px; }
-  .hero__part--l b { right: 38px; }
+  /* on phones the fruit opens on a diagonal: every name sits to the left of its layer, on a soft backing */
+  .hero__part::after, .hero__part--up::after, .hero__part--down::after { top: 0; bottom: auto; left: auto; right: 9px; width: 26px; height: 1px; }
+  .hero__part b, .hero__part--up b, .hero__part--down b { top: 0; bottom: auto; left: auto; right: 40px; transform: translateY(-50%); font-size: .6875rem; letter-spacing: .16em; padding: 5px 8px 4px; border-radius: 999px; background: rgba(230, 211, 183, .9); }
   .hero__scroll { display: none; }
 }
 /* no travelling: the fruit sits still on one screen, beside the words that open the page */
@@ -248,6 +251,10 @@ p { text-wrap: pretty; }
   .hero__stage { position: relative; height: 100svh; }
   .hero__beat, .hero__end, .hero__parts, .hero__caption, .hero__scroll { display: none; }
 }
+/* without WebGL the opening is a still: the words beside a photograph of the fruit */
+.hero__still { display: none; }
+.hero.is-flat .hero__still { display: block; position: absolute; z-index: 1; right: var(--gutter); top: 50%; width: min(40vw, 560px); aspect-ratio: 4 / 5; transform: translateY(-50%); object-fit: cover; object-position: 52% 50%; border-radius: var(--radius); }
+@media (max-width: 900px) { .hero.is-flat .hero__still { left: var(--gutter); right: auto; top: auto; bottom: 28px; width: calc(100% - 2 * var(--gutter)); aspect-ratio: auto; height: 38svh; transform: none; } }
 .hero.is-flat { height: auto; }
 .hero.is-flat .hero__stage { position: relative; height: 100svh; }
 .hero.is-flat .hero__beat, .hero.is-flat .hero__end, .hero.is-flat .hero__parts, .hero.is-flat .hero__caption, .hero.is-flat .hero__scroll { display: none; }

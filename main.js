@@ -16,7 +16,7 @@
   const colourOf = (el, y) => {
     if (el !== hero) return RGB[el.dataset.tone];
     const e = hero.edge;
-    if (!e) return RGB.terra;
+    if (!e) return RGB[hero.dataset.tone] || RGB.paper;   // until the opening reports its colours
     const t = e.fadeH ? Math.min(1, Math.max(0, (y - e.fadeFrom) / e.fadeH)) : +(y > e.fadeFrom);
     return mix(e.top, e.floor, t * t);
   };

@@ -3,6 +3,10 @@
 import { createHero } from './hero3d.js';
 
 (() => {
+  // ?debug: errors and the progress shown on the page itself (for testing on phones without an inspector)
+  const debug = /[?&]debug\b/.test(location.search);
+  const out = debug ? Object.assign(document.createElement('pre'), { style: 'position:fixed;left:8px;top:60px;z-index:99;margin:0;padding:6px 8px;font:11px/1.3 monospace;background:#fffd;color:#300;max-width:90vw;white-space:pre-wrap' }) : null;
+  if (out) { document.body.append(out); addEventListener('error', (e) => { out.textContent += `\nERR ${e.message} @${e.lineno}:${e.colno}`; }); }
   const hero = document.querySelector('[data-hero]');
   if (!hero) return;
   const stage = hero.querySelector('[data-hero-stage]');
@@ -28,7 +32,10 @@ import { createHero } from './hero3d.js';
   } catch {
     three = null;
   }
-  if (!three) { hero.classList.add('is-flat'); return; }   // no WebGL: the page shows the words over the paper
+  if (!three) { hero.classList.add('is-flat'); if (out) out.textContent = 'kein WebGL'; return; }
+  if (out) setInterval(() => {
+    out.textContent = JSON.stringify(three.state()) + ` reduce=${reduce} y=${Math.round(scrollY)} cls=${hero.className}`;
+  }, 400);   // no WebGL: the page shows the words over the paper
   hero.classList.add('is-3d');
   three.background = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#E6D3B7';
   if (/[?&]debug\b/.test(location.search)) window.__hero = three;   // test shots jump straight to a moment
@@ -59,7 +66,7 @@ import { createHero } from './hero3d.js';
       b.el.style.visibility = o === 0 ? 'hidden' : 'visible';
       b.el.style.setProperty('--in', o);
     }
-    const show = span(.24, .3, .34, .38, p);
+    const show = span(.19, .24, .37, .4, p);
     if (show > .002) {
       const L = labels();
       for (const el of parts) {
