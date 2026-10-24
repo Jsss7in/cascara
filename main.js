@@ -1,4 +1,4 @@
-// Cascara – page behaviour: arrival, nav, reveals, waitlist form.
+// Cascarup – page behaviour: arrival, nav, reveals, the drinks tabs and the stands. The shop lives in shop.js.
 // The cherry lives in hero.js.
 (() => {
   const root = document.documentElement;
@@ -87,7 +87,7 @@
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
   const start = () => {
     if (root.classList.contains('is-loaded')) return;
-    // A link straight to a section (…/#warteliste) lands there once the type has settled;
+    // A link straight to a section (…/#shop) lands there once the type has settled;
     // smooth scrolling only switches on afterwards, because it swallows that first jump.
     let id = location.hash.slice(1);
     try { id = decodeURIComponent(id); } catch { /* a malformed link (…/#%) simply lands at the top */ }
@@ -138,50 +138,4 @@
     }, { passive: true });
   }
 
-  // Waitlist. Until data-endpoint points at a form service, nothing is stored.
-  const form = document.querySelector('[data-notify]');
-  if (!form) return;
-  const status = form.querySelector('.notify__status');
-  const email = form.querySelector('input[type="email"]');
-  const consent = form.querySelector('input[type="checkbox"]');
-  const button = form.querySelector('button');
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!email.value.trim() || !email.checkValidity()) {
-      status.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein, zum Beispiel name@beispiel.ch.';
-      email.setAttribute('aria-invalid', 'true');
-      email.focus();
-      return;
-    }
-    email.removeAttribute('aria-invalid');
-    if (!consent.checked) {
-      status.textContent = 'Bitte bestätige noch, dass wir deine Adresse für die Benachrichtigung speichern dürfen.';
-      consent.focus();
-      return;
-    }
-    const endpoint = form.dataset.endpoint;
-    if (!endpoint) {
-      // No form service connected yet: say so plainly instead of pretending the address was saved.
-      status.textContent = 'Die Warteliste öffnet in Kürze. Schau bald wieder vorbei.';
-      return;
-    }
-    button.disabled = true;
-    status.textContent = '';
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(Object.fromEntries(new FormData(form))),
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      });
-      // FormSubmit answers 200 with success "false" when something is off, so read the body too.
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);
-      form.classList.add('is-done');
-      status.textContent = 'Danke. Du hörst von uns, sobald die erste Flasche bereit ist.';
-    } catch {
-      status.textContent = 'Die Anmeldung ist nicht angekommen. Bitte versuch es in einem Moment noch einmal.';
-      button.disabled = false;
-    }
-  });
 })();

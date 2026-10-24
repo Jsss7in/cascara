@@ -3,6 +3,9 @@ SA3 = ('CC BY-SA 3.0', 'https://creativecommons.org/licenses/by-sa/3.0/deed.de')
 BY4 = ('CC BY 4.0', 'https://creativecommons.org/licenses/by/4.0/deed.de')
 SA_NOTE = 'Zugeschnitten und farblich angepasst; die bearbeitete Fassung steht unter derselben Lizenz.'
 PHOTOS = [
+ dict(use='Kaffeekirsche (Seitenanfang, auch als Oberfläche des 3D-Modells)', title='«Coffea arabica 1DS-II 4-5105»', author='SAplants',
+      license=SA4[0], license_url=SA4[1], page='https://commons.wikimedia.org/wiki/File:Coffea_arabica_1DS-II_4-5105.jpg',
+      changes='Eine Kirsche ausgeschnitten, gedreht und farblich leicht angepasst; die bearbeitete Fassung steht unter derselben Lizenz.'),
  dict(use='Kaffeekirschen (Seitenanfang)', title='«Coffee Cherries»', author='Accidental Nomad',
       license='CC BY 2.0', license_url='https://creativecommons.org/licenses/by/2.0/deed.de', page='https://www.flickr.com/photos/paintballphotos/52963201955/',
       source='Flickr', changes='Verkleinert und zum rechten Rand hin abgedunkelt.'),

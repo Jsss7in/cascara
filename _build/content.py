@@ -257,10 +257,181 @@ V['SOCIALS'] = ('<ul class="socials" aria-label="Cascarup in den sozialen Medien
     f'<li><a href="{url}" target="_blank" rel="noopener" aria-label="{COMPANY} auf {name}" title="{name}">'
     f'<svg viewBox="0 0 24 24" aria-hidden="true">{svg}</svg></a></li>' for name, url, svg in SOCIALS) + '</ul>')
 
-# Waitlist: each sign-up arrives by e-mail through FormSubmit (formsubmit.co); the first one asks
-# to confirm the address once. Left empty, the form says the list opens soon and stores nothing.
-WAITLIST_EMAIL = 'info@cascarup.ch'
-V['FORM_ENDPOINT'] = f'https://formsubmit.co/ajax/{WAITLIST_EMAIL}' if WAITLIST_EMAIL else ''
+# ---------------------------------------------------------------------------
+# The shop: order online, collect at a stand or at school, pay on collection (cash or TWINT).
+# Orders arrive by e-mail through FormSubmit (formsubmit.co) at ORDER_EMAIL; the customer gets a confirmation.
+import json
+ORDER_EMAIL = 'info@cascarup.ch'
+V['ORDER_ENDPOINT'] = f'https://formsubmit.co/ajax/{ORDER_EMAIL}'
+PRODUCTS = [
+ dict(id='cascara', name='Cascara', tone='#7a2a0e',
+      text='Der Klassiker aus der Schale der Kaffeekirsche: fruchtig, mit Noten von Honig und Dörrpflaume.',
+      sizes=[(200, 6.95), (500, 12.95)]),
+ dict(id='gifferstee', name='Gifferstee', tone='#8a4a16',
+      text='Unsere zweite Sorte.',
+      sizes=[(200, 7.95), (500, 13.95)]),
+]
+# What a buyer must be able to read before ordering food online (LIV Art. 44); «folgt» until we have it.
+PRODUCT_FACTS = [
+ ('Zutaten', None), ('Allergene', None), ('Füllmenge', '200 ml oder 500 ml'),
+ ('Haltbarkeit', None), ('Hinweis', 'Enthält Koffein aus der Kaffeekirsche.'),
+ ('Hergestellt von', 'Cascarup, c/o Collège Saint-Michel, Fribourg, Schweiz'),
+]
+chf = lambda x: f'{x:.2f}'
+
+# A drawn bottle in the shape of the one in the opening, until the photographs of the real bottles arrive.
+_PROFILE = [(0, 0), (.52, 0), (.6, .03), (.62, .1), (.62, 1.12), (.6, 1.24), (.5, 1.4), (.3, 1.56), (.215, 1.66),
+            (.21, 1.92), (.235, 1.95), (.235, 2.02)]
+
+
+def bottle_svg(name, tone, ml):
+    k = 118 if ml == 500 else 92
+    X = lambda r, side: 100 + side * r * k
+    Y = lambda y: 292 - y * k
+    right = ' '.join(f'{X(r, 1):.1f},{Y(y):.1f}' for r, y in _PROFILE[1:])
+    left = ' '.join(f'{X(r, -1):.1f},{Y(y):.1f}' for r, y in reversed(_PROFILE[1:]))
+    body = f'M{X(0, 1):.1f},{Y(0):.1f} L{right} L{left} Z'
+    fill_top = Y(1.46)
+    lab_t, lab_b = Y(.98), Y(.42)
+    lab_l, lab_w = X(.628, -1), X(.628, 1) - X(.628, -1)
+    cap_t, cap_b = Y(2.29), Y(1.99)
+    uid = f'{name.lower()}{ml}'
+    mid = (lab_t + lab_b) / 2
+    return (
+        f'<svg class="product__bottle" viewBox="0 0 200 300" role="img" aria-label="{name}, {ml} ml">'
+        f'<defs><clipPath id="cl-{uid}"><path d="{body}"/></clipPath>'
+        f'<linearGradient id="sy-{uid}" x1="0" x2="1"><stop offset="0" stop-color="{tone}" stop-opacity=".78"/>'
+        f'<stop offset=".45" stop-color="{tone}"/><stop offset="1" stop-color="#3a1206"/></linearGradient>'
+        f'<linearGradient id="gl-{uid}" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/>'
+        f'<stop offset=".25" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".02"/>'
+        f'<stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs>'
+        f'<ellipse cx="100" cy="293" rx="{.78 * k:.0f}" ry="6" fill="#3a2116" opacity=".16"/>'
+        f'<g clip-path="url(#cl-{uid})"><rect x="0" y="{fill_top:.1f}" width="200" height="{300 - fill_top:.1f}" fill="url(#sy-{uid})"/></g>'
+        f'<path d="{body}" fill="url(#gl-{uid})" stroke="#3a2116" stroke-opacity=".22" stroke-width="1.2"/>'
+        f'<rect x="{lab_l:.1f}" y="{lab_t:.1f}" width="{lab_w:.1f}" height="{lab_b - lab_t:.1f}" fill="#F7F0E4"/>'
+        f'<rect x="{lab_l:.1f}" y="{lab_t + 4:.1f}" width="{lab_w:.1f}" height="1.6" fill="#9C4B23"/>'
+        f'<rect x="{lab_l:.1f}" y="{lab_b - 5.6:.1f}" width="{lab_w:.1f}" height="1.6" fill="#9C4B23"/>'
+        f'<text x="100" y="{mid - 2:.1f}" text-anchor="middle" font-family="DynaPuff, sans-serif" font-weight="700" '
+        f'font-size="{k * .19:.1f}" fill="#9C4B23">Cascarup</text>'
+        f'<text x="100" y="{mid + k * .13:.1f}" text-anchor="middle" font-family="Jost, sans-serif" font-size="{k * .07:.1f}" '
+        f'letter-spacing="1.5" fill="#3a2116">{name.upper()} · {ml} ML</text>'
+        f'<rect x="{X(.262, -1):.1f}" y="{cap_t:.1f}" width="{X(.262, 1) - X(.262, -1):.1f}" height="{cap_b - cap_t:.1f}" rx="3" fill="#9C4B23"/>'
+        '</svg>')
+
+
+def shop():
+    cards = []
+    for n, pr in enumerate(PRODUCTS):
+        data = json.dumps({'id': pr['id'], 'name': pr['name'],
+                           'sizes': [{'ml': ml, 'price': price} for ml, price in pr['sizes']]}, ensure_ascii=False)
+        sizes = ''.join(
+            f'<button type="button" class="product__size" data-size="{ml}" aria-pressed="{str(i == 0).lower()}">{ml} ml</button>'
+            for i, (ml, _) in enumerate(pr['sizes']))
+        shots = ''.join(
+            f'<div class="product__shot" data-shot="{ml}"{"" if i == 0 else " hidden"}>{bottle_svg(pr["name"], pr["tone"], ml)}</div>'
+            for i, (ml, _) in enumerate(pr['sizes']))
+        cards.append(
+            f'        <article class="product" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
+            f'          <div class="product__media">{shots}</div>\n'
+            '          <div class="product__body">\n'
+            f'            <h3 class="product__name">{pr["name"]}</h3>\n'
+            f'            <p class="product__text">{pr["text"]}</p>\n'
+            f'            <div class="product__sizes" role="group" aria-label="Grösse">{sizes}</div>\n'
+            f'            <p class="product__price" data-price>CHF {chf(pr["sizes"][0][1])}</p>\n'
+            '            <div class="product__buy">\n'
+            '              <div class="qty" data-qty>\n'
+            '                <button type="button" data-step="-1" aria-label="Eine Flasche weniger">−</button>\n'
+            '                <input type="number" inputmode="numeric" min="1" max="24" value="1" aria-label="Anzahl">\n'
+            '                <button type="button" data-step="1" aria-label="Eine Flasche mehr">+</button>\n'
+            '              </div>\n'
+            '              <button type="button" class="button button--solid product__add" data-add>In den Warenkorb</button>\n'
+            '            </div>\n'
+            '          </div>\n'
+            '        </article>')
+    facts = '\n'.join(
+        f'            <div><dt>{k}</dt><dd>{v if v else chr(60) + "span class=" + chr(34) + "muted" + chr(34) + ">folgt</span>"}</dd></div>'
+        for k, v in PRODUCT_FACTS)
+    return (
+        '    <!-- The shop: two kinds, two sizes; ordered here, collected at a stand or at school, paid on collection -->\n'
+        '    <section class="shop" data-tone="terra" id="shop" aria-labelledby="shop-title">\n'
+        '      <div class="shop__inner">\n'
+        '        <header class="shop__head">\n'
+        '          <p class="eyebrow" data-reveal>Shop</p>\n'
+        '          <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>\n'
+        '          <p class="shop__intro" data-reveal style="--d:2">Zwei Sorten, zwei Grössen. Bestell hier und hol deine Flaschen '
+        'an einem unserer Stände oder am Collège Saint-Michel ab. Bezahlt wird bei der Abholung, bar oder mit TWINT.</p>\n'
+        '        </header>\n'
+        '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
+        '        <details class="shop__facts">\n'
+        '          <summary>Zutaten und Hinweise</summary>\n'
+        '          <dl class="facts">\n' + facts + '\n          </dl>\n'
+        '        </details>\n'
+        '        <p class="shop__note">Alle Preise in Schweizer Franken. Mit der Bestellung akzeptierst du unsere '
+        '<a href="bestellbedingungen.html">Bestellbedingungen</a>.</p>\n'
+        f'        <div class="shop__social"><p>Neues von uns: <strong>@{HANDLE}</strong></p>{V["SOCIALS"]}</div>\n'
+        f'        {ig_feed()}\n'
+        '      </div>\n'
+        '    </section>')
+
+
+def cart():
+    picks = [
+        f'<label class="pick" data-pick-date="{s["date"]}"><input type="radio" name="abholung" '
+        f'value="{s["day"]}. {s["month"]}: {s["title"]}, {s["place"]}, {s["town"]}" required>'
+        f'<span><strong>{s["weekday"][:2]}, {s["day"]}. {s["month"]}</strong> {s["title"]}<br>'
+        f'<span class="muted">{s["place"]}, {s["town"]}</span></span></label>'
+        for s in STANDS]
+    picks.append(
+        '<label class="pick"><input type="radio" name="abholung" value="Collège Saint-Michel, nach Absprache" required>'
+        '<span><strong>Collège Saint-Michel</strong> nach Absprache<br><span class="muted">Wir melden uns per E-Mail.</span></span></label>')
+    return (
+        '  <!-- the basket: a quiet sheet from the side (from below on phones) -->\n'
+        '  <button class="basket-btn" type="button" data-cart-open hidden aria-label="Warenkorb öffnen">'
+        '<span>Warenkorb</span><span class="basket-btn__count" data-cart-count>0</span></button>\n'
+        '  <dialog class="cart" data-cart aria-labelledby="cart-title">\n'
+        '    <div class="cart__inner">\n'
+        '      <header class="cart__head">\n'
+        '        <h2 class="cart__title" id="cart-title">Dein Warenkorb</h2>\n'
+        '        <button class="cart__close" type="button" data-cart-close aria-label="Schliessen">×</button>\n'
+        '      </header>\n'
+        '      <div class="cart__body" data-cart-body>\n'
+        '        <ul class="cart__items" data-cart-items></ul>\n'
+        '        <p class="cart__empty" data-cart-empty>Noch leer. Such dir im Shop eine Flasche aus.</p>\n'
+        f'        <form class="order" data-order data-endpoint="{V["ORDER_ENDPOINT"]}" novalidate hidden>\n'
+        '          <p class="order__total"><span>Total</span> <strong data-cart-total>CHF 0.00</strong></p>\n'
+        '          <fieldset class="order__group">\n'
+        '            <legend>Abholung</legend>\n'
+        '            <div class="order__picks">' + ''.join(picks) + '</div>\n'
+        '          </fieldset>\n'
+        '          <fieldset class="order__group">\n'
+        '            <legend>Deine Angaben</legend>\n'
+        '            <label class="field"><span>Name</span><input name="name" autocomplete="name" required></label>\n'
+        '            <label class="field"><span>E-Mail</span><input name="email" type="email" autocomplete="email" inputmode="email" required></label>\n'
+        '            <label class="field"><span>Telefon <span class="muted">(freiwillig)</span></span><input name="telefon" type="tel" autocomplete="tel" inputmode="tel"></label>\n'
+        '            <label class="field"><span>Bemerkung <span class="muted">(freiwillig)</span></span><textarea name="bemerkung" rows="2"></textarea></label>\n'
+        '          </fieldset>\n'
+        '          <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">\n'
+        '          <label class="order__consent"><input type="checkbox" name="zustimmung" required>\n'
+        '            <span>Ich akzeptiere die <a href="bestellbedingungen.html" target="_blank">Bestellbedingungen</a> und bin '
+        'einverstanden, dass meine Angaben für diese Bestellung über den Dienst FormSubmit (Ausland) an Cascarup übermittelt '
+        'werden. Mehr in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>\n'
+        '          <button class="button button--solid order__submit" type="submit">Bestellung absenden</button>\n'
+        '          <p class="order__pay">Bezahlung bei der Abholung, bar oder mit TWINT.</p>\n'
+        '          <p class="order__status" role="status" aria-live="polite"></p>\n'
+        '        </form>\n'
+        '      </div>\n'
+        '      <div class="cart__done" data-cart-done hidden tabindex="-1">\n'
+        '        <p class="eyebrow">Danke!</p>\n'
+        '        <p class="cart__done-title">Deine Bestellung ist bei uns.</p>\n'
+        '        <p class="cart__done-text">Bestellnummer <strong data-done-number></strong>. Du bekommst gleich eine '
+        'Bestätigung per E-Mail. Bezahlt wird bei der Abholung.</p>\n'
+        '        <button class="button button--solid" type="button" data-cart-close>Weiter stöbern</button>\n'
+        '      </div>\n'
+        '    </div>\n'
+        '  </dialog>')
+
 
 V['IG_FEED'] = ig_feed()
 V['STANDS'] = stands()
+V['SHOP'] = shop()
+V['CART'] = cart()

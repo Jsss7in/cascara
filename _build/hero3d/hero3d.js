@@ -1,12 +1,13 @@
-// Cascarup – the opening in 3D: a coffee cherry comes apart layer by layer, the beans leave for the roaster,
-// the skin stays, dries into cascara, breaks, and ends up as syrup in the bottle.
+// Cascarup – the opening in 3D: a real coffee cherry (a photograph, projected onto the model) opens layer by
+// layer, the beans leave for the roaster, the skin dries into cascara, and the cascara becomes the syrup that
+// pours into the bottle.
 // Built into assets/hero3d.js by _build/hero3d/build.sh (three.js is bundled and trimmed to what is used).
 import {
   WebGLRenderer, Scene, PerspectiveCamera, PMREMGenerator, Group, Mesh, Color, Vector3,
   SphereGeometry, LatheGeometry, PlaneGeometry, CircleGeometry, TorusGeometry, BoxGeometry, BufferGeometry,
   BufferAttribute, CylinderGeometry, MeshPhysicalMaterial, MeshStandardMaterial, MeshBasicMaterial, DoubleSide,
   BackSide, DirectionalLight, HemisphereLight, CanvasTexture, SRGBColorSpace, NeutralToneMapping, Plane, Vector2,
-  Object3D, RepeatWrapping,
+  Object3D, RepeatWrapping, TextureLoader,
 } from 'three';
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -14,10 +15,11 @@ import {
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const ease = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+const easeT = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const lerp = (a, b, t) => a + (b - a) * t;
 const rng = (seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 
-// 3D simplex noise (Gustavson), for the skin's blush and the creases once dried
+// 3D simplex noise (Gustavson), for the skin's blush and the soft folds once dried
 const G3 = 1 / 6, F3 = 1 / 3;
 const grad3 = [[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
 const perm = new Uint8Array(512);
@@ -61,8 +63,8 @@ function studio() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// the cherry: a little taller than wide, the blossom crown at the bottom, a short stalk on top
-const RX = 1, RY = 1.13, RZ = .96;
+// the cherry: its proportions follow the photograph (set before the model is built)
+let RX = 1, RY = 1.13, RZ = .96;
 const MAP_GAIN = 1 / .745;       // the speckle map's base is .745 (linear); colours are lifted to match
 
 function skinTexture() {
@@ -87,14 +89,16 @@ function skinTexture() {
 function skinHalf(side) {
   // half an ellipsoid shell, cut along the plane in which the two beans face each other
   const g = new SphereGeometry(1, 160, 120, side > 0 ? Math.PI / 2 : -Math.PI / 2, Math.PI);
-  const pos = g.attributes.position, nor = g.attributes.normal, n = pos.count;
+  const pos = g.attributes.position, nor = g.attributes.normal, uv = g.attributes.uv, n = pos.count;
   const unit = new Float32Array(pos.array);
   const dry = new Float32Array(n * 3), col = new Float32Array(n * 3), colDry = new Float32Array(n * 3);
+  const photoUV = new Float32Array(n * 2);
   const deep = new Color('#5e0610'), red = new Color('#a80b1a'), warm = new Color('#cf3a1c'), c = new Color();
-  const crease = new Color('#2c0c06'), leather = new Color('#5a1f10'), ridgeC = new Color('#8f3d1d'), cd = new Color();
+  // dried cascara: a deep, warm mahogany with a satin sheen, a little darker in the folds
+  const fold = new Color('#3d100b'), body = new Color('#6a1f14'), crest = new Color('#9c4024'), cd = new Color();
   for (let i = 0; i < n; i++) {
     const x = unit[i * 3], y = unit[i * 3 + 1], z = unit[i * 3 + 2];
-    // blossom end: a dimple at the bottom; the stalk end gently flattened
+    // blossom end: a soft dimple at the bottom; the stalk end gently flattened
     const dimple = smooth(.86, 1, -y), top = Math.max(0, y - .9);
     const k = 1 - dimple * .08 - top * .5;
     const px = x * RX * k, py = y * RY + dimple * .13, pz = z * RZ * k;
@@ -102,23 +106,26 @@ function skinHalf(side) {
     // analytic normals of the ellipsoid: no seam where the two halves meet
     const nx = x / RX, ny = y / RY, nz = z / RZ, l = Math.hypot(nx, ny, nz) || 1;
     nor.setXYZ(i, nx / l, ny / l, nz / l);
-    // fresh: deep crimson with soft blushes, warmer towards the stalk
+    // the photograph, projected from the front: its fruit fills the unit square of the texture
+    photoUV[i * 2] = .5 + px / (2 * RX) * .965; photoUV[i * 2 + 1] = .5 + py / (2 * RY) * .965;
+    // fresh (without the photograph): deep crimson with soft blushes, warmer towards the stalk
     const m = fbm(x * 2.6 + 3, y * 2.6, z * 2.6, 3);
     c.copy(red).lerp(deep, clamp(.3 - m * .55 + Math.max(0, -y) * .35)).lerp(warm, clamp((y - .5) * 1.3) * .7);
     c.multiplyScalar(MAP_GAIN);
     col.set([c.r, c.g, c.b], i * 3);
-    // dried: long leathery creases, the shell shrunk and its cut edge curling outwards (a morph target)
-    const ridge = 1 - Math.abs(noise3(x * 3.2 + 9, y * 2, z * 3.2));
-    const w = (ridge * ridge - .5) * .08 + noise3(x * 7, y * 7, z * 7) * .01;
-    const s = .76 + w;
-    const curl = Math.abs(x) < .42 ? (.42 - Math.abs(x)) * .5 : 0;
-    dry.set([px * s + side * curl * .4, py * s * .9, pz * s * .94], i * 3);
-    cd.copy(crease).lerp(leather, smooth(.2, .7, ridge)).lerp(ridgeC, smooth(.78, 1, ridge) * .8);
-    cd.multiplyScalar(MAP_GAIN * (.9 + fbm(x * 4, y * 4, z * 4, 2) * .3));
+    // dried: the shell shrinks a little and gathers into a few soft, broad folds; the cut edge curls outwards
+    const f1 = noise3(x * 1.8 + 9, y * 1.2, z * 1.8), f2 = noise3(x * 3.6, y * 3, z * 3.6);
+    const w = f1 * .05 + f2 * .012;
+    const s = .86 + w;
+    const curl = Math.abs(x) < .42 ? (.42 - Math.abs(x)) * .55 : 0;
+    dry.set([px * s + side * curl * .38, py * s * .94, pz * s * .95], i * 3);
+    cd.copy(fold).lerp(body, smooth(-.6, .1, f1)).lerp(crest, smooth(.2, .9, f1) * .75);
+    cd.multiplyScalar(MAP_GAIN * (.94 + noise3(x * 6, y * 6, z * 6) * .08));
     colDry.set([cd.r, cd.g, cd.b], i * 3);
   }
   g.setAttribute('color', new BufferAttribute(col, 3));
   g.setAttribute('colorDry', new BufferAttribute(colDry, 3));
+  g.setAttribute('photoUV', new BufferAttribute(photoUV, 2));
   g.morphAttributes.position = [new BufferAttribute(dry, 3)];
   const dg = new BufferGeometry(); dg.setIndex(g.index); dg.setAttribute('position', new BufferAttribute(dry, 3)); dg.computeVertexNormals();
   g.morphAttributes.normal = [dg.attributes.normal];
@@ -126,63 +133,31 @@ function skinHalf(side) {
   return g;
 }
 
-// the skin's material: its colour turns from fresh to dried with one uniform (the dried colours are baked per vertex)
-function skinMaterial(map) {
+// The skin's material: fresh it shows the photograph (or, without one, the painted crimson), dried it turns to
+// the baked mahogany – both by one uniform, so the change is one smooth blend.
+function skinMaterial(speckle) {
   const mat = new MeshPhysicalMaterial({
-    vertexColors: true, map, roughness: .32, clearcoat: 1, clearcoatRoughness: .12,
+    vertexColors: true, map: speckle, roughness: .34, clearcoat: .9, clearcoatRoughness: .14,
     sheen: .25, sheenColor: new Color('#ff9b8a'), sheenRoughness: .5, side: DoubleSide,
   });
-  const uDry = { value: 0 };
-  mat.userData.dry = uDry;
+  const uDry = { value: 0 }, uPhoto = { value: null }, uUsePhoto = { value: 0 }, uGlow = { value: 0 };
+  mat.userData = { dry: uDry, photo: uPhoto, usePhoto: uUsePhoto, glow: uGlow };
   mat.onBeforeCompile = (sh) => {
-    sh.uniforms.uDry = uDry;
-    sh.vertexShader = 'attribute vec3 colorDry;\nuniform float uDry;\n' +
-      sh.vertexShader.replace('#include <color_vertex>', '#include <color_vertex>\n\tvColor = mix( vColor, colorDry, uDry );');
+    Object.assign(sh.uniforms, { uDry, uPhoto, uUsePhoto, uGlow });
+    sh.vertexShader = 'attribute vec3 colorDry;\nattribute vec2 photoUV;\nuniform float uDry;\nvarying vec2 vPhotoUV;\n' +
+      sh.vertexShader.replace('#include <color_vertex>', '#include <color_vertex>\n\tvPhotoUV = photoUV;\n\tvColor = mix( vColor, colorDry, uDry );');
+    sh.fragmentShader = 'uniform sampler2D uPhoto;\nuniform float uUsePhoto;\nuniform float uDry;\nuniform float uGlow;\nvarying vec2 vPhotoUV;\n' +
+      sh.fragmentShader
+        .replace('#include <map_fragment>', `#include <map_fragment>
+  // the photograph replaces the painted skin while it is fresh; it is in sRGB, the rest of the shader is linear
+  vec3 photoLin = pow( texture2D( uPhoto, vPhotoUV ).rgb, vec3( 2.2 ) );
+  float usePhoto = uUsePhoto * ( 1.0 - uDry );
+  diffuseColor.rgb = mix( diffuseColor.rgb, photoLin * ( 1.0 - uGlow ), usePhoto );`)
+        .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+  totalEmissiveRadiance += photoLin * uGlow * usePhoto;`);
   };
-  mat.customProgramCacheKey = () => 'cascarup-skin';
+  mat.customProgramCacheKey = () => 'cascarup-skin-2';
   return mat;
-}
-
-// the dried shell, broken into shards: every triangle goes to the nearest of a few seeds on the outer surface
-function shardsOf(geo, side, count, seed) {
-  const unit = geo.userData.unit, dry = geo.morphAttributes.position[0].array;
-  const colDry = geo.attributes.colorDry.array, uv = geo.attributes.uv.array, idx = geo.index.array;
-  const r = rng(seed), seeds = [];
-  for (let i = 0; i < count; i++) {
-    const y = 1 - 2 * ((i + .5 + (r() - .5) * .6) / count), rr = Math.sqrt(Math.max(0, 1 - y * y)), a = i * 2.39996 + r();
-    seeds.push([side * Math.abs(rr * Math.cos(a)) + side * .15, y, rr * Math.sin(a)]);
-  }
-  const buckets = seeds.map(() => []);
-  for (let t = 0; t < idx.length; t += 3) {
-    const a = idx[t] * 3, b = idx[t + 1] * 3, c = idx[t + 2] * 3;
-    const cx = (unit[a] + unit[b] + unit[c]) / 3, cy = (unit[a + 1] + unit[b + 1] + unit[c + 1]) / 3, cz = (unit[a + 2] + unit[b + 2] + unit[c + 2]) / 3;
-    // a little noise in the distance makes the cracks wander instead of running straight
-    const wob = noise3(cx * 5, cy * 5, cz * 5) * .12;
-    let best = 0, bd = Infinity;
-    for (let s = 0; s < seeds.length; s++) {
-      const d = (cx - seeds[s][0]) ** 2 + (cy - seeds[s][1]) ** 2 + (cz - seeds[s][2]) ** 2 + wob * (s % 2 ? 1 : -1);
-      if (d < bd) { bd = d; best = s; }
-    }
-    buckets[best].push(idx[t], idx[t + 1], idx[t + 2]);
-  }
-  return buckets.filter((b) => b.length > 30).map((tri) => {
-    const n = tri.length, P = new Float32Array(n * 3), C = new Float32Array(n * 3), U = new Float32Array(n * 2);
-    const ctr = new Vector3();
-    for (let i = 0; i < n; i++) { const v = tri[i]; ctr.x += dry[v * 3]; ctr.y += dry[v * 3 + 1]; ctr.z += dry[v * 3 + 2]; }
-    ctr.divideScalar(n);
-    for (let i = 0; i < n; i++) {
-      const v = tri[i];
-      P.set([dry[v * 3] - ctr.x, dry[v * 3 + 1] - ctr.y, dry[v * 3 + 2] - ctr.z], i * 3);
-      C.set([colDry[v * 3], colDry[v * 3 + 1], colDry[v * 3 + 2]], i * 3);
-      U.set([uv[v * 2], uv[v * 2 + 1]], i * 2);
-    }
-    const g = new BufferGeometry();
-    g.setAttribute('position', new BufferAttribute(P, 3));
-    g.setAttribute('color', new BufferAttribute(C, 3));
-    g.setAttribute('uv', new BufferAttribute(U, 2));
-    g.computeVertexNormals();
-    return { geometry: g, centre: ctr };
-  });
 }
 
 function cutRing(side, inner) {
@@ -203,10 +178,10 @@ function cutRing(side, inner) {
 }
 
 function beanGeometry(side) {
-  // a green coffee bean: domed on the outside, flat towards its twin, with the winding crease and its silverskin
+  // a coffee bean as everyone knows it: roasted brown, domed outside, flat towards its twin, the winding crease
   const g = new SphereGeometry(1, 72, 54);
   const p = g.attributes.position, n = p.count, col = new Float32Array(n * 3);
-  const jade = new Color('#8e9a80'), silver = new Color('#5d634f'), c = new Color();
+  const roast = new Color('#6b3b1f'), light = new Color('#8a5430'), crease = new Color('#2a1309'), c = new Color();
   for (let i = 0; i < n; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
     const flat = side * x < 0;
@@ -219,7 +194,7 @@ function beanGeometry(side) {
     }
     nx += noise3(x * 4, y * 4, z * 4) * .006;
     p.setXYZ(i, nx, ny, nz);
-    c.copy(jade).lerp(silver, groove).multiplyScalar(1 + noise3(x * 9, y * 9, z * 9) * .06);
+    c.copy(roast).lerp(light, smooth(-.2, .8, noise3(x * 3, y * 3, z * 3))).lerp(crease, groove * .9);
     col.set([c.r, c.g, c.b], i * 3);
   }
   g.setAttribute('color', new BufferAttribute(col, 3));
@@ -267,6 +242,12 @@ function capGeometry() {
   g.computeVertexNormals();
   return g;
 }
+function streamGeometry() {
+  // a pour of syrup: slightly thicker where it leaves the cascara, thinner as it falls; unit height, top at 0
+  const g = new CylinderGeometry(.058, .034, 1, 28, 24, true);
+  g.translate(0, -.5, 0);
+  return g;
+}
 
 function labelTexture() {
   const c = document.createElement('canvas'); c.width = 2048; c.height = 560;
@@ -294,7 +275,12 @@ function shadowTexture() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-export function createHero(canvas, { onFrame } = {}) {
+// The timeline, in scroll progress 0–1. CHAPTERS are where the page comes to rest (page.js glides between them).
+export const CHAPTERS = [0, .28, .45, .61, .8, 1];
+
+export function createHero(canvas, { onFrame, photo } = {}) {
+  // the model takes the photograph's proportions, so the photo and the model are one fruit
+  if (photo) { RX = 1; RY = photo.aspect || RY; RZ = .94; }
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = NeutralToneMapping;
@@ -327,46 +313,27 @@ export function createHero(canvas, { onFrame } = {}) {
     attenuationColor: new Color('#e3b765'), attenuationDistance: .5, clearcoat: .7, clearcoatRoughness: .1,
     side: DoubleSide, transparent: true,
   });
-  // the parchment: matte paper
   const parchMat = new MeshPhysicalMaterial({ color: '#efe4cc', roughness: .95, side: DoubleSide, transparent: true });
-  const beanMat = new MeshPhysicalMaterial({ vertexColors: true, roughness: .65 });
-  const shardMat = new MeshPhysicalMaterial({ vertexColors: true, map: speckle, roughness: .82, sheen: .2, sheenColor: new Color('#b27353'), side: DoubleSide });
-  const dropMat = new MeshPhysicalMaterial({ color: '#fff4f0', roughness: 0, clearcoat: 1, transparent: true, opacity: .3, specularIntensity: 1 });
+  const beanMat = new MeshPhysicalMaterial({ vertexColors: true, roughness: .42, clearcoat: .3, clearcoatRoughness: .35 });
 
-  // per side: the skin half (with its flesh, cut edge, dew and the shards it will break into), pulp, parchment, bean
+  // per side: the skin half (with its flesh, cut edge and the pieces it will break into), pulp, parchment, bean
+  const skinMats = [];
   const sides = [-1, 1].map((side) => {
     const half = new Group();
     const geo = skinHalf(side);
-    const skin = new Mesh(geo, skinMaterial(speckle)); skin.morphTargetInfluences = [0];
+    const mat = skinMaterial(speckle); skinMats.push(mat);
+    const skin = new Mesh(geo, mat); skin.morphTargetInfluences = [0];
     const flesh = new Mesh(geo, fleshMat); flesh.morphTargetInfluences = [0]; flesh.scale.setScalar(.965);
     const cut = new Mesh(cutRing(side, .955), cutMat);
-    const drops = new Group();
-    for (let i = 0; i < 14; i++) {
-      const u = ((i * 47) % 97) / 97, w = ((i * 61) % 89) / 89;
-      const th = .5 + u * 1.8, ph = (side > 0 ? -Math.PI / 2 : Math.PI / 2) + (w - .5) * 2.4;
-      const dir = new Vector3(Math.sin(th) * Math.sin(ph) * RX, Math.cos(th) * RY, Math.sin(th) * Math.cos(ph) * RZ);
-      if (side * dir.x < .05) continue;
-      const d = new Mesh(new SphereGeometry(.026 + ((i * 7) % 5) * .01, 14, 10), dropMat);
-      d.position.copy(dir).multiplyScalar(1.004); d.scale.set(1, .78, 1); drops.add(d);
-    }
-    const shardGroup = new Group();
-    const shards = shardsOf(geo, side, 9, side > 0 ? 11 : 23).map(({ geometry, centre }, i) => {
-      const mesh = new Mesh(geometry, shardMat);
-      mesh.position.copy(centre); shardGroup.add(mesh);
-      const r = rng(i * 31 + (side > 0 ? 7 : 3));
-      return { mesh, centre: centre.clone(), out: centre.clone().normalize(), spin: new Vector3(r() - .5, r() - .5, r() - .5).multiplyScalar(5), delay: r() };
-    });
-    shardGroup.visible = false;
-    half.add(skin, flesh, cut, drops, shardGroup);
+    half.add(skin, flesh, cut);
     const pulp = new Mesh(new SphereGeometry(1, 72, 54, side > 0 ? Math.PI / 2 : -Math.PI / 2, Math.PI), pulpMat);
-    pulp.scale.set(RX * .8, RY * .86, RZ * .8);
     const parch = new Mesh(parchmentGeometry(side), parchMat);
     const bean = new Mesh(beanGeometry(side), beanMat);
     cherry.add(half, pulp, parch, bean);
-    return { side, half, skin, flesh, cut, drops, shardGroup, shards, pulp, parch, bean };
+    return { side, half, skin, flesh, cut, pulp, parch, bean };
   });
 
-  // stalk and blossom crown
+  // stalk and blossom crown (without a photograph; the photograph has its own)
   const woody = new MeshStandardMaterial({ color: '#5d5230', roughness: .8 });
   const stalk = new Mesh(new CylinderGeometry(.05, .085, .2, 16), woody);
   stalk.position.y = RY + .06; stalk.rotation.z = -.15; cherry.add(stalk);
@@ -375,7 +342,7 @@ export function createHero(canvas, { onFrame } = {}) {
   const navel = new Mesh(new CircleGeometry(.12, 24), new MeshStandardMaterial({ color: '#2a120b', roughness: .9, side: DoubleSide }));
   navel.position.y = -RY + .12; navel.rotation.x = Math.PI / 2; cherry.add(navel);
 
-  // the bottle and the syrup rising in it
+  // the bottle, the syrup rising in it and the pour that fills it
   const bottle = new Group(); world.add(bottle);
   const glass = new Mesh(lathe(BOTTLE), new MeshPhysicalMaterial({
     color: '#ffffff', roughness: .03, transmission: 1, thickness: .3, ior: 1.5, clearcoat: 1, clearcoatRoughness: .02,
@@ -384,12 +351,12 @@ export function createHero(canvas, { onFrame } = {}) {
   const fill = new Plane(new Vector3(0, -1, 0), 0);
   const syrupMat = new MeshPhysicalMaterial({
     color: '#ffffff', roughness: .05, transmission: 1, thickness: 1.1, ior: 1.45,
-    attenuationColor: new Color('#7a2a0e'), attenuationDistance: .55, clearcoat: 1, clippingPlanes: [fill],
+    attenuationColor: new Color('#8f3612'), attenuationDistance: .95, clearcoat: 1, clippingPlanes: [fill],
   });
   const syrup = new Mesh(lathe(BOTTLE.slice(0, 10), .035), syrupMat);
-  const surface = new Mesh(new CircleGeometry(1, 72), new MeshPhysicalMaterial({ color: '#6e2309', roughness: .05, clearcoat: 1 }));
+  const surface = new Mesh(new CircleGeometry(1, 72), new MeshPhysicalMaterial({ color: '#7d2e0f', roughness: .05, clearcoat: 1 }));
   surface.rotation.x = -Math.PI / 2;
-  const meniscus = new Mesh(new TorusGeometry(1, .014, 8, 96), new MeshPhysicalMaterial({ color: '#c9774b', roughness: .15, transparent: true, opacity: .7 }));
+  const meniscus = new Mesh(new TorusGeometry(1, .01, 8, 96), new MeshPhysicalMaterial({ color: '#a85a34', roughness: .15, transparent: true, opacity: .35 }));
   meniscus.rotation.x = Math.PI / 2;
   const cap = new Mesh(capGeometry(), new MeshPhysicalMaterial({ color: '#9C4B23', roughness: .55, clearcoat: .2 }));
   const labelMat = new MeshPhysicalMaterial({ map: labelTexture(), color: '#ece6dc', roughness: .65, side: DoubleSide, transparent: true, opacity: 0 });
@@ -399,10 +366,28 @@ export function createHero(canvas, { onFrame } = {}) {
   bottleShadow.rotation.x = -Math.PI / 2; bottleShadow.position.y = .004; bottleShadow.scale.set(2.2, 1.6, 1);
   bottle.add(bottleShadow, syrup, surface, meniscus, glass, label, cap);
   document.fonts?.load('700 100px DynaPuff').then(() => { labelMat.map = labelTexture(); labelMat.needsUpdate = true; });
+  // the pour: glossy, dark amber, catching the light
+  const stream = new Mesh(streamGeometry(), new MeshPhysicalMaterial({
+    color: '#a8481f', roughness: .03, clearcoat: 1, clearcoatRoughness: .02, transmission: .55, thickness: .12, ior: 1.45,
+    attenuationColor: new Color('#7a260a'), attenuationDistance: .14, emissive: new Color('#3a1004'),
+  }));
+  // the pour's own rings, so it can swell and narrow as the syrup runs down it
+  const streamPos = stream.geometry.attributes.position, streamBase = new Float32Array(streamPos.array);
+  stream.visible = false; world.add(stream);
+  const ripple = new Mesh(new TorusGeometry(1, .012, 8, 64), new MeshPhysicalMaterial({ color: '#d08a5c', roughness: .2, transparent: true, opacity: .6 }));
+  ripple.rotation.x = Math.PI / 2; ripple.visible = false; world.add(ripple);
 
+  // the still life: two small dried halves – cascara – on the table beside the bottle
+  const dried = sides.map((sd, i) => {
+    const m = new Mesh(sd.skin.geometry, skinMaterial(speckle));
+    m.morphTargetInfluences = [1]; m.material.userData.dry.value = 1;
+    m.material.roughness = .58; m.material.clearcoat = .16; m.material.clearcoatRoughness = .4; m.material.sheen = .4; m.material.sheenColor.set('#c07a5c');
+    m.scale.setScalar(.3); m.visible = false; world.add(m);
+    return { m, x: i ? -1.05 : -1.5, z: i ? .55 : .05, ry: i ? 2.4 : -.6 };
+  });
   // the still life at the end: a fresh cherry rolls in beside the bottle
   const fresh = new Group();
-  const freshMat = skinMaterial(speckle);
+  const freshMat = skinMaterial(speckle); skinMats.push(freshMat);
   for (const s of sides) { const m = new Mesh(s.skin.geometry, freshMat); m.morphTargetInfluences = [0]; fresh.add(m); }
   const fStalk = new Mesh(stalk.geometry, woody); fStalk.position.y = RY + .06; fStalk.rotation.z = -.15; fresh.add(fStalk);
   const fCrown = crown.clone(); fresh.add(fCrown);
@@ -414,6 +399,17 @@ export function createHero(canvas, { onFrame } = {}) {
   const shadow = new Mesh(new PlaneGeometry(1, 1), bottleShadow.material.clone());
   shadow.rotation.x = -Math.PI / 2; world.add(shadow);
 
+  // the photograph: projected onto the skin (fresh) – the page shows the same picture over the model at first
+  let hasPhoto = false;
+  if (photo && photo.texture) {
+    new TextureLoader().load(photo.texture, (tex) => {
+      tex.anisotropy = 8;
+      for (const m of skinMats) { m.userData.photo.value = tex; m.userData.usePhoto.value = 1; m.userData.glow.value = .72; }
+      hasPhoto = true;
+      fStalk.visible = fCrown.visible = false;
+    });
+  }
+
   // anchors for the anatomy labels, on the layers of the right-hand half
   const right = sides[1];
   const anchors = { haut: new Object3D(), fleisch: new Object3D(), pergament: new Object3D(), bohne: new Object3D() };
@@ -424,7 +420,7 @@ export function createHero(canvas, { onFrame } = {}) {
 
   // -------------------------------------------------------------------------------------------------------------
   let width = 1, height = 1, wide = true, target = 0, progress = 0, last = performance.now(), running = true, time = 0;
-  const v = new Vector3(), w3 = new Vector3();
+  const v = new Vector3();
 
   function layout(w, h) {
     width = w; height = h;
@@ -445,101 +441,100 @@ export function createHero(canvas, { onFrame } = {}) {
     camera.updateProjectionMatrix();
   }
 
-  const FLOOR = -1.45, BOTTLE_S = 1.15;
-  const keepers = [[-1.02, .42], [-.66, .78], [-1.32, -.12]];   // three shards stay on the table (x, z)
+  const FLOOR = -1.45, BOTTLE_S = 1.15, MOUTH_Y = FLOOR + MOUTH * BOTTLE_S;
+  const FUNNEL = new Vector3(0, MOUTH_Y + 1.05, 0);              // where the cascara becomes the pour
+  const OFF = { skin: 1.9, pulp: 1.3, parch: .8, bean: .3 };
 
   function apply(p, dt) {
     time += dt;
-    // the timeline – one move at a time
-    const intro = 1 - smooth(.06, .14, p);
-    const explode = ease(.12, .3, p);                 // the layers come apart
-    const open = smooth(.1, .22, p) * (1 - smooth(.38, .44, p));  // the camera frames the exploded view
-    const beansGo = ease(.38, .46, p);                // the beans leave for the roaster
-    const layersGo = smooth(.39, .45, p);             // pulp and parchment go with them
-    const together = ease(.41, .49, p);               // the halves close in behind them
-    const dryC = smooth(.5, .57, p);                  // colour and gloss turn
-    const dryS = ease(.55, .64, p);                   // then the skin wrinkles and shrinks
-    const lift = ease(.6, .7, p);                     // the dried halves rise above the bottle coming in
-    const bottleIn = ease(.6, .72, p);
-    const crack = smooth(.7, .735, p);                // the shells break
-    const fall = smooth(.73, .85, p);                 // the shards fall into the bottle
-    const level = smooth(.74, .86, p);
-    const capOn = ease(.84, .9, p);
-    const labelIn = smooth(.86, .92, p);
-    const rollIn = ease(.86, .94, p);
-    const fallPhase = smooth(.58, .66, p) * (1 - smooth(.86, .93, p));
-    const endPhase = smooth(.86, .94, p);
+    // the timeline: one move at a time
+    const explode = ease(.1, .24, p);                 // the layers come apart
+    const open = smooth(.08, .2, p) * (1 - smooth(.33, .41, p));   // the camera frames the exploded view
+    const beansGo = smooth(.3, .43, p);               // the beans fly off to the roaster
+    const layersGo = smooth(.31, .42, p);             // pulp and parchment melt away
+    const together = ease(.34, .45, p);               // the halves close in behind them
+    const dryC = smooth(.47, .58, p);                 // the colour turns to cascara…
+    const dryS = ease(.48, .6, p);                    // …and the shell gathers into soft folds
+    const lift = ease(.61, .7, p);                    // the dried halves rise, the bottle comes in below
+    const bottleIn = ease(.61, .71, p);
+    const gather = smooth(.68, .8, p);                // the dried halves gather above the bottle…
+    const pourIn = smooth(.71, .745, p);              // …and become the pour
+    const pourOut = smooth(.835, .865, p);
+    const level = smooth(.735, .865, p);
+    const capOn = ease(.87, .92, p);
+    const labelIn = smooth(.89, .94, p);
+    const rollIn = ease(.89, .97, p);
+    const pourCam = smooth(.6, .7, p) * (1 - smooth(.87, .95, p));
+    const endPhase = smooth(.87, .95, p);
 
-    // camera
-    if (wide) aim(-.2 * (1 - open), 0, 1, lerp(lerp(0, .7, fallPhase), -.2, endPhase));
-    else aim(0, lerp(lerp(-.21, -.03, open), -.12, fallPhase), 1 + .3 * open + .1 * fallPhase,
-      lerp(lerp(0, .7, fallPhase), -.2, endPhase));
+    // camera: right of the words, centred for the exploded view, up a little for the pour, down for the still life
+    const camY = lerp(lerp(0, .55, pourCam), -.2, endPhase);
+    if (wide) aim(-.2 * (1 - open), 0, 1, camY);
+    else aim(0, lerp(lerp(-.21, -.03, open), -.12, pourCam), 1 + .3 * open + .1 * pourCam, camY);
 
-    // the whole fruit floats and turns a little; for the exploded view a three-quarter view (on phones diagonal)
+    // the whole fruit floats; for the exploded view a three-quarter view (on phones a diagonal)
     world.rotation.y = -.35 * explode * (1 - together);
-    world.rotation.x = lerp(.05, .13, explode) * (1 - together);
-    const tilt = wide ? 0 : .85 * smooth(.1, .2, p) * (1 - smooth(.44, .52, p));
-    cherry.rotation.set(0, intro * Math.sin(time * .35) * .55, tilt);
-    cherry.position.y = Math.sin(time * 1.1) * .05 * (1 - lift) + lerp(0, 1.9, lift);
+    world.rotation.x = lerp(.0, .13, explode) * (1 - together);
+    const tilt = wide ? 0 : .85 * smooth(.1, .2, p) * (1 - smooth(.38, .46, p));
+    // with the photograph the fruit faces the camera exactly, as the picture does; without it, it turns a little
+    const turn = hasPhoto ? 0 : (1 - smooth(.06, .14, p)) * Math.sin(time * .35) * .55;
+    cherry.rotation.set(0, turn, tilt);
+    cherry.position.y = Math.sin(time * 1.1) * .05 * (1 - lift) + lerp(0, 1.85, lift);
 
-    const OFF = { skin: 1.9, pulp: 1.3, parch: .8, bean: .3 };
     for (const s of sides) {
       const k = s.side * explode;
-      s.half.position.x = lerp(k * OFF.skin, s.side * .45, together);
+      s.half.position.x = lerp(k * OFF.skin, s.side * .42, together);
       s.half.rotation.y = s.side * explode * .35 * (1 - together);
       s.skin.morphTargetInfluences[0] = s.flesh.morphTargetInfluences[0] = dryS;
       const mat = s.skin.material;
       mat.userData.dry.value = dryC;
-      mat.roughness = lerp(.32, .7, dryC);
-      mat.clearcoat = lerp(1, .12, dryC);
-      mat.sheen = lerp(.25, .1, dryC);
+      mat.roughness = lerp(.34, .58, dryC);
+      mat.clearcoat = lerp(.9, .16, dryC);
+      mat.clearcoatRoughness = lerp(.14, .4, dryC);
+      mat.sheen = lerp(.25, .4, dryC);
+      mat.sheenColor.set(dryC > .5 ? '#c07a5c' : '#ff9b8a');
       // the flesh inside goes as the skin dries around it
       const fleshGo = smooth(0, .7, dryC);
       s.flesh.material.opacity = s.cut.material.opacity = 1 - fleshGo;
       s.flesh.visible = s.cut.visible = explode > .002 && fleshGo < .99;
-      s.drops.visible = explode < .2;
-      // the inner layers stand at their own distances, then leave with the beans
-      s.pulp.position.x = k * OFF.pulp * (1 - together);
-      s.pulp.material.opacity = 1 - layersGo;
-      s.pulp.visible = layersGo < .99;
-      s.parch.position.x = k * OFF.parch * (1 - together);
-      s.parch.material.opacity = 1 - layersGo;
-      s.parch.visible = layersGo < .99;
-      s.bean.position.set(k * OFF.bean + beansGo * (3.1 + s.side * .5), beansGo * 3.3, -beansGo * 1.6);
-      s.bean.rotation.set(beansGo * 2 * s.side, beansGo * 3, explode * s.side * .2);
-      s.bean.visible = beansGo < .995;
+      // pulp and parchment stand at their own distances, then melt away towards the middle
+      const melt = 1 - layersGo;
+      s.pulp.position.x = k * OFF.pulp * (1 - together) * melt;
+      s.pulp.scale.set(RX * .8, RY * .86, RZ * .8).multiplyScalar(lerp(.55, 1, melt));
+      s.pulp.material.opacity = melt;
+      s.pulp.visible = layersGo < .995 && explode > .002;
+      s.parch.position.x = k * OFF.parch * (1 - together) * melt;
+      s.parch.scale.setScalar(lerp(.55, 1, melt));
+      s.parch.material.opacity = melt;
+      s.parch.visible = layersGo < .995 && explode > .002;
+      // the beans: an arc up and away to the right, turning as they go, until they have left the picture
+      const b = beansGo, bt = b * b;
+      s.bean.position.set(k * OFF.bean + bt * (6 + s.side * .5), bt * 4.2 + Math.sin(b * Math.PI) * .5 + (s.side > 0 ? .1 : -.1) * b, -bt * 2.2);
+      s.bean.rotation.set(b * 2.6 * s.side, b * 3.4, explode * s.side * .2 + b * 1.5);
+      s.bean.visible = explode > .002 && b < .999;
 
-      // the shells break: the shards take the skin's place exactly, crack open, and fall
-      const broken = p >= .7;
-      s.skin.visible = !broken;
-      s.shardGroup.visible = broken;
-      if (broken) {
-        bottle.updateMatrixWorld(); s.half.updateMatrixWorld();
-        const mouth = s.half.worldToLocal(w3.set(0, bottle.position.y + MOUTH * BOTTLE_S + .05, 0));
-        s.shards.forEach((sh, i) => {
-          const keep = s.side < 0 && i < keepers.length ? keepers[i] : null;
-          const f = clamp((fall - sh.delay * .5) / .5);
-          v.copy(sh.centre).addScaledVector(sh.out, .1 * crack);
-          const tgt = keep ? s.half.worldToLocal(new Vector3(keep[0], FLOOR + .06, keep[1])) : mouth;
-          const t = ease(0, 1, f);
-          sh.mesh.position.copy(v).lerp(tgt, t);
-          sh.mesh.position.y += Math.sin(t * Math.PI) * (keep ? .5 : .35) - (keep ? 0 : smooth(.82, 1, f) * .6);
-          sh.mesh.rotation.set(sh.spin.x * (crack * .08 + f), sh.spin.y * (crack * .08 + f), sh.spin.z * (crack * .05 + f * .7));
-          const sc = keep ? lerp(1, .62, t) : 1 - .9 * smooth(.45, .9, f);
-          sh.mesh.scale.setScalar(sc);
-          sh.mesh.visible = keep ? true : f < .985;
-        });
-      }
+      // the dried halves gather above the bottle and melt into the pour: they turn, close in and shrink into it
+      // the dried halves gather above the bottle and pour themselves out: they close in, shrink to a small pair
+      // the syrup runs from, and are used up as the pour ends
+      if (gather > 0) {
+        const t = easeT(gather), g = lerp(1, .34, t) * (1 - smooth(.825, .865, p));
+        s.half.position.x = lerp(s.side * .42, s.side * .16, t);
+        s.half.position.y = lerp(0, FUNNEL.y - cherry.position.y + .14, t * t);
+        s.half.rotation.set(t * .55 * s.side, t * 1.4 * s.side + Math.sin(time * .8) * .12 * t, t * .9 * s.side);
+        s.half.scale.setScalar(Math.max(g, .001));
+      } else { s.half.position.y = 0; s.half.rotation.x = s.half.rotation.z = 0; s.half.scale.setScalar(1); }
+      s.half.visible = p < .865;
     }
-    stalk.visible = crown.visible = navel.visible = explode < .02;
+    stalk.visible = crown.visible = navel.visible = !hasPhoto && explode < .02;
 
-    // the bottle comes up, fills, gets its cap and its label; at the end it barely sways
+    // the bottle comes up, fills from the pour, gets its cap and its label; at the end it barely sways
     bottle.visible = bottleIn > .001;
     bottle.position.y = lerp(-7.5, FLOOR, bottleIn);
     bottle.scale.setScalar(BOTTLE_S);
     bottle.rotation.y = Math.sin(time * .45) * .1 * smooth(.9, 1, p);
     const y = lerp(.06, 1.5, level);
-    fill.constant = bottle.position.y + y * BOTTLE_S;          // clip the syrup at its level (world space)
+    const surfaceY = bottle.position.y + y * BOTTLE_S;
+    fill.constant = surfaceY;                                     // clip the syrup at its level (world space)
     surface.visible = meniscus.visible = level > .01;
     surface.position.y = meniscus.position.y = y;
     const rr = radiusAt(y, .035);
@@ -551,32 +546,68 @@ export function createHero(canvas, { onFrame } = {}) {
     label.visible = labelIn > .001;
     bottleShadow.material.opacity = .8 * bottleIn;
 
+    // the pour: its head falls from the funnel to the syrup, its tail follows when the cascara is used up
+    const top = lerp(FUNNEL.y, surfaceY, pourOut), bottom = lerp(FUNNEL.y, surfaceY, pourIn);
+    const len = top - bottom;
+    stream.visible = len > .01;
+    if (stream.visible) {
+      // gentle beads that travel down the pour: it reads as running syrup, not as a rod
+      for (let i = 0; i < streamPos.count; i++) {
+        const y = streamBase[i * 3 + 1], k = 1 + .16 * Math.sin(y * len * 26 + time * 13) * (.4 + .6 * -y);
+        streamPos.setXYZ(i, streamBase[i * 3] * k, y, streamBase[i * 3 + 2] * k);
+      }
+      streamPos.needsUpdate = true;
+      stream.geometry.computeVertexNormals();
+      stream.position.set(Math.sin(time * 2.1) * .006, top, 0);
+      stream.scale.set(1, len, 1);
+    }
+    ripple.visible = stream.visible && pourIn > .98;
+    if (ripple.visible) {
+      const rp = (time * 1.6) % 1;
+      ripple.position.set(0, surfaceY + .004, 0);
+      ripple.scale.setScalar(.06 + rp * .14);
+      ripple.material.opacity = .55 * (1 - rp);
+    }
+
+    // the dried halves settle on the table, cut side down
+    const settleIn = ease(.88, .95, p);
+    dried.forEach((d, i) => {
+      d.m.visible = settleIn > .001;
+      d.m.position.set(d.x, FLOOR + .19 + (1 - settleIn) * (1.2 + i * .4), d.z);
+      d.m.rotation.set(Math.PI / 2 * (i ? 1 : -1) * .92, d.ry + (1 - settleIn) * 1.4, 0);
+    });
     // a fresh cherry rolls in and stops beside the bottle
     fresh.visible = rollIn > .001;
     const fx = lerp(4.2, 1.2, rollIn), r = .36 * RX;
     fresh.position.set(fx, FLOOR + .36 * RY + .035, .35);
-    fresh.rotation.set(0, .4, -(fx - 1.2) / r);
+    fresh.rotation.set(0, 0, -(fx - 1.2) / r);
     freshShadow.visible = fresh.visible;
     freshShadow.position.set(fx, FLOOR + .003, .35);
     freshShadow.scale.setScalar(.95);
     freshShadow.material.opacity = .7 * rollIn;
 
     // the cherry's shadow, until the halves rise
-    const cherryFloor = -RY - .55;
-    shadow.position.set(0, cherryFloor, 0);
+    shadow.position.set(0, -RY - .55, 0);
     shadow.scale.set(2.5 * (1 + explode * .6 * (1 - together)), 1.7, 1);
-    shadow.material.opacity = .6 * (1 - explode * .35 * (1 - together)) * (1 - smooth(.58, .64, p));
-    shadow.visible = p < .64;
+    shadow.material.opacity = .6 * (1 - explode * .35 * (1 - together)) * (1 - smooth(.59, .65, p));
+    shadow.visible = p < .65;
   }
 
+  function project(o, x, y, z) {
+    v.set(x, y, z); o.localToWorld(v); v.project(camera);
+    return { x: (v.x * .5 + .5) * width, y: (-v.y * .5 + .5) * height };
+  }
   function labels() {
     // screen positions of the anatomy labels, so the page can draw them as crisp HTML
     const out = {};
-    for (const [k, o] of Object.entries(anchors)) {
-      o.getWorldPosition(v); v.project(camera);
-      out[k] = { x: (v.x * .5 + .5) * width, y: (-v.y * .5 + .5) * height };
-    }
+    for (const [k, o] of Object.entries(anchors)) out[k] = project(o, 0, 0, 0);
     return out;
+  }
+  // where the whole fruit is on screen: the page lays the photograph exactly over it
+  function fruitBox() {
+    cherry.updateMatrixWorld();
+    const c = project(cherry, 0, 0, 0), l = project(cherry, -RX, 0, 0), t = project(cherry, 0, RY, 0);
+    return { x: c.x, y: c.y, rx: c.x - l.x, ry: c.y - t.y };
   }
 
   let frames = 0, lastError = '';
@@ -589,7 +620,7 @@ export function createHero(canvas, { onFrame } = {}) {
     try {
       apply(progress, dt);
       renderer.render(scene, camera);
-      onFrame?.(progress, labels);
+      onFrame?.(progress, labels, fruitBox);
     } catch (err) { lastError = String(err && err.stack || err).slice(0, 300); }
     requestAnimationFrame(frame);
   }
@@ -598,11 +629,13 @@ export function createHero(canvas, { onFrame } = {}) {
     resize: layout,
     set background(css) { scene.background.set(css); },
     set progress(p) { target = clamp(p); },
-    jump(p) { target = progress = clamp(p); apply(progress, 0); renderer.render(scene, camera); onFrame?.(progress, labels); },
+    get progress() { return progress; },
+    jump(p) { target = progress = clamp(p); apply(progress, 0); renderer.render(scene, camera); onFrame?.(progress, labels, fruitBox); },
     start() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); } },
     stop() { running = false; },
     begin() { last = performance.now(); requestAnimationFrame(frame); },
-    labels,
+    labels, fruitBox,
+    get photoReady() { return hasPhoto; },
     renderer,
     state: () => ({ frames, running, target: +target.toFixed(3), progress: +progress.toFixed(3), lastError }),
   };

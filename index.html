@@ -20,8 +20,8 @@
   <link rel="preload" href="assets/fonts/newsreader-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/fonts.css?v=20261024210904">
-  <link rel="stylesheet" href="styles.css?v=20261024210904">
+  <link rel="stylesheet" href="assets/fonts.css?v=20261024221856">
+  <link rel="stylesheet" href="styles.css?v=20261024221856">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -47,7 +47,7 @@
           <use class="mark__ink" href="#lg-line" mask="url(#nav-mask)"/>
         </svg>
       </a>
-      <a class="nav__cta" href="#warteliste">Warteliste</a>
+      <a class="nav__cta" href="#shop">Shop</a>
     </nav>
   </header>
 
@@ -58,14 +58,16 @@
     <section class="hero" id="top" data-hero data-tone="paper" aria-labelledby="hero-title">
       <div class="hero__stage" data-hero-stage>
         <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
-        <img class="hero__still" src="assets/photos/kaffeekirschen-1280.jpg" alt="" width="1280" height="853" loading="lazy" decoding="async">
+        <!-- a real coffee cherry: it lies exactly over the 3D model until the fruit opens -->
+        <img class="hero__cherry" data-hero-cherry src="assets/cherry/kirsche.webp" alt="" width="1011" height="1253" decoding="async" fetchpriority="high"
+             data-texture="assets/cherry/kirsche-textur.jpg" data-aspect="1.2751" data-cx="0.5011" data-cy="0.4951" data-rx="0.4527" data-ry="0.4658">
 
-        <div class="hero__copy" data-beat="-1,-.5,.05,.12">
+        <div class="hero__copy" data-beat="-1,-.5,.04,.1">
           <p class="eyebrow hero__eyebrow">Cascara · Fribourg</p>
           <h1 class="hero__brand" id="hero-title">Cascarup</h1>
           <p class="hero__lede">Sirup aus der Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.</p>
           <div class="hero__actions">
-            <a class="button button--solid" href="#warteliste">Auf die Warteliste</a>
+            <a class="button button--solid" href="#shop">Zum Shop</a>
             <a class="hero__more" href="#cascara">Was ist Cascara?</a>
           </div>
         </div>
@@ -76,17 +78,17 @@
           <span class="hero__part hero__part--up" data-part="pergament"><b>Pergamenthaut</b></span>
           <span class="hero__part hero__part--down" data-part="bohne"><b>Bohne</b></span>
         </div>
-        <p class="hero__caption" data-beat=".19,.24,.37,.4">Eine Kaffeekirsche, Schicht für Schicht.</p>
+        <p class="hero__caption" data-beat=".17,.22,.33,.37">Eine Kaffeekirsche, Schicht für Schicht.</p>
 
-        <p class="hero__beat" data-beat=".43,.46,.5,.53"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
-        <p class="hero__beat" data-beat=".55,.58,.66,.69"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
-        <p class="hero__beat" data-beat=".72,.75,.83,.86"><span class="eyebrow">Der Sirup</span>Daraus kochen wir unseren Sirup.</p>
+        <p class="hero__beat" data-beat=".37,.4,.49,.52"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
+        <p class="hero__beat" data-beat=".53,.56,.66,.69"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
+        <p class="hero__beat" data-beat=".71,.74,.84,.87"><span class="eyebrow">Der Sirup</span>Daraus kochen wir unseren Sirup.</p>
 
-        <div class="hero__end" data-beat=".88,.92,1,1">
+        <div class="hero__end" data-beat=".89,.94,1,1">
           <p class="hero__end-brand">Cascarup</p>
-          <p class="hero__end-text">Bald erhältlich. Trag dich ein, dann schreiben wir dir, sobald die erste Flasche bereit ist.</p>
+          <p class="hero__end-text">Zwei Sorten, in 200 und 500 ml. Bestell online, hol deine Flaschen am Stand ab.</p>
           <div class="hero__actions">
-            <a class="button button--solid" href="#warteliste">Auf die Warteliste</a>
+            <a class="button button--solid" href="#shop">Zum Shop</a>
             <a class="hero__more" href="#staende">Wo du uns findest</a>
           </div>
         </div>
@@ -198,7 +200,6 @@
       </dl>
     </section>
 
-    <!-- Waitlist -->
     <!-- Where our stand is: four dates, a skyline and a map each -->
     <section class="stands" data-tone="paper" id="staende" aria-labelledby="staende-title">
       <div class="stands__inner">
@@ -253,28 +254,63 @@
       </div>
     </section>
 
-    <section class="waitlist" data-tone="terra" id="warteliste" aria-labelledby="warteliste-title">
-      <div class="waitlist__card">
-        <svg class="waitlist__mark" viewBox="0 0 587 614" aria-hidden="true"><use href="#lg-fill"/></svg>
-        <p class="eyebrow">Coming soon</p>
-        <h2 class="display" id="warteliste-title">Die erste Flasche<br>ist in Arbeit.</h2>
-        <p class="waitlist__text">Trag dich ein. Wir schreiben dir einmal: sobald die erste Flasche bereit ist.</p>
-        <form class="notify" data-notify data-endpoint="https://formsubmit.co/ajax/info@cascarup.ch" novalidate>
-          <input type="hidden" name="_subject" value="Neue Anmeldung: Warteliste Cascarup">
-          <input type="hidden" name="_template" value="table">
-          <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <div class="notify__row">
-            <label class="sr-only" for="notify-email">E-Mail-Adresse</label>
-            <input id="notify-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="E-Mail-Adresse" required>
-            <button type="submit">Eintragen</button>
+    <!-- The shop: two kinds, two sizes; ordered here, collected at a stand or at school, paid on collection -->
+    <section class="shop" data-tone="terra" id="shop" aria-labelledby="shop-title">
+      <div class="shop__inner">
+        <header class="shop__head">
+          <p class="eyebrow" data-reveal>Shop</p>
+          <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>
+          <p class="shop__intro" data-reveal style="--d:2">Zwei Sorten, zwei Grössen. Bestell hier und hol deine Flaschen an einem unserer Stände oder am Collège Saint-Michel ab. Bezahlt wird bei der Abholung, bar oder mit TWINT.</p>
+        </header>
+        <div class="shop__grid">
+        <article class="product" data-reveal style="--d:0" data-product='{"id": "cascara", "name": "Cascara", "sizes": [{"ml": 200, "price": 6.95}, {"ml": 500, "price": 12.95}]}'>
+          <div class="product__media"><div class="product__shot" data-shot="200"><svg class="product__bottle" viewBox="0 0 200 300" role="img" aria-label="Cascara, 200 ml"><defs><clipPath id="cl-cascara200"><path d="M100.0,292.0 L147.8,292.0 155.2,289.2 157.0,282.8 157.0,189.0 155.2,177.9 146.0,163.2 127.6,148.5 119.8,139.3 119.3,115.4 121.6,112.6 121.6,106.2 L78.4,106.2 78.4,112.6 80.7,115.4 80.2,139.3 72.4,148.5 54.0,163.2 44.8,177.9 43.0,189.0 43.0,282.8 44.8,289.2 52.2,292.0 Z"/></clipPath><linearGradient id="sy-cascara200" x1="0" x2="1"><stop offset="0" stop-color="#7a2a0e" stop-opacity=".78"/><stop offset=".45" stop-color="#7a2a0e"/><stop offset="1" stop-color="#3a1206"/></linearGradient><linearGradient id="gl-cascara200" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".25" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs><ellipse cx="100" cy="293" rx="72" ry="6" fill="#3a2116" opacity=".16"/><g clip-path="url(#cl-cascara200)"><rect x="0" y="157.7" width="200" height="142.3" fill="url(#sy-cascara200)"/></g><path d="M100.0,292.0 L147.8,292.0 155.2,289.2 157.0,282.8 157.0,189.0 155.2,177.9 146.0,163.2 127.6,148.5 119.8,139.3 119.3,115.4 121.6,112.6 121.6,106.2 L78.4,106.2 78.4,112.6 80.7,115.4 80.2,139.3 72.4,148.5 54.0,163.2 44.8,177.9 43.0,189.0 43.0,282.8 44.8,289.2 52.2,292.0 Z" fill="url(#gl-cascara200)" stroke="#3a2116" stroke-opacity=".22" stroke-width="1.2"/><rect x="42.2" y="201.8" width="115.6" height="51.5" fill="#F7F0E4"/><rect x="42.2" y="205.8" width="115.6" height="1.6" fill="#9C4B23"/><rect x="42.2" y="247.8" width="115.6" height="1.6" fill="#9C4B23"/><text x="100" y="225.6" text-anchor="middle" font-family="DynaPuff, sans-serif" font-weight="700" font-size="17.5" fill="#9C4B23">Cascarup</text><text x="100" y="239.6" text-anchor="middle" font-family="Jost, sans-serif" font-size="6.4" letter-spacing="1.5" fill="#3a2116">CASCARA · 200 ML</text><rect x="75.9" y="81.3" width="48.2" height="27.6" rx="3" fill="#9C4B23"/></svg></div><div class="product__shot" data-shot="500" hidden><svg class="product__bottle" viewBox="0 0 200 300" role="img" aria-label="Cascara, 500 ml"><defs><clipPath id="cl-cascara500"><path d="M100.0,292.0 L161.4,292.0 170.8,288.5 173.2,280.2 173.2,159.8 170.8,145.7 159.0,126.8 135.4,107.9 125.4,96.1 124.8,65.4 127.7,61.9 127.7,53.6 L72.3,53.6 72.3,61.9 75.2,65.4 74.6,96.1 64.6,107.9 41.0,126.8 29.2,145.7 26.8,159.8 26.8,280.2 29.2,288.5 38.6,292.0 Z"/></clipPath><linearGradient id="sy-cascara500" x1="0" x2="1"><stop offset="0" stop-color="#7a2a0e" stop-opacity=".78"/><stop offset=".45" stop-color="#7a2a0e"/><stop offset="1" stop-color="#3a1206"/></linearGradient><linearGradient id="gl-cascara500" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".25" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs><ellipse cx="100" cy="293" rx="92" ry="6" fill="#3a2116" opacity=".16"/><g clip-path="url(#cl-cascara500)"><rect x="0" y="119.7" width="200" height="180.3" fill="url(#sy-cascara500)"/></g><path d="M100.0,292.0 L161.4,292.0 170.8,288.5 173.2,280.2 173.2,159.8 170.8,145.7 159.0,126.8 135.4,107.9 125.4,96.1 124.8,65.4 127.7,61.9 127.7,53.6 L72.3,53.6 72.3,61.9 75.2,65.4 74.6,96.1 64.6,107.9 41.0,126.8 29.2,145.7 26.8,159.8 26.8,280.2 29.2,288.5 38.6,292.0 Z" fill="url(#gl-cascara500)" stroke="#3a2116" stroke-opacity=".22" stroke-width="1.2"/><rect x="25.9" y="176.4" width="148.2" height="66.1" fill="#F7F0E4"/><rect x="25.9" y="180.4" width="148.2" height="1.6" fill="#9C4B23"/><rect x="25.9" y="236.8" width="148.2" height="1.6" fill="#9C4B23"/><text x="100" y="207.4" text-anchor="middle" font-family="DynaPuff, sans-serif" font-weight="700" font-size="22.4" fill="#9C4B23">Cascarup</text><text x="100" y="224.7" text-anchor="middle" font-family="Jost, sans-serif" font-size="8.3" letter-spacing="1.5" fill="#3a2116">CASCARA · 500 ML</text><rect x="69.1" y="21.8" width="61.8" height="35.4" rx="3" fill="#9C4B23"/></svg></div></div>
+          <div class="product__body">
+            <h3 class="product__name">Cascara</h3>
+            <p class="product__text">Der Klassiker aus der Schale der Kaffeekirsche: fruchtig, mit Noten von Honig und Dörrpflaume.</p>
+            <div class="product__sizes" role="group" aria-label="Grösse"><button type="button" class="product__size" data-size="200" aria-pressed="true">200 ml</button><button type="button" class="product__size" data-size="500" aria-pressed="false">500 ml</button></div>
+            <p class="product__price" data-price>CHF 6.95</p>
+            <div class="product__buy">
+              <div class="qty" data-qty>
+                <button type="button" data-step="-1" aria-label="Eine Flasche weniger">−</button>
+                <input type="number" inputmode="numeric" min="1" max="24" value="1" aria-label="Anzahl">
+                <button type="button" data-step="1" aria-label="Eine Flasche mehr">+</button>
+              </div>
+              <button type="button" class="button button--solid product__add" data-add>In den Warenkorb</button>
+            </div>
           </div>
-          <label class="notify__consent">
-            <input type="checkbox" name="consent" id="notify-consent" required>
-            <span>Ich bin einverstanden, dass meine E-Mail-Adresse für diese eine Benachrichtigung gespeichert und dafür über den Dienst FormSubmit ins Ausland übermittelt wird. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span>
-          </label>
-          <p class="notify__status" role="status" aria-live="polite"></p>
-        </form>
-        <div class="waitlist__social"><p>Bis dahin: <strong>@cascarup</strong></p><ul class="socials" aria-label="Cascarup in den sozialen Medien"><li><a href="https://www.instagram.com/cascarup/" target="_blank" rel="noopener" aria-label="Cascarup auf Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/></svg></a></li><li><a href="https://www.tiktok.com/@cascarup" target="_blank" rel="noopener" aria-label="Cascarup auf TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 2.8v12.6a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14.4 2.8c.6 3.2 2.9 5.4 6.2 5.6"/></svg></a></li><li><a href="https://x.com/cascarup_ch" target="_blank" rel="noopener" aria-label="Cascarup auf X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.6 4.5h4l10.8 15h-4z"/><path d="M19 4.5l-5.9 6.5M10.9 13.4 5 19.5"/></svg></a></li></ul></div>
+        </article>
+        <article class="product" data-reveal style="--d:1" data-product='{"id": "gifferstee", "name": "Gifferstee", "sizes": [{"ml": 200, "price": 7.95}, {"ml": 500, "price": 13.95}]}'>
+          <div class="product__media"><div class="product__shot" data-shot="200"><svg class="product__bottle" viewBox="0 0 200 300" role="img" aria-label="Gifferstee, 200 ml"><defs><clipPath id="cl-gifferstee200"><path d="M100.0,292.0 L147.8,292.0 155.2,289.2 157.0,282.8 157.0,189.0 155.2,177.9 146.0,163.2 127.6,148.5 119.8,139.3 119.3,115.4 121.6,112.6 121.6,106.2 L78.4,106.2 78.4,112.6 80.7,115.4 80.2,139.3 72.4,148.5 54.0,163.2 44.8,177.9 43.0,189.0 43.0,282.8 44.8,289.2 52.2,292.0 Z"/></clipPath><linearGradient id="sy-gifferstee200" x1="0" x2="1"><stop offset="0" stop-color="#8a4a16" stop-opacity=".78"/><stop offset=".45" stop-color="#8a4a16"/><stop offset="1" stop-color="#3a1206"/></linearGradient><linearGradient id="gl-gifferstee200" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".25" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs><ellipse cx="100" cy="293" rx="72" ry="6" fill="#3a2116" opacity=".16"/><g clip-path="url(#cl-gifferstee200)"><rect x="0" y="157.7" width="200" height="142.3" fill="url(#sy-gifferstee200)"/></g><path d="M100.0,292.0 L147.8,292.0 155.2,289.2 157.0,282.8 157.0,189.0 155.2,177.9 146.0,163.2 127.6,148.5 119.8,139.3 119.3,115.4 121.6,112.6 121.6,106.2 L78.4,106.2 78.4,112.6 80.7,115.4 80.2,139.3 72.4,148.5 54.0,163.2 44.8,177.9 43.0,189.0 43.0,282.8 44.8,289.2 52.2,292.0 Z" fill="url(#gl-gifferstee200)" stroke="#3a2116" stroke-opacity=".22" stroke-width="1.2"/><rect x="42.2" y="201.8" width="115.6" height="51.5" fill="#F7F0E4"/><rect x="42.2" y="205.8" width="115.6" height="1.6" fill="#9C4B23"/><rect x="42.2" y="247.8" width="115.6" height="1.6" fill="#9C4B23"/><text x="100" y="225.6" text-anchor="middle" font-family="DynaPuff, sans-serif" font-weight="700" font-size="17.5" fill="#9C4B23">Cascarup</text><text x="100" y="239.6" text-anchor="middle" font-family="Jost, sans-serif" font-size="6.4" letter-spacing="1.5" fill="#3a2116">GIFFERSTEE · 200 ML</text><rect x="75.9" y="81.3" width="48.2" height="27.6" rx="3" fill="#9C4B23"/></svg></div><div class="product__shot" data-shot="500" hidden><svg class="product__bottle" viewBox="0 0 200 300" role="img" aria-label="Gifferstee, 500 ml"><defs><clipPath id="cl-gifferstee500"><path d="M100.0,292.0 L161.4,292.0 170.8,288.5 173.2,280.2 173.2,159.8 170.8,145.7 159.0,126.8 135.4,107.9 125.4,96.1 124.8,65.4 127.7,61.9 127.7,53.6 L72.3,53.6 72.3,61.9 75.2,65.4 74.6,96.1 64.6,107.9 41.0,126.8 29.2,145.7 26.8,159.8 26.8,280.2 29.2,288.5 38.6,292.0 Z"/></clipPath><linearGradient id="sy-gifferstee500" x1="0" x2="1"><stop offset="0" stop-color="#8a4a16" stop-opacity=".78"/><stop offset=".45" stop-color="#8a4a16"/><stop offset="1" stop-color="#3a1206"/></linearGradient><linearGradient id="gl-gifferstee500" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".25" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient></defs><ellipse cx="100" cy="293" rx="92" ry="6" fill="#3a2116" opacity=".16"/><g clip-path="url(#cl-gifferstee500)"><rect x="0" y="119.7" width="200" height="180.3" fill="url(#sy-gifferstee500)"/></g><path d="M100.0,292.0 L161.4,292.0 170.8,288.5 173.2,280.2 173.2,159.8 170.8,145.7 159.0,126.8 135.4,107.9 125.4,96.1 124.8,65.4 127.7,61.9 127.7,53.6 L72.3,53.6 72.3,61.9 75.2,65.4 74.6,96.1 64.6,107.9 41.0,126.8 29.2,145.7 26.8,159.8 26.8,280.2 29.2,288.5 38.6,292.0 Z" fill="url(#gl-gifferstee500)" stroke="#3a2116" stroke-opacity=".22" stroke-width="1.2"/><rect x="25.9" y="176.4" width="148.2" height="66.1" fill="#F7F0E4"/><rect x="25.9" y="180.4" width="148.2" height="1.6" fill="#9C4B23"/><rect x="25.9" y="236.8" width="148.2" height="1.6" fill="#9C4B23"/><text x="100" y="207.4" text-anchor="middle" font-family="DynaPuff, sans-serif" font-weight="700" font-size="22.4" fill="#9C4B23">Cascarup</text><text x="100" y="224.7" text-anchor="middle" font-family="Jost, sans-serif" font-size="8.3" letter-spacing="1.5" fill="#3a2116">GIFFERSTEE · 500 ML</text><rect x="69.1" y="21.8" width="61.8" height="35.4" rx="3" fill="#9C4B23"/></svg></div></div>
+          <div class="product__body">
+            <h3 class="product__name">Gifferstee</h3>
+            <p class="product__text">Unsere zweite Sorte.</p>
+            <div class="product__sizes" role="group" aria-label="Grösse"><button type="button" class="product__size" data-size="200" aria-pressed="true">200 ml</button><button type="button" class="product__size" data-size="500" aria-pressed="false">500 ml</button></div>
+            <p class="product__price" data-price>CHF 7.95</p>
+            <div class="product__buy">
+              <div class="qty" data-qty>
+                <button type="button" data-step="-1" aria-label="Eine Flasche weniger">−</button>
+                <input type="number" inputmode="numeric" min="1" max="24" value="1" aria-label="Anzahl">
+                <button type="button" data-step="1" aria-label="Eine Flasche mehr">+</button>
+              </div>
+              <button type="button" class="button button--solid product__add" data-add>In den Warenkorb</button>
+            </div>
+          </div>
+        </article>
+        </div>
+        <details class="shop__facts">
+          <summary>Zutaten und Hinweise</summary>
+          <dl class="facts">
+            <div><dt>Zutaten</dt><dd><span class="muted">folgt</span></dd></div>
+            <div><dt>Allergene</dt><dd><span class="muted">folgt</span></dd></div>
+            <div><dt>Füllmenge</dt><dd>200 ml oder 500 ml</dd></div>
+            <div><dt>Haltbarkeit</dt><dd><span class="muted">folgt</span></dd></div>
+            <div><dt>Hinweis</dt><dd>Enthält Koffein aus der Kaffeekirsche.</dd></div>
+            <div><dt>Hergestellt von</dt><dd>Cascarup, c/o Collège Saint-Michel, Fribourg, Schweiz</dd></div>
+          </dl>
+        </details>
+        <p class="shop__note">Alle Preise in Schweizer Franken. Mit der Bestellung akzeptierst du unsere <a href="bestellbedingungen.html">Bestellbedingungen</a>.</p>
+        <div class="shop__social"><p>Neues von uns: <strong>@cascarup</strong></p><ul class="socials" aria-label="Cascarup in den sozialen Medien"><li><a href="https://www.instagram.com/cascarup/" target="_blank" rel="noopener" aria-label="Cascarup auf Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/></svg></a></li><li><a href="https://www.tiktok.com/@cascarup" target="_blank" rel="noopener" aria-label="Cascarup auf TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 2.8v12.6a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14.4 2.8c.6 3.2 2.9 5.4 6.2 5.6"/></svg></a></li><li><a href="https://x.com/cascarup_ch" target="_blank" rel="noopener" aria-label="Cascarup auf X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.6 4.5h4l10.8 15h-4z"/><path d="M19 4.5l-5.9 6.5M10.9 13.4 5 19.5"/></svg></a></li></ul></div>
         <ul class="feed" style="--n:2" aria-label="Unsere neuesten Beiträge auf Instagram"><li><a class="feed__post" href="https://www.instagram.com/p/DeKD0cnCoG1/" target="_blank" rel="noopener"><img src="assets/instagram/2026-10-06-eroeffnungsfeier.jpg" alt="Plakat: Eröffnungsfeier von Cascarup und Young Enterprise Switzerland, Donnerstag, 29. Oktober 2026, 19 Uhr, Aula Kollegium Gambach" width="1080" height="1350" loading="lazy" decoding="async"></a></li><li><a class="feed__more" href="https://www.instagram.com/cascarup/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/></svg><span>Mehr auf Instagram<br><strong>@cascarup</strong></span></a></li></ul>
       </div>
     </section>
@@ -296,13 +332,14 @@
           <li><a href="#ideen">Ideen</a></li>
           <li><a href="#projekt">Projekt</a></li>
           <li><a href="#staende">Stände</a></li>
-          <li><a href="#warteliste">Warteliste</a></li>
+          <li><a href="#shop">Shop</a></li>
         </ul>
       </nav>
       <nav class="footer__nav" aria-label="Rechtliches">
         <p class="eyebrow">Rechtliches</p>
         <ul>
           <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="bestellbedingungen.html">Bestellbedingungen</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
           <li><a href="impressum.html#bildnachweis">Bildnachweis</a></li>
         </ul>
@@ -314,7 +351,49 @@
     </div>
   </footer>
 
-  <script src="main.js?v=20261024210904" defer></script>
-  <script type="module" src="assets/hero3d.js?v=20261024210904"></script>
+  <!-- the basket: a quiet sheet from the side (from below on phones) -->
+  <button class="basket-btn" type="button" data-cart-open hidden aria-label="Warenkorb öffnen"><span>Warenkorb</span><span class="basket-btn__count" data-cart-count>0</span></button>
+  <dialog class="cart" data-cart aria-labelledby="cart-title">
+    <div class="cart__inner">
+      <header class="cart__head">
+        <h2 class="cart__title" id="cart-title">Dein Warenkorb</h2>
+        <button class="cart__close" type="button" data-cart-close aria-label="Schliessen">×</button>
+      </header>
+      <div class="cart__body" data-cart-body>
+        <ul class="cart__items" data-cart-items></ul>
+        <p class="cart__empty" data-cart-empty>Noch leer. Such dir im Shop eine Flasche aus.</p>
+        <form class="order" data-order data-endpoint="https://formsubmit.co/ajax/info@cascarup.ch" novalidate hidden>
+          <p class="order__total"><span>Total</span> <strong data-cart-total>CHF 0.00</strong></p>
+          <fieldset class="order__group">
+            <legend>Abholung</legend>
+            <div class="order__picks"><label class="pick" data-pick-date="2026-10-29"><input type="radio" name="abholung" value="29. Oktober: Eröffnungsfeier, Aula, Collège de Gambach, Fribourg" required><span><strong>Do, 29. Oktober</strong> Eröffnungsfeier<br><span class="muted">Aula, Collège de Gambach, Fribourg</span></span></label><label class="pick" data-pick-date="2026-11-14"><input type="radio" name="abholung" value="14. November: Wochenmarkt, Altstadt, Estavayer-le-Lac" required><span><strong>Sa, 14. November</strong> Wochenmarkt<br><span class="muted">Altstadt, Estavayer-le-Lac</span></span></label><label class="pick" data-pick-date="2026-12-05"><input type="radio" name="abholung" value="5. Dezember: Saint-Nicolas-Markt, Collège Saint-Michel, Fribourg" required><span><strong>Sa, 5. Dezember</strong> Saint-Nicolas-Markt<br><span class="muted">Collège Saint-Michel, Fribourg</span></span></label><label class="pick" data-pick-date="2026-12-19"><input type="radio" name="abholung" value="19. Dezember: Weihnachtsmarkt, Altstadt, Avenches" required><span><strong>Sa, 19. Dezember</strong> Weihnachtsmarkt<br><span class="muted">Altstadt, Avenches</span></span></label><label class="pick"><input type="radio" name="abholung" value="Collège Saint-Michel, nach Absprache" required><span><strong>Collège Saint-Michel</strong> nach Absprache<br><span class="muted">Wir melden uns per E-Mail.</span></span></label></div>
+          </fieldset>
+          <fieldset class="order__group">
+            <legend>Deine Angaben</legend>
+            <label class="field"><span>Name</span><input name="name" autocomplete="name" required></label>
+            <label class="field"><span>E-Mail</span><input name="email" type="email" autocomplete="email" inputmode="email" required></label>
+            <label class="field"><span>Telefon <span class="muted">(freiwillig)</span></span><input name="telefon" type="tel" autocomplete="tel" inputmode="tel"></label>
+            <label class="field"><span>Bemerkung <span class="muted">(freiwillig)</span></span><textarea name="bemerkung" rows="2"></textarea></label>
+          </fieldset>
+          <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <label class="order__consent"><input type="checkbox" name="zustimmung" required>
+            <span>Ich akzeptiere die <a href="bestellbedingungen.html" target="_blank">Bestellbedingungen</a> und bin einverstanden, dass meine Angaben für diese Bestellung über den Dienst FormSubmit (Ausland) an Cascarup übermittelt werden. Mehr in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
+          <button class="button button--solid order__submit" type="submit">Bestellung absenden</button>
+          <p class="order__pay">Bezahlung bei der Abholung, bar oder mit TWINT.</p>
+          <p class="order__status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="cart__done" data-cart-done hidden tabindex="-1">
+        <p class="eyebrow">Danke!</p>
+        <p class="cart__done-title">Deine Bestellung ist bei uns.</p>
+        <p class="cart__done-text">Bestellnummer <strong data-done-number></strong>. Du bekommst gleich eine Bestätigung per E-Mail. Bezahlt wird bei der Abholung.</p>
+        <button class="button button--solid" type="button" data-cart-close>Weiter stöbern</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="main.js?v=20261024221856" defer></script>
+  <script src="shop.js?v=20261024221856" defer></script>
+  <script type="module" src="assets/hero3d.js?v=20261024221856"></script>
 </body>
 </html>
