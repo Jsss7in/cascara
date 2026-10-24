@@ -121,7 +121,7 @@ export async function setup(canvas) {
       color: '#ffffff', roughness: .03, transmission: 1, thickness: .3, ior: 1.5, clearcoat: 1, clearcoatRoughness: .02,
       attenuationColor: new Color('#e4ebe2'), attenuationDistance: 2.5, transparent: true, side: DoubleSide, depthWrite: false,
     }));
-    const level = 1.5;
+    const level = 1.8;   // filled into the neck, as in the opening
     const syrup = new Mesh(lathe(BOTTLE.slice(0, 10), .035), new MeshPhysicalMaterial({
       color: '#ffffff', roughness: .05, transmission: 1, thickness: 1.1, ior: 1.45,
       attenuationColor: new Color(k.syrup), attenuationDistance: .95, clearcoat: 1,

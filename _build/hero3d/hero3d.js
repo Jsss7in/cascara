@@ -220,7 +220,7 @@ function parchmentGeometry(side) {
 // and spreads until all of it is syrup. The syrup's own attenuation (its colour in depth) is mixed per pixel
 // between clear water and syrup, by a density sampled a few steps into the liquid along the view.
 const INFUSE_GLSL = `
-uniform float uBloom; uniform float uTime; uniform float uTop; uniform vec3 uSrc0; uniform vec3 uSrc1; uniform vec3 uWater;
+uniform float uBloom; uniform float uTime; uniform float uTop; uniform vec3 uSrc0; uniform vec3 uSrc1;
 vec3 m289(vec3 x) { return x - floor(x * (1. / 289.)) * 289.; }
 vec4 m289(vec4 x) { return x - floor(x * (1. / 289.)) * 289.; }
 vec4 perm4(vec4 x) { return m289(((x * 34.) + 10.) * x); }
@@ -251,14 +251,18 @@ float trail(vec3 p, vec3 s) {
 }
 float steep(vec3 p) {
   float d = min(trail(p, uSrc0), trail(p, uSrc1));
-  float n = snoise(p * 2.4 + vec3(0., uTime * .1, 0.)) * .65 + snoise(p * 5.7 - vec3(0., uTime * .16, 0.)) * .35;
-  float reach = mix(-.12, 2.4, uBloom);
-  // at first thin wisps along the trails, then billows, then all of it
-  return smoothstep(0., .42, reach - d * mix(2.2, 1., smoothstep(0., .35, uBloom)) + n * .36 * (1. - uBloom * .6));
+  // broad, slow billows with a finer curl in them, drifting downwards as the colour sinks
+  float n = snoise(p * vec3(1.5, 1.1, 1.5) + vec3(0., uTime * .09, 0.)) * .7 + snoise(p * 4.2 - vec3(0., uTime * .14, 0.)) * .3;
+  float reach = mix(.02, 2.6, uBloom);
+  // at first faint wisps along the paths the pieces took, then soft clouds, then all of it; never a hard edge
+  float cloud = smoothstep(-.15, .95, reach - d * mix(1.8, 1., smoothstep(0., .4, uBloom)) + n * .45 * (1. - uBloom * .5));
+  // the thin amber threads each piece draws behind it as it sinks
+  float wisp = exp(-d * d / .03) * (.55 + .45 * n) * smoothstep(0., .04, uBloom);
+  return max(cloud, wisp);
 }`;
 function infusing(mat) {
   const u = { uBloom: { value: 0 }, uTime: { value: 0 }, uTop: { value: 0 }, uSrc0: { value: new Vector3(0, 9, 0) },
-    uSrc1: { value: new Vector3(0, 9, 0) }, uWater: { value: new Color('#f4ece0') } };
+    uSrc1: { value: new Vector3(0, 9, 0) } };
   mat.userData.infuse = u;
   mat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, u);
@@ -270,17 +274,18 @@ function infusing(mat) {
     float dens = 0.0;
     for ( int i = 0; i < 5; i ++ ) dens += steep( vWorldPosition + rd * ( .07 + float( i ) * .16 ) );
     dens /= 5.0;
-    material.attenuationColor = mix( uWater, attenuationColor, dens );
-    material.attenuationDistance = mix( 7.0, attenuationDistance, dens );
+    // clear water absorbs nothing; where the cascara has steeped, the same amber absorbs ever more
+    material.attenuationColor = attenuationColor;
+    material.attenuationDistance = attenuationDistance / max( dens, .002 );   // absorption grows with the density
   }`));
   };
-  mat.customProgramCacheKey = () => 'cascarup-infuse-1';
+  mat.customProgramCacheKey = () => 'cascarup-infuse-6';
   return mat;
 }
 
 // the bottle: a round syrup bottle, its profile turned on the lathe – the mouth is open, the lip rolls inwards
 export const BOTTLE = [[0, 0], [.52, 0], [.6, .03], [.62, .1], [.62, 1.12], [.6, 1.24], [.5, 1.4], [.3, 1.56], [.215, 1.66],
-  [.21, 1.92], [.235, 1.95], [.235, 2.02], [.17, 2.02], [.17, 1.75]];
+  [.21, 1.92], [.235, 1.95], [.235, 2.02], [.17, 2.02], [.17, 1.74], [.2, 1.67]];
 export const MOUTH = 2.02;
 export function lathe(points, inset = 0, segs = 96) {
   return new LatheGeometry(points.map(([r, y]) => new Vector2(Math.max(0, r - inset), y)), segs);
@@ -334,7 +339,7 @@ export function shadowTexture() {
 
 // ---------------------------------------------------------------------------------------------------------------
 // The timeline, in scroll progress 0–1. CHAPTERS are where the page comes to rest (page.js glides between them).
-export const CHAPTERS = [0, .28, .45, .61, .8, 1];
+export const CHAPTERS = [0, .28, .45, .6, .73, .84, 1];
 
 export function createHero(canvas, { onFrame, photo } = {}) {
   // the model takes the photograph's proportions, so the photo and the model are one fruit
@@ -414,7 +419,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
   const infuse = syrupMat.userData.infuse;
   const syrup = new Mesh(lathe(BOTTLE.slice(0, 10), .035), syrupMat);
   const surface = new Mesh(new CircleGeometry(1, 72), new MeshPhysicalMaterial({ color: '#7d2e0f', roughness: .05, clearcoat: 1, transparent: true }));
-  const SURF_WATER = new Color('#e9dcc6'), SURF_SYRUP = new Color('#7d2e0f');
+
   surface.rotation.x = -Math.PI / 2;
   const meniscus = new Mesh(new TorusGeometry(1, .01, 8, 96), new MeshPhysicalMaterial({ color: '#a85a34', roughness: .15, transparent: true, opacity: .35 }));
   meniscus.rotation.x = Math.PI / 2;
@@ -428,7 +433,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
   syrup.renderOrder = surface.renderOrder = meniscus.renderOrder = 1;   // drawn after the glass, or the glass would hide them
   document.fonts?.load('700 100px DynaPuff').then(() => { labelMat.map = labelTexture(); labelMat.needsUpdate = true; });
   // the rings each piece of cascara leaves on the water as it goes in
-  const rippleMat = new MeshPhysicalMaterial({ color: '#f3e6d2', roughness: .15, clearcoat: 1, transparent: true, opacity: 0, depthWrite: false });
+  const rippleMat = new MeshPhysicalMaterial({ color: '#ffffff', roughness: .1, clearcoat: 1, transparent: true, opacity: 0, depthWrite: false });
   const ripples = [0, 1].map(() => { const r = new Mesh(new TorusGeometry(1, .009, 8, 72), rippleMat.clone()); r.rotation.x = Math.PI / 2; r.visible = false; world.add(r); return r; });
 
   // the still life: two small dried halves – cascara – on the table beside the bottle
@@ -436,8 +441,8 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     const m = new Mesh(sd.skin.geometry, skinMaterial(speckle));
     m.morphTargetInfluences = [1]; m.material.userData.dry.value = 1;
     m.material.roughness = .58; m.material.clearcoat = .16; m.material.clearcoatRoughness = .4; m.material.sheen = .4; m.material.sheenColor.set('#c07a5c');
-    m.scale.setScalar(.3); m.visible = false; world.add(m);
-    return { m, x: i ? -1.05 : -1.5, z: i ? .55 : .05, ry: i ? 2.4 : -.6 };
+    m.scale.setScalar(.2); m.visible = false; world.add(m);
+    return { m, x: i ? -1.02 : -1.32, z: i ? .5 : .1, ry: i ? 2.4 : -.6 };
   });
   // the still life at the end: a fresh cherry rolls in beside the bottle
   const fresh = new Group();
@@ -445,7 +450,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
   for (const s of sides) { const m = new Mesh(s.skin.geometry, freshMat); m.morphTargetInfluences = [0]; fresh.add(m); }
   const fStalk = new Mesh(stalk.geometry, woody); fStalk.position.y = RY + .06; fStalk.rotation.z = -.15; fresh.add(fStalk);
   const fCrown = crown.clone(); fresh.add(fCrown);
-  fresh.scale.setScalar(.36); world.add(fresh);
+  const FRESH = .25; fresh.scale.setScalar(FRESH); world.add(fresh);
   const freshShadow = new Mesh(new PlaneGeometry(1, 1), bottleShadow.material.clone());
   freshShadow.rotation.x = -Math.PI / 2; world.add(freshShadow);
 
@@ -481,7 +486,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     wide = w / h > 1.05;
-    camera.fov = wide ? 24 : 33;
+    camera.fov = wide ? 24 : lerp(33, 27, smooth(.56, .8, w / h));
     camera.updateProjectionMatrix();
     // labels above and below on wide screens; on phones (diagonal, names to the left) spread along the diagonal
     anchors.fleisch.position.set(.58, wide ? -.5 : .55, .4);
@@ -496,7 +501,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
   }
 
   const FLOOR = -1.45, BOTTLE_S = 1.15, MOUTH_Y = FLOOR + MOUTH * BOTTLE_S;
-  const WATER = 1.5, WATER_Y = FLOOR + WATER * BOTTLE_S, BED_Y = FLOOR + .16 * BOTTLE_S;   // the water's level, the bottle's floor
+  const WATER = 1.8, WATER_Y = FLOOR + WATER * BOTTLE_S, BED_Y = FLOOR + .16 * BOTTLE_S;   // the water's level, the bottle's floor
   const DROP = { 1: .668, '-1': .692 };                          // when each piece of cascara is let go (the right one first)
   const wp = new Vector3();
   const OFF = { skin: 1.9, pulp: 1.3, parch: .8, bean: .3 };
@@ -513,8 +518,8 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     const dryS = ease(.48, .6, p);                    // …and the shell gathers into soft folds
     const bottleIn = ease(.575, .665, p);             // the bottle comes up, with hot water in it
     const gather = ease(.6, .66, p);                  // the dried halves close up, small, above its mouth…
-    const bloom = smooth(.692, .85, p);               // …drop in one after the other, and the water takes their colour
-    const capOn = ease(.87, .92, p);
+    const bloom = smooth(.7, .83, p);                 // …drop in one after the other, and the water takes their colour
+    const capOn = ease(.865, .915, p);
     const labelIn = smooth(.89, .94, p);
     const rollIn = ease(.89, .97, p);
     const pourCam = smooth(.6, .7, p) * (1 - smooth(.87, .95, p));
@@ -523,7 +528,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     // camera: right of the words, centred for the exploded view, up a little for the pour, down for the still life
     const camY = lerp(lerp(lerp(0, .62, smooth(.6, .67, p)), .14, smooth(.7, .79, p)), -.2, endPhase);
     if (wide) aim(-.2 * (1 - open), 0, 1, camY);
-    else aim(0, lerp(lerp(-.21, -.03, open), -.12, pourCam), 1 + .3 * open + .1 * pourCam, camY);
+    else aim(0, lerp(lerp(-.21, -.03, open), -.06, pourCam), 1 + .3 * open - .2 * pourCam, camY);
 
     // the whole fruit floats; for the exploded view a three-quarter view (on phones a diagonal)
     world.rotation.y = -.35 * explode * (1 - together);
@@ -562,22 +567,25 @@ export function createHero(canvas, { onFrame, photo } = {}) {
       s.parch.visible = layersGo < .995 && explode > .002;
       // the beans: an arc up and away to the right, turning as they go, until they have left the picture
       const b = beansGo, bt = b * b;
-      s.bean.position.set(k * OFF.bean + bt * (6 + s.side * .5), bt * 4.2 + Math.sin(b * Math.PI) * .5 + (s.side > 0 ? .1 : -.1) * b, -bt * 2.2);
+      const fx = bt * (wide ? 6 + s.side * .5 : 7.5 + s.side * .4), fy = bt * (wide ? 4.2 : -.6) + Math.sin(b * Math.PI) * .5 + (s.side > 0 ? .1 : -.1) * b;
+      const ct = Math.cos(-tilt), st = Math.sin(-tilt);
+      s.bean.position.set(k * OFF.bean + fx * ct - fy * st, fx * st + fy * ct, -bt * 2.2);
       s.bean.rotation.set(b * 2.6 * s.side, b * 3.4, explode * s.side * .2 + b * 1.5);
       s.bean.visible = explode > .002 && b < .999;
 
       // The dried halves go into the water: they close up and grow small above the bottle's mouth, fall through
       // the neck, hit the water and sink slowly, tumbling, to the bottom, where the syrup swallows them.
       if (gather > 0) {
-        const at = DROP[s.side], fall = clamp((p - at) / .026), sink = smooth(at + .026, at + .115, p);
-        const sway = Math.sin(sink * Math.PI * 1.6) * .07 * (1 - sink);
-        let x = lerp(s.side * .42, s.side * .1, gather), y = lerp(cherry.position.y, MOUTH_Y + .6, gather), z = 0;
-        if (fall > 0) { x = lerp(x, s.side * .03, fall); y = lerp(y, WATER_Y, fall * fall); }
-        if (sink > 0) { x = lerp(x, s.side * .2, sink) + sway; y = lerp(y, BED_Y + .1, sink); z = lerp(0, s.side * .08, sink); }
+        const at = DROP[s.side], fall = clamp((p - at) / .026), sink = smooth(at + .026, at + .1, p);
+        const sway = Math.sin(sink * Math.PI * 1.6) * .06 * (1 - sink);
+        // over the mouth they wait side by side, then each is lined up with the neck as it drops
+        let x = lerp(s.side * .42, s.side * .13, gather), y = lerp(cherry.position.y, MOUTH_Y + .55, gather), z = 0;
+        if (fall > 0) { x = lerp(x, 0, Math.min(1, fall * 1.6)); y = lerp(y, WATER_Y - .05, fall * fall); }
+        if (sink > 0) { x = lerp(x, s.side * .2, sink) + sway; y = lerp(y, BED_Y + .08, sink); z = lerp(0, s.side * .08, sink); }
         s.half.position.set(x, y - cherry.position.y, z);
-        s.half.rotation.set(sink * 1.3 * s.side, gather * .5 * s.side + sink * .8, s.side * (gather * .9 + fall * .9 + sink * 1.9));
+        s.half.rotation.set(sink * 1.2 * s.side, gather * .35 * s.side + sink * .8, s.side * (gather * .12 + sink * 1.7));
         // at the bottom they give the water all they have, and are gone
-        s.half.scale.setScalar(lerp(1, .24, gather) * Math.max(.001, 1 - smooth(.775, .845, p)));
+        s.half.scale.setScalar(lerp(1, .16, gather) * Math.max(.001, 1 - smooth(.74, .8, p)));
         s.half.getWorldPosition(wp);
         (s.side > 0 ? infuse.uSrc1 : infuse.uSrc0).value.copy(wp);
         // the ring it leaves on the water
@@ -590,7 +598,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
           r.material.opacity = .7 * (1 - rt);
         }
       } else { s.half.position.y = 0; s.half.rotation.x = s.half.rotation.z = 0; s.half.scale.setScalar(1); }
-      s.half.visible = p < .86;
+      s.half.visible = p < .8;
     }
     stalk.visible = crown.visible = navel.visible = !hasPhoto && explode < .02;
 
@@ -605,34 +613,40 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     const rr = radiusAt(WATER, .035);
     surface.scale.setScalar(rr); meniscus.scale.set(rr, rr, 1);
     infuse.uBloom.value = bloom; infuse.uTime.value = time; infuse.uTop.value = surfaceY;
-    if (p >= .86) { infuse.uSrc0.value.set(0, BED_Y, 0); infuse.uSrc1.value.set(0, BED_Y, 0); }
-    // the surface is all but clear water at first and syrup at last
-    const sb = Math.pow(bloom, .8);
-    surface.material.color.copy(SURF_WATER).lerp(SURF_SYRUP, sb);
-    surface.material.opacity = lerp(.22, 1, sb);
-    meniscus.material.opacity = lerp(.55, .35, sb);
+    if (p >= .8) { infuse.uSrc0.value.set(0, BED_Y, 0); infuse.uSrc1.value.set(0, BED_Y, 0); }
+    // While it is water the liquid barely bends the light (a thick lens would blow the pieces up); as syrup it is
+    // deep. Thickness and absorption distance grow together, so the colour per depth stays the same.
+    const deep = smooth(.76, .84, p);
+    syrupMat.thickness = lerp(.16, 1.1, deep); syrupMat.ior = lerp(1.33, 1.45, deep);
+    syrupMat.attenuationDistance = lerp(.14, .95, deep);
+    // the surface shows only as the syrup's own dark top, once there is syrup
+    surface.material.opacity = .92 * smooth(.74, .84, p);
+    surface.visible = surface.material.opacity > .002;
+    meniscus.material.opacity = lerp(.5, .35, deep);
+    // the cap comes down from above the picture, turning on
     cap.visible = capOn > .001;
-    cap.position.y = lerp(2.75, MOUTH - .05, capOn);
+    cap.position.y = lerp(MOUTH + 1.6, MOUTH - .05, capOn);
     cap.rotation.y = (1 - capOn) * 4;
     labelMat.opacity = labelIn;
     label.visible = labelIn > .001;
     bottleShadow.material.opacity = .8 * bottleIn;
 
     // the dried halves settle on the table, cut side down
-    const settleIn = ease(.88, .95, p);
+    const settleIn = ease(.89, .96, p);
     dried.forEach((d, i) => {
       d.m.visible = settleIn > .001;
-      d.m.position.set(d.x, FLOOR + .19 + (1 - settleIn) * (1.2 + i * .4), d.z);
-      d.m.rotation.set(Math.PI / 2 * (i ? 1 : -1) * .92, d.ry + (1 - settleIn) * 1.4, 0);
+      d.m.position.set(d.x, FLOOR + .13, d.z);
+      d.m.rotation.set(Math.PI / 2 * (i ? 1 : -1) * .92, d.ry + (1 - settleIn) * .6, 0);
+      d.m.scale.setScalar(.2 * Math.max(.001, settleIn));
     });
     // a fresh cherry rolls in and stops beside the bottle
     fresh.visible = rollIn > .001;
-    const fx = lerp(4.2, 1.2, rollIn), r = .36 * RX;
-    fresh.position.set(fx, FLOOR + .36 * RY + .035, .35);
-    fresh.rotation.set(0, 0, -(fx - 1.2) / r);
+    const fx = lerp(4.2, 1.05, rollIn), r = FRESH * RX;
+    fresh.position.set(fx, FLOOR + FRESH * RY + .025, .35);
+    fresh.rotation.set(0, 0, -(fx - 1.05) / r);
     freshShadow.visible = fresh.visible;
     freshShadow.position.set(fx, FLOOR + .003, .35);
-    freshShadow.scale.setScalar(.95);
+    freshShadow.scale.setScalar(.68);
     freshShadow.material.opacity = .7 * rollIn;
 
     // the cherry's shadow, until the halves rise

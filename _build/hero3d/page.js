@@ -77,7 +77,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
     stopGlide();
     const from = window.scrollY, dist = y - from;
     if (Math.abs(dist) < 2) return;
-    const ms = clamp(Math.abs(dist) / Math.max(1, run()) * 3200, 520, 1250);
+    const ms = clamp(Math.abs(dist) / Math.max(1, run()) * 5200, 700, 1700);   // a chapter takes about a second
     const t0 = performance.now();
     document.documentElement.style.scrollBehavior = 'auto';        // the page's smooth scrolling would fight it
     const step = (now) => {
@@ -90,8 +90,11 @@ import { createHero, CHAPTERS } from './hero3d.js';
   }
   // once the reader stops between two chapters, carry on to the next one in the direction they were going
   const noGlide = /[?&]debug\b/.test(location.search) && !/[?&]glide\b/.test(location.search);   // test shots stand still
+  // a jump to a section (a link, the menu) passes through the story without stopping in it
+  let jumping = 0;
+  document.addEventListener('click', (e) => { if (e.target.closest?.('a[href^="#"]')) jumping = performance.now() + 2500; }, true);
   function settle() {
-    if (reduce || glide || noGlide) return;
+    if (reduce || glide || noGlide || performance.now() < jumping) return;
     const r = run(), top = heroTop(), y = window.scrollY;
     if (r <= 0 || y < top - 1 || y > top + r + 1) return;           // outside the story: the page is the reader's
     const p = clamp((y - top) / r);
@@ -148,7 +151,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
       b.el.style.visibility = o === 0 ? 'hidden' : 'visible';
       b.el.style.setProperty('--in', o);
     }
-    const show = span(.17, .22, .33, .37, p);
+    const show = span(.17, .22, .28, .31, p);      // gone before the beans leave
     if (show > .002) {
       const L = labels();
       for (const el of parts) {

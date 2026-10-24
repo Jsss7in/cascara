@@ -101,7 +101,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <p class="legal__stand">Stand: Oktober 2026</p>'''
 
 stands = ', '.join(f"{st['day']}. {st['month']} ({st['town']})" for st in content.STANDS)
-prices = ''.join(f"<li>{p['name']}: " + ', '.join(f"{ml} ml CHF {price:.2f}" for ml, price in p['sizes']) + "</li>" for p in content.PRODUCTS)
+prices = ''.join(f"<li>{p['name']}: " + ', '.join(f"{ml} ml CHF&nbsp;{price:.2f}" for ml, price in p['sizes']) + "</li>" for p in content.PRODUCTS)
 bedingungen = f'''<p class="legal__lead">So funktioniert das Bestellen bei Cascarup: Du bestellst online, holst deine Flaschen ab und bezahlst bei der Abholung.</p>
 
     <h2>Anbieter</h2>
@@ -113,10 +113,10 @@ bedingungen = f'''<p class="legal__lead">So funktioniert das Bestellen bei Casca
     <p>Es fallen keine Versandkosten an, weil wir nicht versenden.</p>
 
     <h2>Bestellung</h2>
-    <p>Du legst die Flaschen in den Warenkorb, wählst einen Abholort und gibst deine Angaben ein. Vor dem Absenden kannst du im Warenkorb alles prüfen und ändern. Mit «Bestellung absenden» bestellst du verbindlich. Du erhältst eine Bestätigung per E-Mail mit deiner Bestellnummer. Der Kauf kommt mit der Übergabe und Bezahlung bei der Abholung zustande.</p>
+    <p>Du legst die Flaschen in den Warenkorb, wählst einen Abholort und gibst deine Angaben ein. Vor dem Absenden kannst du im Warenkorb alles prüfen und ändern. Mit «Bestellung absenden» reservierst du die Flaschen verbindlich für dich. Du erhältst eine Bestätigung per E-Mail mit deiner Bestellnummer. Der Kauf kommt mit der Übergabe und Bezahlung bei der Abholung zustande.</p>
 
     <h2>Abholung und Bezahlung</h2>
-    <p>Du holst deine Bestellung an dem Stand ab, den du gewählt hast ({stands}), oder nach Absprache am Collège Saint-Michel. Bezahlt wird bei der Abholung, bar oder mit TWINT. Holst du eine Bestellung nicht ab, geben wir die Flaschen nach dem gewählten Termin wieder frei.</p>
+    <p>Du holst deine Bestellung an dem Stand ab, den du gewählt hast ({stands}), oder nach Absprache am Collège Saint-Michel. Für einen Stand nehmen wir Bestellungen bis am Vortag entgegen. Bezahlt wird bei der Abholung, bar oder mit TWINT. Holst du eine Bestellung nicht ab, geben wir die Flaschen nach dem gewählten Termin wieder frei.</p>
 
     <h2>Änderungen und Stornierung</h2>
     <p>Bis zur Abholung kannst du deine Bestellung kostenlos ändern oder stornieren: Schreib uns an {MAIL} und nenn deine Bestellnummer.</p>

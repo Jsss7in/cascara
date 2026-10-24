@@ -13,7 +13,6 @@ def steps(rows):
 
 V = {
  'SITE_URL': 'https://cascarup.ch/',
- 'IMG_HERO': 'assets/photos/kaffeekirschen.jpg', 'IMG_HERO_ALT': 'Eine Traube reifer, roter Kaffeekirschen mit Regentropfen an einem Zweig',
  'IMG_DRY': 'assets/photos/trocknen.jpg', 'IMG_DRY_ALT': 'Kaffeekirschen trocknen in der Sonne, frische rote zwischen dunklen, schon getrockneten',
  'HERO_LEDE': 'Wir entwickeln einen Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche. '
               'Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.',
@@ -26,7 +25,7 @@ V = {
              'Aufbereitung bleibt pro Kilogramm Kaffeebohnen etwa ein Kilogramm Schalen übrig.',
  'INTRO_P2': 'Ein Teil davon wird zu Dünger oder Tierfutter. Ein grosser Teil landet bis heute in der Umwelt '
              'und belastet Böden und Gewässer. Getrocknet aber trägt die Schale einen eigenen Namen: Cascara. '
-             'Im Jemen, in Äthiopien und in Bolivien wird sie seit Langem aufgegossen und getrunken.',
+             'Und sie lässt sich trinken.',
 
  'SPLIT_TITLE': 'Seit Jahrhunderten<br>getrunken.',
  'SPLIT_P': 'Im Jemen heisst der Aufguss aus Kaffeeschalen Qishr. Er wird mit Gewürzen verfeinert und ist '
@@ -41,7 +40,7 @@ V = {
  ]),
 
  'PLAN_LEAD': 'Unser Sirup bringt den Geschmack von Cascara ins Glas: mit Wasser verdünnt, im Kaffee oder in '
-              'Drinks. Zum Start gibt es zwei Sorten, das Original und Cozy Spice mit Zimt und Anis. Weitere sollen folgen.',
+              'Drinks. Zum Start gibt es zwei Sorten, das Original und Cozy Spice mit Zimt und Anis. Weitere Sorten sind geplant.',
  'STEPS': steps([
      ('Reifen und ernten', 'Nach der Blüte brauchen Arabica-Kirschen rund sieben bis neun Monate, bis sie reif und rot sind. Dann werden sie geerntet.', 'Auf der Plantage'),
      ('Trennen und trocknen', 'Die Bohnen werden aus der Frucht gelöst. Haut und Fruchtfleisch werden getrocknet: Das ist Cascara.', 'Bei der Aufbereitung'),
@@ -116,7 +115,7 @@ def drinks():
       <header class="drinks__head">
         <p class="eyebrow" data-reveal>Ideen fürs Glas</p>
         <h2 class="display" id="ideen-title" data-reveal style="--d:1">Heiss, kalt<br>oder im <em>Punsch.</em></h2>
-        <p class="drinks__intro" data-reveal style="--d:2">Sechs Ideen, wie wir uns den Sirup im Glas vorstellen. Alle alkoholfrei; die Mengen verraten wir mit dem fertigen Sirup.</p>
+        <p class="drinks__intro" data-reveal style="--d:2">Sechs Ideen, wie du den Sirup trinken kannst. Alle alkoholfrei; dosiert wird nach Geschmack.</p>
       </header>
       <div class="drinks__tabs" role="group" aria-label="Kategorien">
 {chr(10).join(f'        <button type="button" class="drinks__tab" data-drinks-tab aria-pressed="{str(i == 0).lower()}">{t}</button>' for i, (k, t, items) in enumerate(GROUPS))}
@@ -268,12 +267,12 @@ V['ORDER_ENDPOINT'] = f'https://formsubmit.co/ajax/{ORDER_EMAIL}'
 # _build/hero3d/shots.js until the photographs of the real bottles arrive.
 PRODUCTS = [
  dict(id='cascara', name='Cascara', tag='Das Original',
-      text='Unser Klassiker aus der Schale der Kaffeekirsche: fruchtig, mit Noten von Honig und Dörrpflaume.',
+      text='Das Original aus der Schale der Kaffeekirsche. Mit Wasser verdünnt, im Kaffee oder in Drinks.',
       notes=['Fruchtig', 'Honig', 'Dörrpflaume'],
       sizes=[(200, 6.95), (500, 12.95)]),
  dict(id='cozy-spice', name='Cozy Spice', tag='Mit Zimt und Anis',
-      text='Cascara mit Zimt und Anis, inspiriert vom Gifferstee aus unserer Region.',
-      notes=['Zimt', 'Anis', 'Cascara'],
+      text='Das Original, gewürzt nach dem Vorbild des Gifferstees aus unserer Region.',
+      notes=['Zimt', 'Anis'],
       sizes=[(200, 7.95), (500, 13.95)]),
 ]
 SHOT = (1200, 800)   # the studio shots' size in pixels (3:2)
@@ -288,9 +287,9 @@ chf = lambda x: f'{x:.2f}'
 # small line icons for what comes with every order, in the drawn style of the drink icons
 PERKS = [
  ('Abholen', 'An einem unserer Stände oder am Collège Saint-Michel.',
-  '<path d="M12 27h40l-4 29H16z"/><path d="M23 27v-6a9 9 0 0 1 18 0v6"/><path d="M25 39c2 3 12 3 14 0"/>'),
+  '<path d="M12 27h40l-4 29H16z"/><path d="M23 27v-6a9 9 0 0 1 18 0v6"/>'),
  ('Bezahlen', 'Erst bei der Abholung, bar oder mit TWINT.',
-  '<rect x="9" y="19" width="46" height="30" rx="5"/><path d="M9 28h46"/><path d="M17 40h10"/><circle cx="45" cy="40" r="3.5"/>'),
+  '<circle cx="22" cy="38" r="12"/><path d="M22 32v12"/><path d="M18.5 35.5h5a2.5 2.5 0 0 1 0 5h-5"/><rect x="37" y="12" width="18" height="34" rx="4"/><path d="M43 41h6"/>'),
  ('Von Hand', 'In kleinen Chargen in Fribourg abgefüllt, jede mit eigener Nummer.',
   '<path d="M27 8h10v8l4 6v32a4 4 0 0 1-4 4H27a4 4 0 0 1-4-4V22l4-6z"/><path d="M23 32h18v14H23z"/><path d="M27 8h10"/>'),
 ]
@@ -307,7 +306,7 @@ def shop():
             for i, (ml, price) in enumerate(pr['sizes']))
         shots = ''.join(
             f'<img class="product__shot{" is-shown" if i == 0 else ""}" data-shot="{ml}" src="assets/shop/{pr["id"]}-{ml}.webp" '
-            f'width="{SHOT[0]}" height="{SHOT[1]}" alt="{pr["name"]}, Flasche mit {ml} ml" loading="lazy" decoding="async">'
+            f'width="{SHOT[0]}" height="{SHOT[1]}" alt="{pr["name"]}, Flasche mit {ml} ml"{"" if i == 0 else " loading=" + chr(34) + "lazy" + chr(34)} decoding="async">'
             for i, (ml, _) in enumerate(pr['sizes']))
         notes = ''.join(f'<li>{t}</li>' for t in pr['notes'])
         cards.append(
@@ -345,8 +344,8 @@ def shop():
         '        <header class="shop__head">\n'
         '          <p class="eyebrow" data-reveal>Shop</p>\n'
         '          <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>\n'
-        '          <p class="shop__intro" data-reveal style="--d:2">Zwei Sorten, zwei Grössen. Bestell hier und hol deine Flaschen '
-        'an einem unserer Stände oder am Collège Saint-Michel ab. Bezahlt wird erst bei der Abholung.</p>\n'
+        '          <p class="shop__intro" data-reveal style="--d:2">Das Original und Cozy Spice, je in 200 und 500 ml. Leg deine '
+        'Flaschen in den Warenkorb, wir halten sie für dich bereit.</p>\n'
         '        </header>\n'
         '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
         '        <ul class="shop__perks">\n' + perks + '\n        </ul>\n'
@@ -370,9 +369,8 @@ TEAM = [
  ('justin', 'Justin Meissner', 'CTO', (106, 118)),
  ('niklas', 'Niklas Broch', 'CPO', (110, 117)),
 ]
-V['TEAM_P'] = ('Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Fribourg. Im Rahmen unserer '
-               'Maturaarbeit und des YES Company Programme haben wir Cascarup gegründet. Jede und jeder von uns führt '
-               'einen eigenen Bereich und bringt die eigenen Stärken ein.')
+V['TEAM_P'] = ('Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Fribourg und haben Cascarup im '
+               'Rahmen unserer Maturaarbeit gegründet. Jede und jeder von uns führt einen eigenen Bereich.')
 
 
 # the programme in one paragraph (the first sentence of PROJECT_P1 would repeat TEAM_P)
@@ -403,7 +401,7 @@ def team():
         '        </div>\n'
         '        <span class="ranke" aria-hidden="true"></span>\n'
         '        <ul class="team__grid">\n' + people + '\n        </ul>\n'
-        f'        <div class="team__social"><p>Neues von uns: <strong>@{HANDLE}</strong></p>{V["SOCIALS"]}</div>\n'
+        f'        <div class="team__social">{V["SOCIALS"]}</div>\n'
         f'        {ig_feed()}\n'
         '      </div>\n'
         '    </section>')
@@ -436,12 +434,15 @@ def cart():
         '          <p class="order__total"><span>Total</span> <strong data-cart-total>CHF 0.00</strong></p>\n'
         '          <fieldset class="order__group">\n'
         '            <legend>Abholung</legend>\n'
+        '            <p class="order__error" id="err-abholung" data-error="abholung" hidden></p>\n'
         '            <div class="order__picks">' + ''.join(picks) + '</div>\n'
         '          </fieldset>\n'
         '          <fieldset class="order__group">\n'
         '            <legend>Deine Angaben</legend>\n'
-        '            <label class="field"><span>Name</span><input name="name" autocomplete="name" required></label>\n'
-        '            <label class="field"><span>E-Mail</span><input name="email" type="email" autocomplete="email" inputmode="email" required></label>\n'
+        '            <label class="field"><span>Name</span><input name="name" autocomplete="name" required aria-describedby="err-name">'
+        '<span class="order__error" id="err-name" data-error="name" hidden></span></label>\n'
+        '            <label class="field"><span>E-Mail</span><input name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="err-email">'
+        '<span class="order__error" id="err-email" data-error="email" hidden></span></label>\n'
         '            <label class="field"><span>Telefon <span class="muted">(freiwillig)</span></span><input name="telefon" type="tel" autocomplete="tel" inputmode="tel"></label>\n'
         '            <label class="field"><span>Bemerkung <span class="muted">(freiwillig)</span></span><textarea name="bemerkung" rows="2"></textarea></label>\n'
         '          </fieldset>\n'
@@ -450,6 +451,7 @@ def cart():
         '            <span>Ich akzeptiere die <a href="bestellbedingungen.html" target="_blank">Bestellbedingungen</a> und bin '
         'einverstanden, dass meine Angaben für diese Bestellung über den Dienst FormSubmit (Ausland) an Cascarup übermittelt '
         'werden. Mehr in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>\n'
+        '          <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>\n'
         '          <button class="button button--solid order__submit" type="submit">Bestellung absenden</button>\n'
         '          <p class="order__pay">Bezahlung bei der Abholung, bar oder mit TWINT.</p>\n'
         '          <p class="order__status" role="status" aria-live="polite"></p>\n'
@@ -460,7 +462,7 @@ def cart():
         '        <p class="cart__done-title">Deine Bestellung ist bei uns.</p>\n'
         '        <p class="cart__done-text">Bestellnummer <strong data-done-number></strong>. Du bekommst gleich eine '
         'Bestätigung per E-Mail. Bezahlt wird bei der Abholung.</p>\n'
-        '        <button class="button button--solid" type="button" data-cart-close>Weiter stöbern</button>\n'
+        '        <button class="button button--solid" type="button" data-cart-close>Fertig</button>\n'
         '      </div>\n'
         '    </div>\n'
         '  </dialog>')

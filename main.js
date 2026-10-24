@@ -122,7 +122,16 @@
   if (menuSheet && menuSheet.showModal) {
     const close = () => menuSheet.open && menuSheet.close();
     menuSheet.addEventListener('close', () => root.classList.remove('has-menu'));
-    document.querySelector('[data-menu-open]')?.addEventListener('click', () => { menuSheet.showModal(); root.classList.add('has-menu'); });
+    document.querySelectorAll('[data-menu-open]').forEach((b) => b.addEventListener('click', () => { menuSheet.showModal(); root.classList.add('has-menu'); }));
+    // On touch screens the bar has scrolled away with the opening; past it, a small «Menü» floats at the bottom left
+    // (clear of the edge, like the basket).
+    const pill = document.querySelector('.menu-btn');
+    if (pill && hero) {
+      const place = () => { pill.hidden = !touch.matches || hero.getBoundingClientRect().bottom > window.innerHeight * .5; };
+      window.addEventListener('scroll', place, { passive: true });
+      window.addEventListener('resize', place);
+      place();
+    }
     menuSheet.querySelector('[data-menu-close]')?.addEventListener('click', close);
     menuSheet.addEventListener('click', (e) => { if (e.target === menuSheet) close(); });   // a tap beside the sheet
     menuSheet.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', (e) => {

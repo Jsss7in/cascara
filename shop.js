@@ -90,10 +90,10 @@
     }));
   }
 
-  // collection dates already past are not offered
+  // a stand can be chosen until the day before it (the bottles are made ready the evening before)
   const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
   form.querySelectorAll('[data-pick-date]').forEach((l) => {
-    if (l.dataset.pickDate < today) { l.hidden = true; l.querySelector('input').disabled = true; }
+    if (l.dataset.pickDate <= today) { l.hidden = true; l.querySelector('input').disabled = true; }
   });
 
   const open = () => {
@@ -115,17 +115,35 @@
     const tail = Array.from({ length: 4 }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
     return `CU-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${tail}`;
   };
+  // A message stands under the field it is about; the first one is brought into view and given the focus.
+  const errors = Object.fromEntries([...form.querySelectorAll('[data-error]')].map((el) => [el.dataset.error, el]));
+  const mark = (key, msg, field) => {
+    const el = errors[key];
+    el.textContent = msg || ''; el.hidden = !msg;
+    (field ? [field] : [...form.querySelectorAll(`input[name="${key}"]`)]).forEach((i) => i.toggleAttribute('aria-invalid', !!msg));
+    return !msg;
+  };
+  form.addEventListener('input', (e) => { const key = e.target.name; if (errors[key] && !errors[key].hidden) mark(key, ''); });
+  form.addEventListener('change', (e) => { const key = e.target.name; if (errors[key] && !errors[key].hidden) mark(key, ''); });
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const f = new FormData(form);
-    const say = (msg, el) => { status.textContent = msg; el?.focus(); };
+    const say = (msg) => { status.textContent = msg; };
     const pickup = form.querySelector('input[name="abholung"]:checked');
     const email = form.querySelector('input[name="email"]');
     const name = form.querySelector('input[name="name"]');
-    if (!pickup) return say('Bitte wähl aus, wo du deine Bestellung abholst.', form.querySelector('input[name="abholung"]:not(:disabled)'));
-    if (!name.value.trim()) return say('Bitte gib deinen Namen an.', name);
-    if (!email.value.trim() || !email.checkValidity()) return say('Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.', email);
-    if (!form.querySelector('input[name="zustimmung"]').checked) return say('Bitte bestätige die Bestellbedingungen und die Übermittlung deiner Angaben.', form.querySelector('input[name="zustimmung"]'));
+    const consent = form.querySelector('input[name="zustimmung"]');
+    const checks = [
+      ['abholung', !pickup && 'Bitte wähl aus, wo du deine Bestellung abholst.', form.querySelector('input[name="abholung"]:not(:disabled)')],
+      ['name', !name.value.trim() && 'Bitte gib deinen Namen an.', name],
+      ['email', (!email.value.trim() || !email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.', email],
+      ['zustimmung', !consent.checked && 'Bitte bestätige die Bestellbedingungen und die Übermittlung deiner Angaben.', consent],
+    ];
+    say('');
+    let first = null;
+    for (const [key, msg, field] of checks) if (!mark(key, msg, key === 'abholung' ? null : field) && !first) first = field;
+    if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     if (f.get('_honey')) return;                                       // a bot filled the hidden field
     if (!form.dataset.endpoint) return say('Vorschau: Hier wird keine Bestellung gesendet.');   // the preview copy has no inbox
     const no = number();
