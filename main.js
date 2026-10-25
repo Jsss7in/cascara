@@ -1,5 +1,5 @@
 // Cascarup – page behaviour: arrival, nav, reveals, the drinks tabs and the stands. The shop lives in shop.js.
-// The cherry lives in hero.js.
+// The cherry lives in hero3d.js, the way to pay in checkout.js, the participation certificates in ps.js.
 (() => {
   const root = document.documentElement;
   const nav = document.querySelector('[data-nav]');
@@ -153,9 +153,11 @@
     document.querySelectorAll('[data-menu-open]').forEach((b) => b.addEventListener('click', () => { menuSheet.showModal(); root.classList.add('has-menu'); }));
     // On touch screens the bar has scrolled away with the opening; past it, a small «Menü» floats at the bottom left
     // (clear of the edge, like the basket).
+    // (On a page without the opening: once its top has scrolled away.)
     const pill = document.querySelector('.menu-btn');
-    if (pill && hero) {
-      const place = () => { pill.hidden = !touch.matches || hero.getBoundingClientRect().bottom > window.innerHeight * .5; };
+    if (pill) {
+      const past = () => (hero ? hero.getBoundingClientRect().bottom <= window.innerHeight * .5 : window.scrollY > window.innerHeight * .6);
+      const place = () => { pill.hidden = !touch.matches || !past(); };
       window.addEventListener('scroll', place, { passive: true });
       window.addEventListener('resize', place);
       place();

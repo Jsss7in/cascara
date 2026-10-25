@@ -4,3 +4,5 @@ _dev/
 _build/maps/*.json
 _build/hero3d/shots.bundle.js
 _build/plant/src/
+_build/label/out/
+_build/bottle/out/

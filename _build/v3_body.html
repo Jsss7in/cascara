@@ -8,47 +8,10 @@
     </defs>
   </svg>
 
-  <header class="nav" data-nav>
-    <nav class="nav__inner" aria-label="Hauptnavigation">
-      <ul class="nav__links">
-        <li><a href="#cascara">Cascara</a></li>
-        <li><a href="#ideen">Ideen</a></li>
-        <li><a href="#staende">Stände</a></li>
-        <li><a href="#team">Team</a></li>
-      </ul>
-      <a class="nav__mark" href="#top" aria-label="Cascara – zum Seitenanfang">
-        <svg class="mark" viewBox="{{LOGO_VB}}" aria-hidden="true">
-          <mask id="nav-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><use href="#lg-fill" fill="#fff"/></mask>
-          <use class="mark__ink" href="#lg-line" mask="url(#nav-mask)"/>
-        </svg>
-      </a>
-      <div class="nav__end">
-        <a class="nav__cta" href="#shop">Shop</a>
-        <button class="nav__menu" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu"><span>Menü</span><i aria-hidden="true"></i></button>
-      </div>
-    </nav>
-  </header>
+{{NAV}}
 
   <!-- the menu on phones: the page's chapters, large, and the ways to reach us -->
-  <dialog class="menu" id="menu" data-menu aria-label="Menü">
-    <div class="menu__inner" tabindex="-1" autofocus>
-      <div class="menu__head">
-        <svg class="menu__logo" viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>
-        <button class="menu__close" type="button" data-menu-close aria-label="Menü schliessen">×</button>
-      </div>
-      <ol class="menu__list">
-        <li><a href="#shop" data-menu-link><span>Shop</span><small>Zwei Sorten, zwei Grössen</small></a></li>
-        <li><a href="#cascara" data-menu-link><span>Cascara</span><small>Was die Schale kann</small></a></li>
-        <li><a href="#ideen" data-menu-link><span>Ideen</span><small>Heiss, kalt oder im Punsch</small></a></li>
-        <li><a href="#staende" data-menu-link><span>Stände</span><small>Wo du uns findest</small></a></li>
-        <li><a href="#team" data-menu-link><span>Team</span><small>Wer hinter Cascarup steht</small></a></li>
-      </ol>
-      <div class="menu__foot">
-        {{SOCIALS}}
-        <a class="menu__mail" href="mailto:info@cascarup.ch">info@cascarup.ch</a>
-      </div>
-    </div>
-  </dialog>
+{{MENU}}
 
   <main id="main">
 
@@ -88,7 +51,7 @@
         <p class="hero__beat" data-beat=".37,.4,.49,.52"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
         <p class="hero__beat" data-beat=".53,.56,.63,.655"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
         <p class="hero__beat" data-beat=".66,.685,.765,.78"><span class="eyebrow">Der Sirup</span>Aufgegossen und eingekocht wird sie zu <em>Sirup.</em></p>
-        <p class="hero__beat" data-beat=".778,.798,.87,.885"><span class="eyebrow">Zwei Sorten</span>Abgefüllt pur oder mit Zimt und Anis als <em>Gifferstee.</em></p>
+        <p class="hero__beat" data-beat=".778,.798,.87,.885"><span class="eyebrow">Zwei Sorten</span>Pur als <em>Original</em>, mit Zimt und Sternanis als <em>Cozy Spice.</em></p>
 
         <div class="hero__end" data-beat=".885,.93,1,1">
           <p class="hero__end-brand">Cascarup</p>
@@ -153,48 +116,17 @@
 {{STANDS}}
 
 {{TEAM}}
+
+{{JOIN}}
   </main>
 
-  <footer class="footer" data-tone="terra" data-fade="top">
-    <div class="footer__top">
-      <a class="footer__brand" href="#top" aria-label="Zum Seitenanfang">
-        <svg viewBox="{{LOGO_VB}}" aria-hidden="true"><use href="#lg-fill"/></svg>
-      </a>
-      <div class="footer__about">
-        <p class="footer__claim">Kaffee ist<br><em>eine Frucht.</em></p>
-        <div class="footer__social">{{SOCIALS}}<span>@{{HANDLE}}</span></div>
-      </div>
-      <nav class="footer__nav" aria-label="Seite">
-        <p class="eyebrow">Seite</p>
-        <ul>
-          <li><a href="#shop">Shop</a></li>
-          <li><a href="#cascara">Cascara</a></li>
-          <li><a href="#ideen">Ideen</a></li>
-          <li><a href="#staende">Stände</a></li>
-          <li><a href="#team">Team</a></li>
-        </ul>
-      </nav>
-      <nav class="footer__nav" aria-label="Rechtliches">
-        <p class="eyebrow">Rechtliches</p>
-        <ul>
-          <li><a href="impressum.html">Impressum</a></li>
-          <li><a href="bestellbedingungen.html">Bestellbedingungen</a></li>
-          <li><a href="datenschutz.html">Datenschutz</a></li>
-          <li><a href="impressum.html#bildnachweis">Bildnachweis</a></li>
-        </ul>
-      </nav>
-    </div>
-    <div class="footer__base">
-      <span>© 2026 {{COMPANY}}</span>
-      <span>Ein Schülerunternehmen im <span class="nowrap">YES Company Programme</span> · <span class="nowrap">Collège Saint-Michel</span>, Fribourg</span>
-    </div>
-  </footer>
+{{FOOTER}}
 
 {{CART}}
-  <!-- on phones, once the opening is behind you: the way back to the chapters -->
-  <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden>Menü</button>
+{{MENU_BTN}}
 
   <script src="main.js?v={{VER}}" defer></script>
+  <script src="checkout.js?v={{VER}}" defer></script>
   <script src="shop.js?v={{VER}}" defer></script>
   <script type="module" src="assets/hero3d.js?v={{VER}}"></script>
 </body>

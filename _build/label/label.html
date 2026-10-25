@@ -1,0 +1,102 @@
+<!doctype html>
+<!-- Our two labels, redrawn from the designs (waves.json holds their drips): render.mjs calls window.label(kind, scale).
+     Every line of type is fitted to the size and place it has in the design, measured in label units (1007 × 1312). -->
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: DynaPuff; src: url(../../assets/fonts/dynapuff-latin.woff2) format('woff2'); font-weight: 400 700; font-stretch: 75% 100%; }
+  body { margin: 0; background: #888; }
+</style>
+<canvas id="c"></canvas>
+<script type="module">
+const W = 1007, H = 1312;
+const waves = await (await fetch('waves.json')).json();
+const logo = await (await fetch('../logo3.json')).json();
+
+const KINDS = {
+  original: { bands: ['#2D2019', '#A1552F', '#D3C09B'], ink: '#D3C09B', dark: '#2D2019',
+              title: ['ORIGINAL', 556, 632], sub: ['Cascara · Fruchtig', 690, 485] },
+  cozy: { bands: ['#97262A', '#2A6334', '#D3C09B'], ink: '#E6CC94', dark: '#3A2316', lights: true,
+          title: ['COZY SPICE', 549, 874], sub: ['Zimt · Sternanis', 713, 496] },
+};
+
+// size a line so its ink is `width` wide; returns what is needed to set it with its ink box at (x, top)
+function fit(ctx, text, weight, width) {
+  ctx.font = `${weight} 100px DynaPuff`;
+  const m = ctx.measureText(text), k = width / (m.actualBoundingBoxLeft + m.actualBoundingBoxRight);
+  return { size: 100 * k, left: m.actualBoundingBoxLeft * k, ascent: m.actualBoundingBoxAscent * k,
+           height: (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) * k, width };
+}
+function set(ctx, text, weight, f, x, top) {
+  ctx.font = `${weight} ${f.size}px DynaPuff`;
+  ctx.fillText(text, x + f.left, top + f.ascent);
+}
+
+window.label = async (kind, scale = 2) => {
+  await document.fonts.load('700 100px DynaPuff'); await document.fonts.load('600 100px DynaPuff');
+  const K = KINDS[kind], wv = waves[kind];
+  const cv = document.getElementById('c');
+  cv.width = Math.round(W * scale); cv.height = Math.round(H * scale);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  const report = {};
+
+  // the three bands, the middle one first, the top and the bottom laid over it along their waves
+  ctx.fillStyle = K.bands[1]; ctx.fillRect(0, 0, W, H);
+  const edge = (ys) => ys.map((y, x) => [x, y]).concat([[W, ys[ys.length - 1]]]);
+  ctx.fillStyle = K.bands[0]; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0);
+  edge(wv.top).reverse().forEach(([x, y]) => ctx.lineTo(x, y)); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = K.bands[2]; ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(W, H);
+  edge(wv.bottom).reverse().forEach(([x, y]) => ctx.lineTo(x, y)); ctx.closePath(); ctx.fill();
+
+  if (K.lights) {
+    // the string of lights along the upper wave: a dark wire, and on it warm bulbs hanging down
+    ctx.strokeStyle = 'rgba(28, 16, 10, .92)'; ctx.lineWidth = 3.2; ctx.lineJoin = 'round';
+    ctx.beginPath(); edge(wv.top).forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+    for (const bx of wv.bulbs) {
+      const i = Math.round(bx), y = wv.top[i], a = Math.atan2(wv.top[Math.min(W - 1, i + 6)] - wv.top[Math.max(0, i - 6)], 12) * .3;
+      ctx.save(); ctx.translate(bx, y - 1); ctx.rotate(a);
+      ctx.globalCompositeOperation = 'screen';
+      const halo = ctx.createRadialGradient(0, 17, 0, 0, 17, 44);
+      halo.addColorStop(0, 'rgba(255, 205, 100, .78)'); halo.addColorStop(.38, 'rgba(255, 170, 60, .3)'); halo.addColorStop(1, 'rgba(255, 140, 40, 0)');
+      ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(0, 17, 44, 0, 7); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#1d120c'; ctx.beginPath(); ctx.roundRect(-5.5, -2, 11, 9, 2.5); ctx.fill();
+      const glass = ctx.createRadialGradient(-1.5, 16, 1, 0, 18, 13);
+      glass.addColorStop(0, '#FFFBE8'); glass.addColorStop(.35, '#FFEA9A'); glass.addColorStop(.8, '#FFC24A'); glass.addColorStop(1, '#F08F1E');
+      ctx.fillStyle = glass; ctx.beginPath();
+      ctx.moveTo(-6.5, 6); ctx.bezierCurveTo(-11, 12, -10, 27, 0, 30); ctx.bezierCurveTo(10, 27, 11, 12, 6.5, 6); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // the head: our mark and name, the claim beneath (the design's sizes; the claim spelt right, «Kaffeekirsche»)
+  ctx.fillStyle = K.ink;
+  const word = fit(ctx, 'Cascarup', 700, 491);
+  const claimSize = fit(ctx, 'Die Kaffekirsche kann mehr.', 600, 480).size;   // the size the design gives it
+  ctx.font = `600 ${claimSize}px DynaPuff`;
+  const cm = ctx.measureText('Die Kaffeekirsche kann mehr.');
+  const claimW = cm.actualBoundingBoxLeft + cm.actualBoundingBoxRight;
+  const markW = 132 * 587 / 614, gap = 330 - 307;
+  const groupW = markW + gap + Math.max(491, claimW), x0 = (W - groupW) / 2;
+  ctx.save(); ctx.translate(x0, 86); ctx.scale(132 / 614, 132 / 614);
+  ctx.fill(new Path2D(logo.fill), 'evenodd'); ctx.restore();
+  set(ctx, 'Cascarup', 700, word, x0 + markW + gap, 86);
+  ctx.font = `600 ${claimSize}px DynaPuff`;
+  ctx.fillText('Die Kaffeekirsche kann mehr.', x0 + markW + gap + cm.actualBoundingBoxLeft, 189 + cm.actualBoundingBoxAscent);
+  report.word = word.height; report.claim = cm.actualBoundingBoxAscent + cm.actualBoundingBoxDescent;
+
+  // the kind, large, and what is in it
+  const t = fit(ctx, K.title[0], 700, K.title[2]); set(ctx, K.title[0], 700, t, (W - t.width) / 2, K.title[1]);
+  const s = fit(ctx, K.sub[0], 600, K.sub[2]); set(ctx, K.sub[0], 600, s, (W - s.width) / 2, K.sub[1]);
+  report.title = t.height; report.sub = s.height;
+
+  // the foot, in the dark of the paper
+  ctx.fillStyle = K.dark;
+  const f1 = fit(ctx, 'Cascara Sirup', 700, 722); set(ctx, 'Cascara Sirup', 700, f1, (W - 722) / 2, 1079);
+  const f2 = fit(ctx, 'Handgemacht in der Schweiz', 600, 487); set(ctx, 'Handgemacht in der Schweiz', 600, f2, (W - 487) / 2, 1188);
+  report.foot = f1.height; report.foot2 = f2.height;
+
+  return { url: cv.toDataURL('image/png'), report };
+};
+document.body.dataset.ready = '1';
+</script>

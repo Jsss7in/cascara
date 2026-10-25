@@ -1,28 +1,49 @@
-// Cascarup – the shop: choose kind, size and number, collect them in the basket, order for collection.
-// The basket stays in this browser (localStorage); an order goes by e-mail through FormSubmit to Cascarup, and
-// FormSubmit sends the customer a confirmation. Nothing is paid here: payment is on collection.
+// Cascarup – the shop: choose kind, size and number, collect them in the basket, then in three steps (basket,
+// delivery, payment) order and pay. The basket stays in this browser (localStorage); the order is paid through
+// our payment service (checkout.js) and sent by post. Shipping is reckoned by weight at the Post's prices.
 (() => {
   const products = [...document.querySelectorAll('[data-product]')];
   const dialog = document.querySelector('[data-cart]');
-  if (!products.length || !dialog) return;
+  const C = window.CascarupCheckout;
+  if (!products.length || !dialog || !C) return;
 
-  const KEY = 'cascarup.cart.v3';   // v3: the second kind is called Gifferstee
-  const fmt = (x) => `CHF ${x.toFixed(2)}`;
+  const KEY = 'cascarup.cart.v4';   // v4: Original and Cozy Spice
+  const fmt = C.fmt;
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* private mode: the basket lives as long as the page */ } };
-  let items = load().filter((it) => it && it.id && it.ml && it.qty > 0 && it.price > 0);
+  const known = new Set(products.map((p) => JSON.parse(p.dataset.product).id));
+  let items = load().filter((it) => it && known.has(it.id) && it.ml && it.qty > 0 && it.price > 0);
+  try { localStorage.removeItem('cascarup.cart.v3'); } catch { /* nothing to tidy */ }
 
+  const SHIP = JSON.parse(dialog.dataset.shipping);
   const openBtn = document.querySelector('[data-cart-open]');
   const count = document.querySelector('[data-cart-count]');
   const list = dialog.querySelector('[data-cart-items]');
   const empty = dialog.querySelector('[data-cart-empty]');
+  const sums = dialog.querySelector('[data-cart-sums]');
   const form = dialog.querySelector('[data-order]');
-  const total = dialog.querySelector('[data-cart-total]');
   const body = dialog.querySelector('[data-cart-body]');
   const done = dialog.querySelector('[data-cart-done]');
+  const title = dialog.querySelector('[data-cart-title]');
+  const backBtn = dialog.querySelector('[data-cart-back]');
+  const stepsBar = [...dialog.querySelectorAll('[data-cart-steps] li')];
+  const steps = [...dialog.querySelectorAll('[data-step]')];
   const status = form.querySelector('.order__status');
-  const sum = () => items.reduce((a, it) => a + it.qty * it.price, 0);
+  const payBtn = form.querySelector('[data-pay]');
+  const FIELDS = ['vorname', 'nachname', 'email', 'telefon', 'strasse', 'zusatz', 'plz', 'ort', 'bemerkung'];
+
+  const subtotal = () => items.reduce((a, it) => a + it.qty * it.price, 0);
   const bottles = () => items.reduce((a, it) => a + it.qty, 0);
+  // the parcel's weight: the bottles (glass and syrup) and the box; over 30 kg it goes as several parcels
+  const shipping = () => {
+    if (!items.length) return 0;
+    const kg = SHIP.box + items.reduce((a, it) => a + it.qty * (SHIP.weights[it.ml] || 1), 0);
+    const tier = SHIP.tiers.find(([max]) => kg <= max);
+    if (tier) return tier[1];
+    const [max, price] = SHIP.tiers[SHIP.tiers.length - 1];
+    return Math.ceil(kg / max) * price;
+  };
+  const total = () => subtotal() + shipping();
 
   // ---- the product cards: kind is the card, size and number are chosen on it ----------------------------------
   for (const card of products) {
@@ -36,7 +57,7 @@
     const pick = (m) => {
       ml = m;
       sizes.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.size === m)));
-      shots.forEach((s) => s.classList.toggle('is-shown', +s.dataset.shot === m));   // one shot fades into the other
+      shots.forEach((s) => s.classList.toggle('is-shown', +s.dataset.shot === m));   // one bottle fades into the other
       price.textContent = fmt(data.sizes.find((s) => s.ml === m).price);
     };
     sizes.forEach((b) => b.addEventListener('click', () => pick(+b.dataset.size)));
@@ -62,20 +83,26 @@
   }
 
   // ---- the basket ------------------------------------------------------------------------------------------
+  const setAll = (sel, text) => dialog.querySelectorAll(sel).forEach((el) => { el.textContent = text; });
   function render() {
     const n = bottles();
     openBtn.hidden = n === 0 && !dialog.open;
     count.textContent = String(n);
     openBtn.setAttribute('aria-label', `Warenkorb öffnen, ${n} ${n === 1 ? 'Flasche' : 'Flaschen'}`);
     empty.hidden = items.length > 0;
-    form.hidden = items.length === 0;
-    total.textContent = fmt(sum());
+    sums.hidden = items.length === 0;
+    dialog.querySelector('[data-to-step="2"]').hidden = items.length === 0;
+    setAll('[data-sum-items]', fmt(subtotal()));
+    setAll('[data-sum-ship]', fmt(shipping()));
+    setAll('[data-sum-total]', fmt(total()));
+    payBtn.textContent = `Jetzt bezahlen · ${fmt(total())}`;
     list.replaceChildren(...items.map((it, i) => {
       const li = document.createElement('li');
       li.className = 'line';
-      li.innerHTML = `<div class="line__name"><strong></strong><span class="muted"></span></div>
+      li.innerHTML = `<img class="line__pic" alt="" width="1400" height="1750"><div class="line__name"><strong></strong><span class="muted"></span></div>
         <div class="qty qty--small"><button type="button" data-d="-1" aria-label="Eine weniger">−</button><output></output><button type="button" data-d="1" aria-label="Eine mehr">+</button></div>
         <p class="line__price"></p><button type="button" class="line__remove" aria-label="Entfernen">Entfernen</button>`;
+      li.querySelector('.line__pic').src = `assets/shop/${it.id}-${it.ml}.webp`;
       li.querySelector('strong').textContent = it.name;
       li.querySelector('.muted').textContent = `${it.ml} ml · ${fmt(it.price)}`;
       li.querySelector('output').textContent = String(it.qty);
@@ -88,94 +115,151 @@
       li.querySelector('.line__remove').addEventListener('click', () => { items.splice(i, 1); save(); render(); });
       return li;
     }));
+    if (!items.length && step > 1) go(1);
   }
 
-  // a stand can be chosen until the day before it (the bottles are made ready the evening before)
-  const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
-  form.querySelectorAll('[data-pick-date]').forEach((l) => {
-    if (l.dataset.pickDate <= today) { l.hidden = true; l.querySelector('input').disabled = true; }
+  // ---- the three steps -------------------------------------------------------------------------------------
+  const TITLES = { 1: 'Dein Warenkorb', 2: 'Lieferung', 3: 'Bezahlen' };
+  let step = 1;
+  function go(n, focus = true) {
+    step = n;
+    steps.forEach((s) => { s.hidden = +s.dataset.step !== n; });
+    stepsBar.forEach((li, i) => {
+      li.classList.toggle('is-done', i < n - 1);
+      if (i === n - 1) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+    title.textContent = TITLES[n];
+    backBtn.hidden = n === 1;
+    if (n === 3) review();
+    dialog.querySelector('.cart__inner').scrollTop = 0;
+    // on a phone the keyboard would jump up at once, so there the heading takes the focus
+    if (focus) (n === 2 && !matchMedia('(pointer: coarse)').matches ? form.elements.vorname : title).focus({ preventScroll: true });
+  }
+  dialog.querySelectorAll('[data-to-step]').forEach((b) => b.addEventListener('click', () => {
+    const n = +b.dataset.toStep;
+    if (n === 3 && !checkDelivery()) return;
+    go(n);
+  }));
+  backBtn.addEventListener('click', () => go(Math.max(1, step - 1)));
+
+  function review() {
+    const ul = dialog.querySelector('[data-review-items]');
+    ul.replaceChildren(...items.map((it) => {
+      const li = document.createElement('li');
+      li.innerHTML = '<span></span><span></span>';
+      li.firstChild.textContent = `${it.qty} × ${it.name} ${it.ml} ml`;
+      li.lastChild.textContent = fmt(it.qty * it.price);
+      return li;
+    }));
+    const v = (n) => form.elements[n].value.trim();
+    const addr = dialog.querySelector('[data-review-address]');
+    addr.replaceChildren(...[`${v('vorname')} ${v('nachname')}`, v('strasse'), v('zusatz'), `${v('plz')} ${v('ort')}`, v('email')]
+      .filter(Boolean).flatMap((t, i) => (i ? [document.createElement('br'), t] : [t])));
+  }
+
+  // A message stands under the field it is about; the first one is brought into view and given the focus.
+  const errors = Object.fromEntries([...form.querySelectorAll('[data-error]')].map((el) => [el.dataset.error, el]));
+  const mark = (key, msg) => {
+    const el = errors[key];
+    el.textContent = msg || ''; el.hidden = !msg;
+    form.querySelectorAll(`[name="${key}"]`).forEach((i) => i.toggleAttribute('aria-invalid', !!msg));
+    return !msg;
+  };
+  const clearOn = (e) => { const key = e.target.name; if (errors[key] && !errors[key].hidden) mark(key, ''); };
+  form.addEventListener('input', clearOn);
+  form.addEventListener('change', clearOn);
+  const firstBad = (checks) => {
+    let first = null;
+    for (const [key, msg] of checks) if (!mark(key, msg) && !first) first = form.elements[key];
+    if (first) { (first.length ? first[0] : first).focus({ preventScroll: true }); (first.length ? first[0] : first).scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    return !first;
+  };
+  function checkDelivery(quiet = false) {
+    const v = (n) => form.elements[n].value.trim();
+    const email = form.elements.email;
+    const checks = [
+      ['vorname', !v('vorname') && 'Bitte gib deinen Vornamen an.'],
+      ['nachname', !v('nachname') && 'Bitte gib deinen Nachnamen an.'],
+      ['email', (!v('email') || !email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.'],
+      ['strasse', !v('strasse') && 'Bitte gib Strasse und Hausnummer an.'],
+      ['plz', !/^\d{4}$/.test(v('plz')) && 'Bitte gib eine Schweizer Postleitzahl mit vier Ziffern an.'],
+      ['ort', !v('ort') && 'Bitte gib deinen Ort an.'],
+    ];
+    return quiet ? checks.every(([, msg]) => !msg) : firstBad(checks);
+  }
+
+  // ---- paying ----------------------------------------------------------------------------------------------
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    status.textContent = '';
+    if (!checkDelivery(true)) { go(2, false); checkDelivery(); return; }
+    if (!firstBad([['zustimmung', !form.elements.zustimmung.checked && 'Bitte bestätige die Bestellbedingungen.']])) return;
+    if (form.elements._honey.value) return;                     // a bot filled the hidden field
+    const v = (n) => form.elements[n].value.trim();
+    const no = C.number('CU');
+    const order = {
+      type: 'bestellung', number: no, currency: 'CHF', method: form.elements.zahlung.value,
+      items: items.map(({ id, name, ml, qty, price }) => ({ id, name, ml, qty, price })),
+      shipping: { name: SHIP.name, price: shipping() }, subtotal: subtotal(), total: total(),
+      customer: { vorname: v('vorname'), nachname: v('nachname'), email: v('email'), telefon: v('telefon'),
+        strasse: v('strasse'), zusatz: v('zusatz'), plz: v('plz'), ort: v('ort'), land: 'CH', bemerkung: v('bemerkung') },
+      success: C.back(`bezahlt=${no}`), cancel: C.back('zahlung=abgebrochen', '#shop'),
+    };
+    C.keep('cascarup.lieferung', form, FIELDS);
+    payBtn.disabled = true; status.textContent = 'Die Bezahlseite wird geöffnet …';
+    try {
+      const how = await C.pay(dialog.dataset.checkout, order);
+      if (how === 'offline') {
+        status.textContent = 'Die Bezahlung wird gerade eingerichtet. Bis dahin bestellst du am einfachsten per E-Mail an info@cascarup.ch.';
+      } else if (how === 'preview') {
+        finish(no, 'Vorschau: Hier öffnet sich später die Bezahlseite für TWINT oder Karte. Es wurde nichts bezahlt und nichts gesendet.');
+      }
+    } catch {
+      status.textContent = 'Die Bezahlseite liess sich nicht öffnen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.';
+    } finally {
+      payBtn.disabled = false;
+      if (status.textContent === 'Die Bezahlseite wird geöffnet …') status.textContent = '';
+    }
   });
 
-  const open = () => {
-    body.hidden = false; done.hidden = true;
+  function finish(no, note) {
+    items = []; save();
+    C.forget('cascarup.lieferung');
+    done.querySelector('[data-done-number]').textContent = no;
+    const n = done.querySelector('[data-done-note]');
+    n.textContent = note || ''; n.hidden = !note;
+    body.hidden = true; done.hidden = false;
+    dialog.querySelector('[data-cart-steps]').hidden = true; backBtn.hidden = true;
+    title.textContent = 'Bezahlt';
+    if (!dialog.open) open(false);
+    done.focus();
+    form.reset(); render();
+  }
+
+  // ---- open and close --------------------------------------------------------------------------------------
+  function open(fresh = true) {
+    if (fresh) {
+      body.hidden = false; done.hidden = true; dialog.querySelector('[data-cart-steps]').hidden = false;
+      go(1, false);
+    }
     render();
     dialog.showModal();
     document.documentElement.classList.add('has-cart');
-  };
+  }
   const close = () => dialog.open && dialog.close();
   dialog.addEventListener('close', () => { document.documentElement.classList.remove('has-cart'); render(); });
-  openBtn.addEventListener('click', open);
+  openBtn.addEventListener('click', () => open());
   dialog.querySelectorAll('[data-cart-close]').forEach((b) => b.addEventListener('click', close));
   dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });   // a tap beside the sheet
   document.querySelectorAll('a[href="#warenkorb"]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); open(); }));
 
-  // ---- the order -------------------------------------------------------------------------------------------
-  const number = () => {
-    const d = new Date(), abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const tail = Array.from({ length: 4 }, () => abc[Math.floor(Math.random() * abc.length)]).join('');
-    return `CU-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${tail}`;
-  };
-  // A message stands under the field it is about; the first one is brought into view and given the focus.
-  const errors = Object.fromEntries([...form.querySelectorAll('[data-error]')].map((el) => [el.dataset.error, el]));
-  const mark = (key, msg, field) => {
-    const el = errors[key];
-    el.textContent = msg || ''; el.hidden = !msg;
-    (field ? [field] : [...form.querySelectorAll(`input[name="${key}"]`)]).forEach((i) => i.toggleAttribute('aria-invalid', !!msg));
-    return !msg;
-  };
-  form.addEventListener('input', (e) => { const key = e.target.name; if (errors[key] && !errors[key].hidden) mark(key, ''); });
-  form.addEventListener('change', (e) => { const key = e.target.name; if (errors[key] && !errors[key].hidden) mark(key, ''); });
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const f = new FormData(form);
-    const say = (msg) => { status.textContent = msg; };
-    const pickup = form.querySelector('input[name="abholung"]:checked');
-    const email = form.querySelector('input[name="email"]');
-    const name = form.querySelector('input[name="name"]');
-    const consent = form.querySelector('input[name="zustimmung"]');
-    const checks = [
-      ['abholung', !pickup && 'Bitte wähl aus, wo du deine Bestellung abholst.', form.querySelector('input[name="abholung"]:not(:disabled)')],
-      ['name', !name.value.trim() && 'Bitte gib deinen Namen an.', name],
-      ['email', (!email.value.trim() || !email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.', email],
-      ['zustimmung', !consent.checked && 'Bitte bestätige die Bestellbedingungen und die Übermittlung deiner Angaben.', consent],
-    ];
-    say('');
-    let first = null;
-    for (const [key, msg, field] of checks) if (!mark(key, msg, key === 'abholung' ? null : field) && !first) first = field;
-    if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
-    if (f.get('_honey')) return;                                       // a bot filled the hidden field
-    if (!form.dataset.endpoint) return say('Vorschau: Hier wird keine Bestellung gesendet.');   // the preview copy has no inbox
-    const no = number();
-    const lines = items.map((it) => `${it.qty} × ${it.name} ${it.ml} ml à ${fmt(it.price)} = ${fmt(it.qty * it.price)}`).join('\n');
-    const payload = {
-      _subject: `Neue Bestellung ${no}: ${name.value.trim()}`,
-      _template: 'table',
-      _autoresponse: `Danke für deine Bestellung bei Cascarup!\n\nBestellnummer: ${no}\n${lines}\nTotal: ${fmt(sum())}\nAbholung: ${pickup.value}\n\nBezahlt wird bei der Abholung, bar oder mit TWINT. Bei Fragen erreichst du uns unter info@cascarup.ch.`,
-      Bestellnummer: no, Bestellung: lines, Total: fmt(sum()), Abholung: pickup.value,
-      Name: name.value.trim(), email: email.value.trim(), Telefon: (f.get('telefon') || '').toString().trim() || '–',
-      Bemerkung: (f.get('bemerkung') || '').toString().trim() || '–',
-    };
-    const button = form.querySelector('.order__submit');
-    button.disabled = true; status.textContent = 'Wird gesendet …';
-    try {
-      const res = await fetch(form.dataset.endpoint, {
-        method: 'POST', body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);
-      items = []; save();
-      done.querySelector('[data-done-number]').textContent = no;
-      body.hidden = true; done.hidden = false; done.focus();
-      form.reset(); status.textContent = '';
-      render();
-    } catch {
-      say('Die Bestellung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.');
-    } finally {
-      button.disabled = false;
-    }
-  });
-
+  // ---- back from the payment page ----------------------------------------------------------------------------
+  C.restore('cascarup.lieferung', form);
   render();
+  const back = C.returned();
+  if (back.paid) finish(back.paid);
+  else if (back.broken && items.length) {
+    open(); go(3, false);
+    status.textContent = 'Die Zahlung wurde abgebrochen. Dein Warenkorb und deine Angaben sind noch da.';
+  }
 })();

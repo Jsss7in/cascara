@@ -1,6 +1,6 @@
 // Cascarup – the opening in 3D: a real coffee cherry (a photograph, projected onto the model) opens layer by
 // layer, the beans leave for the roaster, the skin dries into cascara; the cascara is steeped in a pot of hot water
-// and simmered down to syrup, which fills two bottles: Cascara, and Gifferstee with cinnamon and star anise.
+// and simmered down to syrup, which fills two bottles: the Original, and Cozy Spice with cinnamon and star anise.
 // Built into assets/hero3d.js by _build/hero3d/build.sh (three.js is bundled and trimmed to what is used).
 import {
   WebGLRenderer, Scene, PerspectiveCamera, PMREMGenerator, Group, Mesh, Color, Vector3,
@@ -302,51 +302,52 @@ function infusing(mat) {
   return mat;
 }
 
-// the bottle: a round syrup bottle, its profile turned on the lathe – the mouth is open, the lip rolls inwards
-export const BOTTLE = [[0, 0], [.52, 0], [.6, .03], [.62, .1], [.62, 1.12], [.6, 1.24], [.5, 1.4], [.3, 1.56], [.215, 1.66],
-  [.21, 1.92], [.235, 1.95], [.235, 2.02], [.17, 2.02], [.17, 1.74], [.2, 1.67]];
-export const MOUTH = 2.02;
+// the bottle: our 500 ml bottle, measured on its photograph – a slim cylinder (nine body radii tall with its cap),
+// a round shoulder, a short neck with its threads under an aluminium screw cap; turned on the lathe, the mouth open
+export const BOTTLE = [[0, 0], [.3, 0], [.322, .012], [.33, .04], [.33, 2.38], [.327, 2.399], [.319, 2.418], [.311, 2.437],
+  [.303, 2.457], [.293, 2.476], [.282, 2.495], [.268, 2.514], [.247, 2.533], [.22, 2.552], [.182, 2.571], [.163, 2.587],
+  [.148, 2.6], [.139, 2.616], [.138, 2.7], [.146, 2.71], [.146, 2.74], [.139, 2.75], [.146, 2.765], [.146, 2.79], [.139, 2.8],
+  [.142, 2.92], [.135, 2.94], [.106, 2.94], [.104, 2.7], [.118, 2.6]];
+export const MOUTH = 2.94, CAP_AT = 2.73;     // the glass's top, and where the cap's foot sits once it is screwed on
+const NECK = 17;                              // BOTTLE[0…NECK] is the outside up to the neck: the room of the syrup
+export const BODY_R = .33, LABEL_Y = 1.16;   // the label's middle, as high as on the photographs of our bottles
 export function lathe(points, inset = 0, segs = 96) {
   return new LatheGeometry(points.map(([r, y]) => new Vector2(Math.max(0, r - inset), y)), segs);
 }
+export const syrupProfile = () => BOTTLE.slice(0, NECK + 1);
 export function radiusAt(y, inset) {
-  for (let i = 1; i < 10; i++) {
+  for (let i = 1; i <= NECK; i++) {
     const [r0, y0] = BOTTLE[i - 1], [r1, y1] = BOTTLE[i];
     if (y >= y0 && y <= y1 && y1 > y0) return Math.max(0, lerp(r0, r1, (y - y0) / (y1 - y0)) - inset);
   }
   return 0;
 }
 export function capGeometry() {
-  // a screw cap: a soft bevel on top, knurled sides
-  const g = lathe([[0, .29], [.2, .29], [.245, .275], [.262, .245], [.262, .03], [.25, 0], [.22, 0]], 0, 144);
+  // an aluminium screw cap as on our bottles: knurled round its top, rings of thread below, the tamper band at its foot
+  const g = lathe([[0, .236], [.14, .236], [.151, .231], [.156, .22], [.156, .168], [.15, .163], [.156, .158], [.156, .128],
+    [.15, .123], [.156, .118], [.156, .088], [.15, .083], [.156, .078], [.156, .06], [.149, .056], [.153, .052], [.153, .004],
+    [.147, 0], [.135, 0]], 0, 180);
   const p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    if (y > .04 && y < .235) {
-      const a = Math.atan2(z, x), k = 1 + .018 * Math.max(-.6, Math.min(.6, Math.cos(a * 48) * 2));
+    if (y > .17 && y < .218) {
+      const a = Math.atan2(z, x), k = 1 + .02 * Math.max(-.6, Math.min(.6, Math.cos(a * 64) * 2));
       p.setX(i, x * k); p.setZ(i, z * k);
     }
   }
   g.computeVertexNormals();
   return g;
 }
-
-export function labelTexture(line = 'SIRUP AUS DER KAFFEEKIRSCHE', size = 38) {
-  const c = document.createElement('canvas'); c.width = 2048; c.height = 560;
-  const x = c.getContext('2d');
-  x.fillStyle = '#F7F0E4'; x.fillRect(0, 0, c.width, c.height);
-  x.fillStyle = '#9C4B23'; x.fillRect(0, 34, c.width, 6); x.fillRect(0, c.height - 40, c.width, 6);
-  x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.fillStyle = '#9C4B23';
-  x.font = '700 190px DynaPuff, "Arial Rounded MT Bold", sans-serif';
-  x.fillText('Cascarup', c.width / 2, c.height * .44);
-  x.fillStyle = '#3a2116';
-  x.font = `400 ${size}px Jost, Futura, sans-serif`;
-  x.letterSpacing = '12px';
-  x.fillText(line, c.width / 2, c.height * .74);
-  const t = new CanvasTexture(c); t.colorSpace = SRGBColorSpace; t.anisotropy = 8;
+// our labels (drawn by _build/label from the designs), wrapped round the front of the bottle
+export function labelMap(src) {
+  const t = new TextureLoader().load(src); t.colorSpace = SRGBColorSpace; t.anisotropy = 8;
   return t;
 }
+export const LABEL_TURN = 2.38;               // how far round the bottle the label reaches (radians), as on the photo
+export const labelGeometry = () => {
+  const r = BODY_R + .004, h = LABEL_TURN * r / (1007 / 1312);
+  return new CylinderGeometry(r, r, h, 128, 1, true, -LABEL_TURN / 2, LABEL_TURN);
+};
 
 export function shadowTexture() {
   const c = document.createElement('canvas'); c.width = c.height = 256;
@@ -356,10 +357,10 @@ export function shadowTexture() {
   return new CanvasTexture(c);
 }
 
-// the two kinds: their syrup's colour (in depth and on top), cap and label
+// the two kinds: their syrup's colour (in depth and on top) and their label
 export const KINDS = {
-  cascara: { label: 'CASCARA', syrup: '#8f3612', surface: '#7d2e0f', cap: '#9C4B23', props: 'cascara' },
-  gifferstee: { label: 'GIFFERSTEE', syrup: '#6a260c', surface: '#5a200a', cap: '#4a2516', props: 'spice' },
+  original: { label: 'assets/label/original.webp', syrup: '#74290d', surface: '#3c1306', props: 'cascara' },
+  cozy: { label: 'assets/label/cozy.webp', syrup: '#66230b', surface: '#341005', props: 'spice' },
 };
 
 // cinnamon: a quill, bark rolled up into a loose scroll, with fine ridges along its length
@@ -514,9 +515,9 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   const navel = new Mesh(new CircleGeometry(.12, 24), new MeshStandardMaterial({ color: '#2a120b', roughness: .9, side: DoubleSide }));
   navel.position.y = -RY + .12; navel.rotation.x = Math.PI / 2; cherry.add(navel);
 
-  const FLOOR = -1.45, BOTTLE_S = 1.05;
+  const FLOOR = -1.45, BOTTLE_S = 1;
   // ---- the ending: the dried halves are steeped in a pot of hot water, simmered down to syrup, and the syrup is
-  // poured into two bottles – one as it is, Cascara, one with cinnamon and star anise, Gifferstee
+  // poured into two bottles – one as it is, the Original, one with cinnamon and star anise, Cozy Spice
   const shadowTex = shadowTexture();
   const shadowMat = new MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false });
   const softShadow = (sx, sz) => { const m = new Mesh(new PlaneGeometry(1, 1), shadowMat.clone()); m.rotation.x = -Math.PI / 2; m.scale.set(sx, sz, 1); return m; };
@@ -565,30 +566,30 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   const ripples = [0, 1].map(() => { const r = new Mesh(new TorusGeometry(1, .009, 8, 72), rippleMat.clone()); r.rotation.x = Math.PI / 2; r.visible = false; world.add(r); return r; });
 
   // the two bottles: empty when they come up, filled from the pot, capped and labelled
-  const bottleGeo = lathe(BOTTLE), syrupGeo = lathe(BOTTLE.slice(0, 10), .035), capGeo = capGeometry();
-  const labelGeo = new CylinderGeometry(.628, .628, .42, 96, 1, true, -Math.PI * .4, Math.PI * .8);
-  const bottles = ['cascara', 'gifferstee'].map((id, i) => {
+  const bottleGeo = lathe(BOTTLE, 0, 128), syrupGeo = lathe(syrupProfile(), .02, 96), capGeo = capGeometry(), labelGeo = labelGeometry();
+  const capMat = new MeshPhysicalMaterial({ color: '#dcdcd6', metalness: 1, roughness: .3, transparent: true });
+  const bottles = ['original', 'cozy'].map((id, i) => {
     const k = KINDS[id], g = new Group(); world.add(g);
     const fill = new Plane(new Vector3(0, -1, 0), 0);
     const mat = new MeshPhysicalMaterial({
-      color: '#ffffff', roughness: .05, transmission: 1, thickness: 1.1, ior: 1.45,
-      attenuationColor: new Color(k.syrup), attenuationDistance: .95, clearcoat: 1, clippingPlanes: [fill],
+      color: '#ffffff', roughness: .05, transmission: 1, thickness: .62, ior: 1.45,
+      attenuationColor: new Color(k.syrup), attenuationDistance: .3, clearcoat: 1, clippingPlanes: [fill],
     });
     const syrup = new Mesh(syrupGeo, mat);
     const surface = new Mesh(new CircleGeometry(1, 72), new MeshPhysicalMaterial({ color: k.surface, roughness: .05, clearcoat: 1 }));
     surface.rotation.x = -Math.PI / 2;
-    const meniscus = new Mesh(new TorusGeometry(1, .01, 8, 96), new MeshPhysicalMaterial({ color: '#a85a34', roughness: .15, transparent: true, opacity: .35 }));
+    const meniscus = new Mesh(new TorusGeometry(1, .006, 8, 96), new MeshPhysicalMaterial({ color: '#a85a34', roughness: .15, transparent: true, opacity: .35 }));
     meniscus.rotation.x = Math.PI / 2;
-    const cap = new Mesh(capGeo, new MeshPhysicalMaterial({ color: k.cap, roughness: .55, clearcoat: .2, transparent: true }));
-    const labelMat = new MeshPhysicalMaterial({ map: labelTexture(k.label, 80), color: '#ece6dc', roughness: .65, side: DoubleSide, transparent: true, opacity: 0 });
-    const label = new Mesh(labelGeo, labelMat); label.position.y = .6;
-    const shade = softShadow(2.2, 1.6); shade.position.y = .004;
+    const cap = new Mesh(capGeo, capMat.clone());
+    const tex = labelMap(k.label);
+    const labelMat = new MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: '#ffffff', emissiveIntensity: .32, roughness: .6, side: DoubleSide, transparent: true, opacity: 0 });
+    const label = new Mesh(labelGeo, labelMat); label.position.y = LABEL_Y;
+    const shade = softShadow(1.3, 1); shade.position.y = .004;
     g.add(shade, syrup, surface, meniscus, new Mesh(bottleGeo, glassMat), label, cap);
     syrup.renderOrder = surface.renderOrder = meniscus.renderOrder = 1;
     g.scale.setScalar(BOTTLE_S);
-    return { id, k, g, fill, syrup, surface, meniscus, cap, label, labelMat, shade, x: i ? .86 : -.86 };
+    return { id, k, g, fill, syrup, surface, meniscus, cap, label, labelMat, shade, x: i ? .55 : -.55 };
   });
-  document.fonts?.load('700 100px DynaPuff').then(() => { for (const b of bottles) { b.labelMat.map = labelTexture(b.k.label, 80); b.labelMat.needsUpdate = true; } });
   // the pours: one clean, glossy thread of syrup into each bottle, from the pot above the picture
   const streamGeo = new CylinderGeometry(.04, .03, 1, 28, 1, true); streamGeo.translate(0, -.5, 0);
   const streamMat = new MeshPhysicalMaterial({
@@ -605,23 +606,23 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   };
   streamMat.customProgramCacheKey = () => 'cascarup-stream-1';
   const streams = bottles.map(() => { const m = new Mesh(streamGeo, streamMat); m.visible = false; world.add(m); return m; });
-  // what makes the second one Gifferstee: a stick of cinnamon and a star anise, dropped into it before it is filled
+  // what makes the second one Cozy Spice: a stick of cinnamon slipped through its neck before it is filled (the star
+  // anise, brewed with it, would not fit; it lies beside the bottle at the end)
   const dropStick = cinnamon(.9); dropStick.scale.setScalar(.42); world.add(dropStick);
-  const dropStar = starAnise(); dropStar.scale.setScalar(.4); world.add(dropStar);
 
-  // the still life: beside Cascara a fresh cherry and two pieces of cascara, beside Gifferstee its spices
+  // the still life: beside the Original a fresh cherry and two pieces of cascara, beside Cozy Spice its spices
   const dried = sides.map((sd, i) => {
     const m = new Mesh(sd.skin.geometry, skinMaterial(speckle));
     m.morphTargetInfluences = [1]; m.material.userData.dry.value = 1;
     m.material.roughness = .58; m.material.clearcoat = .16; m.material.clearcoatRoughness = .4; m.material.sheen = .4; m.material.sheenColor.set('#c07a5c');
-    m.scale.setScalar(.2); m.visible = false; world.add(m);
+    m.scale.setScalar(.16); m.visible = false; world.add(m);
     m.material.transparent = true;
-    return { m, x: i ? -1.55 : -2.22, z: i ? .78 : .2, ry: i ? 2.4 : -.6 };
+    return { m, x: i ? -1.2 : -2.02, z: i ? .9 : .55, ry: i ? 2.4 : -.6 };
   });
   const spices = [
-    { o: cinnamon(1.2), x: 1.86, y: .05, z: .3, r: [0, Math.PI / 2 - .35, 0], s: .62 },
-    { o: cinnamon(1.2), x: 1.96, y: .13, z: .02, r: [0, Math.PI / 2 - .62, .05], s: .62 },
-    { o: starAnise(), x: 1.5, y: .055, z: .82, r: [.05, .4, -.04], s: .72 },
+    { o: cinnamon(1.2), x: 1.36, y: .04, z: .3, r: [0, Math.PI / 2 - .35, 0], s: .5 },
+    { o: cinnamon(1.2), x: 1.44, y: .105, z: .04, r: [0, Math.PI / 2 - .62, .05], s: .5 },
+    { o: starAnise(), x: 1.08, y: .045, z: .82, r: [.05, .4, -.04], s: .58 },
   ];
   // what fades in: every material of it, made see-through once
   const fadeable = (o) => { const ms = []; o.traverse((m) => { if (m.material) { m.material.transparent = true; ms.push(m.material); } }); return ms; };
@@ -633,8 +634,8 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   for (const s of sides) { const m = new Mesh(s.skin.geometry, freshMat); m.morphTargetInfluences = [0]; fresh.add(m); }
   const fStalk = new Mesh(stalk.geometry, woody); fStalk.position.y = RY + .06; fStalk.rotation.z = -.15; fresh.add(fStalk);
   const fCrown = crown.clone(); fresh.add(fCrown);
-  const FRESH = .25; fresh.scale.setScalar(FRESH); world.add(fresh);
-  const freshShadow = softShadow(.68, .68); world.add(freshShadow);
+  const FRESH = .2; fresh.scale.setScalar(FRESH); world.add(fresh);
+  const freshShadow = softShadow(.55, .55); world.add(freshShadow);
 
   // the cherry's own shadow on the table
   const shadow = softShadow(1, 1); world.add(shadow);
@@ -732,16 +733,17 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
 
     // camera: right of the words, centred for the exploded view; down to the pot and looking into it a little,
     // level again for the bottles, a step back for the still life
-    const camY = lerp(lerp(lerp(0, -.84, toPot), -.3, toBottles), -.34, endPhase);
+    const camY = lerp(lerp(lerp(0, -.84, toPot), .02, toBottles), -.06, endPhase);
     const pitch = .2 * toPot * (1 - toBottles);
     // At first the camera stands back, so the cherry has room for its branch; as it is picked, the camera comes in.
     const intro = 1 - smooth(.04, .2, p);
     // at first the cherry stands where its branch fits beside (wide) or above (narrow) the words
     let ox, oy, zoom;
-    if (wide) { ox = -.2 * (1 - open) - .03 * endPhase; oy = 0; zoom = 1 + .08 * endPhase; }
+    if (wide) { ox = -.2 * (1 - open) - .03 * endPhase; oy = 0; zoom = 1 - .04 * endPhase; }
     else {
-      ox = 0; oy = lerp(lerp(-.21, -.03, open), -.07, later) - .08 * toBottles * (1 - endPhase);
-      zoom = 1 + .3 * open - .04 * toPot * (1 - toBottles) + .02 * toBottles + .45 * endPhase;
+      // the tall bottles stand in the lower part of the screen, under the words, while they are filled
+      ox = 0; oy = lerp(lerp(-.21, -.03, open), -.07, later) - .17 * toBottles * (1 - endPhase);
+      zoom = 1 + .3 * open - .04 * toPot * (1 - toBottles) + .25 * toBottles * (1 - endPhase) + .38 * endPhase;
     }
     const first = fit || (wide ? { ox: -.22, oy: .08, zoom: 1.32 } : { ox: 0, oy: .26, zoom: 2.02 });
     aim(lerp(ox, first.ox, intro), lerp(oy, first.oy, intro), lerp(zoom, first.zoom, intro), camY, pitch);
@@ -860,12 +862,12 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
       b.g.visible = up > .001;
       b.g.position.set(b.x, lerp(-7.5, FLOOR, up), 0);
       b.g.rotation.y = Math.sin(time * .45 + i * 1.7) * .08 * smooth(.9, 1, p);
-      const f = smooth(T.fill[0], T.fill[1], p), lvl = lerp(.03, 1.8, f), sy = b.g.position.y + lvl * BOTTLE_S;
+      const f = smooth(T.fill[0], T.fill[1], p), lvl = lerp(.05, 2.585, f), sy = b.g.position.y + lvl * BOTTLE_S;
       b.fill.constant = sy;
       b.syrup.visible = f > .002;
       b.surface.visible = b.meniscus.visible = f > .01;
       b.surface.position.y = b.meniscus.position.y = lvl;
-      const rr = radiusAt(lvl, .035);
+      const rr = radiusAt(lvl, .02);
       b.surface.scale.setScalar(rr); b.meniscus.scale.set(rr, rr, 1);
       const [i0, i1, o0, o1] = T.pour, head = smooth(i0, i1, p), tail = smooth(o0, o1, p);
       const top = lerp(STREAM_TOP, sy, tail), bottom = lerp(STREAM_TOP, sy, head), st = streams[i];
@@ -873,24 +875,23 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
       if (st.visible) { st.position.set(b.x + Math.sin(time * 2.1 + i) * .004, top, 0); st.scale.set(1, top - bottom, 1); }
       const c = ease(T.cap[0], T.cap[1], p);
       b.cap.visible = c > .001;
-      b.cap.position.y = lerp(MOUTH + (wide ? 1.6 : .45), MOUTH - .05, c);
+      b.cap.position.y = lerp(MOUTH + (wide ? 1.6 : .45), CAP_AT, c);
       b.cap.rotation.y = (1 - c) * 4;
       b.cap.material.opacity = smooth(0, .35, c);
       b.labelMat.opacity = labelIn; b.label.visible = labelIn > .001;
       b.shade.material.opacity = .8 * up;
     });
     // the spices fall into the second bottle and come to rest on its floor
-    const B = bottles[1], fallS = smooth(.804, .82, p), fallA = smooth(.809, .825, p), bed = B.g.position.y + .1 * BOTTLE_S;
-    dropStick.visible = fallS > .001; dropStar.visible = fallA > .001;
-    dropStick.position.set(B.x + .06, lerp(STREAM_TOP, bed + .2, fallS * fallS), -.05);
-    dropStick.rotation.set(Math.PI / 2 - .9 * smooth(.815, .821, p), .3, .2 * fallS);
-    dropStar.position.set(B.x - .14, lerp(STREAM_TOP + .4, bed + .04, fallA * fallA), .12);
-    dropStar.rotation.set(.12 + (1 - fallA) * 2.4, fallA * 2, .1);
+    // the stick falls upright through the neck and comes to lean against the glass
+    const B = bottles[1], fallS = smooth(.804, .82, p), lean = .1 * smooth(.816, .824, p), bed = B.g.position.y + .04 * BOTTLE_S;
+    dropStick.visible = fallS > .001 && B.g.visible;
+    dropStick.position.set(B.x + .035 + lean * .19, lerp(STREAM_TOP, bed + .19 * Math.cos(lean), fallS * fallS), 0);
+    dropStick.rotation.set(Math.PI / 2, 0, -lean);
 
     // the still life: the dried pieces and the spices appear where they lie (no falling through the air)
     dried.forEach((d, i) => {
       d.m.visible = settleIn > .001;
-      d.m.position.set(d.x, FLOOR + .13, d.z);
+      d.m.position.set(d.x, FLOOR + .104, d.z);
       d.m.rotation.set(Math.PI / 2 * (i ? 1 : -1) * .92, d.ry, 0);
       d.m.material.opacity = settleIn;
     });
@@ -902,14 +903,14 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
       for (const m of sp.mats) m.opacity = settleIn;
     }
     spiceShadow.visible = settleIn > .001;
-    spiceShadow.position.set(1.72, FLOOR + .003, .45); spiceShadow.material.opacity = .55 * settleIn;
+    spiceShadow.position.set(1.34, FLOOR + .003, .45); spiceShadow.material.opacity = .55 * settleIn;
     // a fresh cherry beside the first bottle, appearing where it lies like the rest
     fresh.visible = rollIn > .001;
-    fresh.position.set(-1.85, FLOOR + FRESH * RY + .025, .4);
+    fresh.position.set(-1.6, FLOOR + FRESH * RY + .025, .05);
     fresh.rotation.set(0, 0, -.08);
     freshMat.transparent = true; freshMat.opacity = rollIn;
     freshShadow.visible = fresh.visible;
-    freshShadow.position.set(-1.85, FLOOR + .003, .4);
+    freshShadow.position.set(-1.6, FLOOR + .003, .05);
     freshShadow.material.opacity = .7 * rollIn;
 
     // the cherry's shadow, until the halves rise

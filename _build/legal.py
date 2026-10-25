@@ -47,7 +47,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
     <p>Wir prüfen die Inhalte dieser Website sorgfältig. Für Vollständigkeit, Richtigkeit und Aktualität übernehmen wir keine Gewähr. Für die Inhalte verlinkter Websites sind ausschliesslich deren Betreiber verantwortlich.</p>
 
     <h2>Urheberrecht</h2>
-    <p>Texte, Logo und Gestaltung: Cascarup. Die Fotos stammen von Flickr und Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
+    <p>Texte, Logo, Etiketten und Gestaltung: Cascarup. Die Fotos unserer Flaschen haben wir selbst aufgenommen. Die übrigen Fotos stammen von Flickr und Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
     <p>Karten bei den Ständen: gezeichnet aus Daten von © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkenden</a>, verfügbar unter der Open Database License (ODbL).</p>
 
     <h2 id="bildnachweis">Bildnachweis</h2>
@@ -74,11 +74,15 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <p>Diese Website liegt bei GitHub Pages, einem Dienst der GitHub, Inc., San Francisco, USA. Beim Aufruf einer Seite speichert GitHub deine IP-Adresse aus Sicherheitsgründen. Die Daten können dabei in den USA bearbeitet werden; GitHub ist nach dem Swiss-U.S. Data Privacy Framework zertifiziert. Wie lange GitHub diese Daten aufbewahrt, regelt die <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.</p>
 
     <h2>Bestellungen</h2>
-    <p>Wenn du im Shop bestellst, erhalten wir deinen Namen, deine E-Mail-Adresse, falls du sie angibst deine Telefonnummer und deine Bemerkung, dazu die Bestellung und den gewählten Abholort. Wir brauchen diese Angaben nur, um deine Bestellung bereitzustellen, dich bei Fragen zu erreichen und dir die Bestellung zu bestätigen. Zu eigenen Zwecken geben wir sie niemandem weiter und verkaufen sie nicht.</p>
-    <p>Die Bestellung läuft über den Dienst FormSubmit (formsubmit.co) von Devro LABS. FormSubmit erhält deine Angaben und deine IP-Adresse, leitet sie per E-Mail an {MAIL} weiter und schickt dir die Bestätigung. Sitz und Speicherort gibt FormSubmit nicht verbindlich an; nach öffentlichen Angaben liegt der Sitz in Sri Lanka. Dort besteht kein dem Schweizer Recht gleichwertiger Datenschutz, und FormSubmit bietet keine vertraglichen Garantien. Wir übermitteln deine Angaben deshalb nur mit deiner ausdrücklichen Einwilligung (Art. 17 Abs. 1 Bst. a DSG), die du mit dem Häkchen im Warenkorb gibst.</p>
+    <p>Wenn du im Shop bestellst, erhalten wir deinen Namen, deine E-Mail-Adresse, deine Lieferadresse, falls du sie angibst deine Telefonnummer und deine Bemerkung, dazu die Bestellung. Wir brauchen diese Angaben, um deine Bestellung zu verschicken, sie dir zu bestätigen und dich bei Fragen zu erreichen. Zu eigenen Zwecken geben wir sie niemandem weiter und verkaufen sie nicht.</p>
+    <p>Bezahlt wird über unseren Zahlungsdienst Stripe (Stripe Payments Europe, Limited, Dublin, Irland), mit TWINT oder mit Karte. Stripe erhält dafür deine Bestellung, deinen Namen und deine E-Mail-Adresse und bearbeitet die Zahlungsdaten selbst; deine Kartendaten sehen wir nie. Stripe bearbeitet Daten auch in den USA und ist nach dem Swiss-U.S. Data Privacy Framework zertifiziert. Es gilt zusätzlich die <a href="https://stripe.com/ch/privacy" target="_blank" rel="noopener">Datenschutzerklärung von Stripe</a>.</p>
+    <p>Für den Versand erhält die Schweizerische Post deinen Namen und deine Lieferadresse.</p>
     <p>Bei uns liegen die Bestellungen im E-Mail-Postfach {MAIL} bei Microsoft 365 (Microsoft Corporation). Dabei können Daten auch in den USA bearbeitet werden; Microsoft ist nach dem Swiss-U.S. Data Privacy Framework zertifiziert.</p>
-    <p>Wir löschen deine Angaben, sobald die Bestellung abgeholt und bezahlt ist, spätestens mit dem Abschluss des Schülerunternehmens am Ende des Schuljahres 2026/27; Belege für unsere Buchhaltung bewahren wir so lange auf, wie das Gesetz es verlangt.</p>
-    <p>Dein Warenkorb wird nur in deinem eigenen Browser gespeichert (lokaler Speicher), damit er beim nächsten Besuch noch da ist. Er wird nicht an uns übermittelt, bis du bestellst.</p>
+    <p>Wir löschen deine Angaben, sobald die Bestellung abgeschlossen ist, spätestens mit dem Abschluss des Schülerunternehmens am Ende des Schuljahres 2026/27; Belege für unsere Buchhaltung bewahren wir so lange auf, wie das Gesetz es verlangt.</p>
+    <p>Dein Warenkorb wird nur in deinem eigenen Browser gespeichert (lokaler Speicher), damit er beim nächsten Besuch noch da ist. Deine Angaben in der Kasse merkt sich dein Browser nur, solange der Tab offen ist, damit sie nach einer abgebrochenen Zahlung noch da sind. Beides wird erst an uns übermittelt, wenn du bezahlst.</p>
+
+    <h2>Partizipationsscheine</h2>
+    <p>Wenn du einen Partizipationsschein zeichnest, erhalten wir deinen Namen, deine E-Mail-Adresse, deine Adresse, falls du sie angibst deine Telefonnummer, die Anzahl Scheine und deine Wahl, ob du dein Geld am Ende zurück möchtest. Wir brauchen diese Angaben, um dir deine Scheine zuzuordnen, dich am Ende des Unternehmungsjahres zu erreichen und dir das Geld zurückzuzahlen, wenn du das gewählt hast. Bezahlt wird wie im Shop über Stripe. Wir löschen deine Angaben, sobald das Unternehmungsjahr abgeschlossen und zurückbezahlt ist; Belege bewahren wir so lange auf, wie das Gesetz es verlangt.</p>
 
     <h2>Schriften</h2>
     <p>Die Schriften «Newsreader», «Jost» und «DynaPuff» liegen auf dieser Website selbst. Für ihre Anzeige werden keine Daten an Dritte übermittelt.</p>
@@ -90,7 +94,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <p>Wir verlinken auf unsere Profile bei Instagram, TikTok und X. Das sind einfache Links: Solange du keinen davon anklickst, wird nichts an diese Dienste übermittelt. Auf den Plattformen selbst gelten deren eigene Datenschutzerklärungen.</p>
 
     <h2>Cookies und Analyse</h2>
-    <p>Wir setzen keine Cookies, keine Analyse- oder Tracking-Werkzeuge und keine Social-Media-Plugins ein. Den Warenkorb merkt sich dein Browser im lokalen Speicher, nur für dich.</p>
+    <p>Wir setzen keine Cookies, keine Analyse- oder Tracking-Werkzeuge und keine Social-Media-Plugins ein. Den Warenkorb merkt sich dein Browser im lokalen Speicher, nur für dich. Auf der Bezahlseite von Stripe setzt Stripe eigene Cookies, die für die sichere Zahlung nötig sind.</p>
 
     <h2>Deine Rechte</h2>
     <p>Du kannst jederzeit Auskunft darüber verlangen, welche Daten wir über dich bearbeiten, und sie berichtigen oder löschen lassen. Schreib uns dafür an {MAIL}. Wenn du findest, dass wir deine Daten nicht richtig bearbeiten, kannst du dich an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) wenden: <a href="https://www.edoeb.admin.ch" target="_blank" rel="noopener">www.edoeb.admin.ch</a>.</p>
@@ -100,29 +104,34 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
 
     <p class="legal__stand">Stand: Oktober 2026</p>'''
 
-stands = ', '.join(f"{st['day']}. {st['month']} ({st['town']})" for st in content.STANDS)
 prices = ''.join(f"<li>{p['name']}: " + ', '.join(f"{ml} ml CHF&nbsp;{price:.2f}" for ml, price in p['sizes']) + "</li>" for p in content.PRODUCTS)
-bedingungen = f'''<p class="legal__lead">So funktioniert das Bestellen bei Cascarup: Du bestellst online, holst deine Flaschen ab und bezahlst bei der Abholung.</p>
+ship = content.SHIPPING
+ship_rows = ''.join(f"<li>bis {kg} kg: CHF&nbsp;{price:.2f}</li>" for kg, price in ship['tiers'])
+bedingungen = f'''<p class="legal__lead">So funktioniert das Bestellen bei Cascarup: Du bestellst online, bezahlst mit TWINT oder Karte, und wir schicken dir deine Flaschen per Post.</p>
 
     <h2>Anbieter</h2>
     <p>Cascarup, Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Fribourg. E-Mail: {MAIL}</p>
 
     <h2>Angebot und Preise</h2>
-    <p>Wir verkaufen unseren Sirup in Flaschen zu 200 ml und 500 ml, solange Vorrat. Die Preise gelten in Schweizer Franken:</p>
+    <p>Wir verkaufen unseren Sirup in der Taschenflasche zu 200 ml und in der Flasche zu 500 ml, solange Vorrat. Die Preise gelten in Schweizer Franken:</p>
     <ul>{prices}</ul>
-    <p>Es fallen keine Versandkosten an, weil wir nicht versenden.</p>
 
-    <h2>Bestellung</h2>
-    <p>Du legst die Flaschen in den Warenkorb, wählst einen Abholort und gibst deine Angaben ein. Vor dem Absenden kannst du im Warenkorb alles prüfen und ändern. Mit «Bestellung absenden» reservierst du die Flaschen verbindlich für dich. Du erhältst eine Bestätigung per E-Mail mit deiner Bestellnummer. Der Kauf kommt mit der Übergabe und Bezahlung bei der Abholung zustande.</p>
+    <h2>Versand</h2>
+    <p>Wir liefern in die Schweiz, mit der Post als PostPac Economy. Die Versandkosten richten sich nach dem Gewicht des Pakets und stehen im Warenkorb, bevor du bezahlst:</p>
+    <ul>{ship_rows}</ul>
+    <p>Wir verschicken deine Bestellung, sobald sie bezahlt ist; für die Zustellung rechnet die Post mit zwei Werktagen.</p>
 
-    <h2>Abholung und Bezahlung</h2>
-    <p>Du holst deine Bestellung an dem Stand ab, den du gewählt hast ({stands}), oder nach Absprache am Collège Saint-Michel. Für einen Stand nehmen wir Bestellungen bis am Vortag entgegen. Bezahlt wird bei der Abholung, bar oder mit TWINT. Holst du eine Bestellung nicht ab, geben wir die Flaschen nach dem gewählten Termin wieder frei.</p>
+    <h2>Bestellung und Bezahlung</h2>
+    <p>Du legst die Flaschen in den Warenkorb, gibst deine Lieferadresse ein und wählst TWINT oder Karte. Vor dem Bezahlen siehst du deine Bestellung, die Versandkosten und das Total und kannst alles ändern. Mit «Jetzt bezahlen» kommst du auf die sichere Bezahlseite unseres Zahlungsdienstes Stripe. Der Kauf kommt mit der erfolgreichen Zahlung zustande; du erhältst eine Bestätigung per E-Mail mit deiner Bestellnummer.</p>
 
     <h2>Änderungen und Stornierung</h2>
-    <p>Bis zur Abholung kannst du deine Bestellung kostenlos ändern oder stornieren: Schreib uns an {MAIL} und nenn deine Bestellnummer.</p>
+    <p>Bis wir deine Bestellung verschickt haben, kannst du sie kostenlos ändern oder stornieren: Schreib uns an {MAIL} und nenn deine Bestellnummer. Wir erstatten dir den bezahlten Betrag auf demselben Weg zurück.</p>
 
     <h2>Lebensmittel</h2>
-    <p>Zutaten, Allergene und Haltbarkeit stehen im Shop unter «Zutaten und Hinweise» und auf dem Etikett. Unser Sirup enthält Koffein aus der Kaffeekirsche. Ist mit einer Flasche etwas nicht in Ordnung, melde dich bei uns; wir ersetzen sie oder erstatten den Preis.</p>
+    <p>Zutaten, Allergene und Haltbarkeit stehen im Shop unter «Zutaten und Hinweise» und auf dem Etikett. Unser Sirup enthält Koffein aus der Kaffeekirsche. Ist eine Flasche beschädigt angekommen oder mit ihr etwas nicht in Ordnung, melde dich bei uns, am besten mit einem Foto; wir ersetzen sie oder erstatten den Preis.</p>
+
+    <h2>Partizipationsscheine</h2>
+    <p>Für Partizipationsscheine gelten die Bedingungen auf der Seite <a href="partizipation.html#bedingungen">Werde Teil</a>.</p>
 
     <h2>Datenschutz</h2>
     <p>Wie wir mit deinen Angaben umgehen, steht in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
