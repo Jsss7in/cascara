@@ -560,6 +560,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
   .shop__perks { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 900px) {
+  .shop { padding-top: calc(var(--section) * .45); }
   .shop__head { display: block; }
   .shop__head .display { margin-top: 20px; }
   .shop__intro { margin-top: 22px; }

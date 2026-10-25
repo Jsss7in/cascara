@@ -538,7 +538,9 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   }));
   const infuse = potMat.userData.infuse;
   const potLiquid = new Mesh(lathe([[0, .055], [.97, .055], [1.02, .1], [1.02, 1]], .01, 128), potMat);
-  const potSurface = new Mesh(new CircleGeometry(1.012, 96), new MeshPhysicalMaterial({ color: '#dfe6e4', roughness: .05, clearcoat: 1, transparent: true, opacity: 0, depthWrite: false }));
+  // the liquid's top: no mirror of the studio (Safari's brighter reflections turned it into a pale lid), only a
+  // soft sheen towards the back, as a dark syrup seen from a little above shows
+  const potSurface = new Mesh(new CircleGeometry(1.012, 96), new MeshStandardMaterial({ color: '#dfe6e4', roughness: .55, metalness: 0, transparent: true, opacity: 0, depthWrite: false, envMapIntensity: .08 }));
   const WATER_TOP = new Color('#dfe6e4'), SYRUP_TOP = new Color('#4e1806');
   potSurface.rotation.x = -Math.PI / 2;
   // where the water stood before it simmered down: a faint amber line on the glass
@@ -557,7 +559,7 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   const potLine = new Mesh(new TorusGeometry(1.012, .008, 8, 128), new MeshPhysicalMaterial({ color: '#ffffff', roughness: .1, clearcoat: 1, transparent: true, opacity: .55, depthWrite: false }));
   potLine.rotation.x = Math.PI / 2; pot.add(potLine); potLine.renderOrder = 1;
   // the syrup's top: dark and only softly glossy, so it never reads as a pale lid
-  potSurface.material.envMapIntensity = .22; potSurface.material.roughness = .18;
+
   // the rings each piece of cascara leaves on the water as it goes in
   const rippleMat = new MeshPhysicalMaterial({ color: '#ffffff', roughness: .1, clearcoat: 1, transparent: true, opacity: 0, depthWrite: false });
   const ripples = [0, 1].map(() => { const r = new Mesh(new TorusGeometry(1, .009, 8, 72), rippleMat.clone()); r.rotation.x = Math.PI / 2; r.visible = false; world.add(r); return r; });
@@ -777,7 +779,6 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
     // the top: a faint cool sheen while it is water, the syrup's own dark top once it has steeped
     const syrupTop = smooth(.7, .77, p);
     potSurface.material.color.copy(WATER_TOP).lerp(SYRUP_TOP, syrupTop);
-    potSurface.material.clearcoat = lerp(1, .12, syrupTop);
     potSurface.material.opacity = lerp(.14, .96, syrupTop) * potFade;
     potLine.material.opacity = lerp(.55, .2, syrupTop) * potFade;
     potMark.material.opacity *= potFade;
