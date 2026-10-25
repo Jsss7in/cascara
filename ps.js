@@ -2,6 +2,7 @@
 // (sent through FormSubmit, data-endpoint), so we can write once they can; then it becomes the full form below.
 // The certificate beside the form fills in as you type.
 (() => {
+  const T = window.cascarupT || ((s) => s);   // the page's language (i18n.py puts its words in the head)
   const form = document.querySelector('[data-notify]');
   if (!form) return;
   const status = form.querySelector('.order__status'), button = form.querySelector('[data-pay]');
@@ -11,7 +12,7 @@
   function paint() {
     if (!cert) return;
     const name = `${v('vorname')} ${v('nachname')}`.trim(), el = cert.querySelector('[data-cert-name]');
-    el.textContent = name || 'Dein Name';
+    el.textContent = name || T('Dein Name');
     cert.classList.toggle('is-named', !!name);
     el.style.fontSize = '';   // a long name gets smaller until it fits on its line
     for (let k = 1; k > .55 && el.scrollWidth > el.clientWidth + 1; k -= .05) el.style.fontSize = `${4 * k}cqw`;
@@ -40,27 +41,27 @@
     event.preventDefault();
     status.textContent = '';
     const checks = [
-      ['vorname', !v('vorname') && 'Bitte gib deinen Vornamen an.'],
-      ['nachname', !v('nachname') && 'Bitte gib deinen Namen an.'],
-      ['email', (!v('email') || !form.elements.email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.'],
-      ['zustimmung', !form.elements.zustimmung.checked && 'Bitte bestätige, dass wir deine Angaben dafür speichern dürfen.'],
+      ['vorname', !v('vorname') && T('Bitte gib deinen Vornamen an.')],
+      ['nachname', !v('nachname') && T('Bitte gib deinen Namen an.')],
+      ['email', (!v('email') || !form.elements.email.checkValidity()) && T('Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.')],
+      ['zustimmung', !form.elements.zustimmung.checked && T('Bitte bestätige, dass wir deine Angaben dafür speichern dürfen.')],
     ];
     let first = null;
     for (const [key, msg] of checks) if (!mark(key, msg) && !first) first = form.querySelector(`[name="${key}"]`);
     if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     if (form.elements._honey.value) return;                      // a bot filled the hidden field
     if (document.documentElement.dataset.preview) return finish('Vorschau: Hier wird nichts gesendet.');
-    if (!form.dataset.endpoint) { status.textContent = 'Die Anmeldung öffnet in Kürze. Schreib uns bis dahin an info@cascarup.ch.'; return; }
+    if (!form.dataset.endpoint) { status.textContent = T('Die Anmeldung öffnet in Kürze. Schreib uns bis dahin an info@cascarup.ch.'); return; }
     const name = `${v('vorname')} ${v('nachname')}`;
-    button.disabled = true; status.textContent = 'Wird gesendet …';
+    button.disabled = true; status.textContent = T('Wird gesendet …');
     try {
       const res = await fetch(form.dataset.endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           _subject: `Partizipationsschein: ${name} möchte benachrichtigt werden`, _template: 'table',
-          _autoresponse: 'Danke! Sobald du deinen Partizipationsschein bei Cascarup online zeichnen kannst, schreiben wir dir. Fragen? info@cascarup.ch',
+          _autoresponse: T('Danke! Sobald du deinen Partizipationsschein bei Cascarup online zeichnen kannst, schreiben wir dir. Fragen? info@cascarup.ch'),
           Vorname: v('vorname'), Name: v('nachname'), email: v('email'),
-          Anliegen: 'Benachrichtigen, sobald die Partizipationsscheine online erhältlich sind',
+          Anliegen: T('Benachrichtigen, sobald die Partizipationsscheine online erhältlich sind'),
         }),
       });
       // FormSubmit answers 200 with success "false" when something is off, so read the body too
@@ -69,7 +70,7 @@
       status.textContent = '';
       finish();
     } catch {
-      status.textContent = 'Die Anmeldung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.';
+      status.textContent = T('Die Anmeldung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.');
     } finally {
       button.disabled = false;
     }
@@ -80,6 +81,7 @@
 // Once the certificates are on sale (content.py SALES_OPEN): choose how many, give your details and what happens at
 // the end (money back or keep it), pay through our payment service (checkout.js).
 (() => {
+  const T = window.cascarupT || ((s) => s);   // the page's language (i18n.py puts its words in the head)
   const form = document.querySelector('[data-ps]');
   const C = window.CascarupCheckout;
   if (!form || !C) return;
@@ -98,20 +100,20 @@
     const k = n();
     each.textContent = `${k} × CHF ${PRICE}.–`;
     sum.textContent = C.fmt(k * PRICE);
-    payBtn.textContent = `Jetzt bezahlen · ${C.fmt(k * PRICE)}`;
+    payBtn.textContent = `${T('Jetzt bezahlen')} · ${C.fmt(k * PRICE)}`;
     if (!cert) return;
     const name = `${v('vorname')} ${v('nachname')}`.trim();
     const el = cert.querySelector('[data-cert-name]');
-    el.textContent = name || 'Dein Name';
+    el.textContent = name || T('Dein Name');
     cert.classList.toggle('is-named', !!name);
     // a long name gets smaller until it fits on its line
     el.style.fontSize = '';
     for (let k = 1; k > .55 && el.scrollWidth > el.clientWidth + 1; k -= .05) el.style.fontSize = `${4 * k}cqw`;
-    cert.querySelector('[data-cert-count]').textContent = k === 1 ? `1 Schein · CHF ${PRICE}.–` : `${k} Scheine · CHF ${k * PRICE}.–`;
+    cert.querySelector('[data-cert-count]').textContent = k === 1 ? `1 ${T('Schein')} · CHF ${PRICE}.–` : `${k} ${T('Scheine')} · CHF ${k * PRICE}.–`;
     const end = form.querySelector('input[name="ende"]:checked');
     const stamp = cert.querySelector('[data-cert-stamp]');
     stamp.hidden = !end;
-    if (end) { stamp.textContent = end.value === 'zurueck' ? 'Geld zurück' : 'Zum Behalten'; stamp.dataset.way = end.value; }
+    if (end) { stamp.textContent = end.value === 'zurueck' ? T('Geld zurück') : T('Zum Behalten'); stamp.dataset.way = end.value; }
   }
   const clamp = () => { qty.value = String(n()); paint(); };
   form.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => { qty.value = String(+qty.value + +b.dataset.step); clamp(); }));
@@ -136,14 +138,14 @@
     status.textContent = '';
     const end = form.querySelector('input[name="ende"]:checked');
     const checks = [
-      ['vorname', !v('vorname') && 'Bitte gib deinen Vornamen an.'],
-      ['nachname', !v('nachname') && 'Bitte gib deinen Nachnamen an.'],
-      ['email', (!v('email') || !form.elements.email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.'],
-      ['strasse', !v('strasse') && 'Bitte gib Strasse und Hausnummer an.'],
-      ['plz', !/^\d{4}$/.test(v('plz')) && 'Vier Ziffern, z. B. 1700.'],
-      ['ort', !v('ort') && 'Bitte gib deinen Ort an.'],
-      ['ende', !end && 'Bitte wähl, ob du dein Geld am Ende zurück möchtest oder den Schein behältst.'],
-      ['zustimmung', !form.elements.zustimmung.checked && 'Bitte bestätige die Bedingungen.'],
+      ['vorname', !v('vorname') && T('Bitte gib deinen Vornamen an.')],
+      ['nachname', !v('nachname') && T('Bitte gib deinen Nachnamen an.')],
+      ['email', (!v('email') || !form.elements.email.checkValidity()) && T('Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.')],
+      ['strasse', !v('strasse') && T('Bitte gib Strasse und Hausnummer an.')],
+      ['plz', !/^\d{4}$/.test(v('plz')) && T('Vier Ziffern, z. B. 1700.')],
+      ['ort', !v('ort') && T('Bitte gib deinen Ort an.')],
+      ['ende', !end && T('Bitte wähl, ob du dein Geld am Ende zurück möchtest oder den Schein behältst.')],
+      ['zustimmung', !form.elements.zustimmung.checked && T('Bitte bestätige die Bedingungen.')],
     ];
     let first = null;
     for (const [key, msg] of checks) if (!mark(key, msg) && !first) first = form.querySelector(`[name="${key}"]`);
@@ -159,13 +161,13 @@
       success: C.back(`bezahlt=${no}`), cancel: C.back('zahlung=abgebrochen', '#zeichnen'),
     };
     C.keep('cascarup.schein', form, FIELDS);
-    payBtn.disabled = true; status.textContent = 'Die Bezahlseite wird geöffnet …';
+    payBtn.disabled = true; status.textContent = T('Die Bezahlseite wird geöffnet …');
     try {
       const how = await C.pay(form.dataset.checkout, order);
-      if (how === 'offline') status.textContent = 'Die Bezahlung wird gerade eingerichtet. Bis dahin erreichst du uns unter info@cascarup.ch oder an unseren Ständen.';
-      else if (how === 'preview') finish(no, 'Vorschau: Hier öffnet sich später die Bezahlseite für TWINT oder Karte. Es wurde nichts bezahlt und nichts gesendet.');
+      if (how === 'offline') status.textContent = T('Die Bezahlung wird gerade eingerichtet. Bis dahin erreichst du uns unter info@cascarup.ch oder an unseren Ständen.');
+      else if (how === 'preview') finish(no, T('Vorschau: Hier öffnet sich später die Bezahlseite für TWINT oder Karte. Es wurde nichts bezahlt und nichts gesendet.'));
     } catch {
-      status.textContent = 'Die Bezahlseite liess sich nicht öffnen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.';
+      status.textContent = T('Die Bezahlseite liess sich nicht öffnen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.');
     } finally {
       payBtn.disabled = false;
       if (status.textContent === 'Die Bezahlseite wird geöffnet …') status.textContent = '';
@@ -192,5 +194,5 @@
   paint();
   const back = C.returned();
   if (back.paid) finish(back.paid);
-  else if (back.broken) status.textContent = 'Die Zahlung wurde abgebrochen. Deine Angaben sind noch da.';
+  else if (back.broken) status.textContent = T('Die Zahlung wurde abgebrochen. Deine Angaben sind noch da.');
 })();

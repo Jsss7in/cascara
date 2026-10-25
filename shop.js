@@ -2,6 +2,7 @@
 // delivery, payment) order and pay. The basket stays in this browser (localStorage); the order is paid through
 // our payment service (checkout.js) and sent by post. Shipping is reckoned by weight at the Post's prices.
 (() => {
+  const T = window.cascarupT || ((s) => s);   // the page's language (i18n.py puts its words in the head)
   const products = [...document.querySelectorAll('[data-product]')];
   const dialog = document.querySelector('[data-cart]');
   const C = window.CascarupCheckout;
@@ -76,9 +77,9 @@
       else items.push({ id: data.id, name: data.name, ml, price: size.price, qty: n });
       save(); render();
       add.classList.add('is-added');
-      add.textContent = 'Im Warenkorb';
+      add.textContent = T('Im Warenkorb');
       clearTimeout(add.t);
-      add.t = setTimeout(() => { add.classList.remove('is-added'); add.textContent = 'In den Warenkorb'; }, 1600);
+      add.t = setTimeout(() => { add.classList.remove('is-added'); add.textContent = T('In den Warenkorb'); }, 1600);
       openBtn.classList.remove('is-bump'); void openBtn.offsetWidth; openBtn.classList.add('is-bump');
       qty.value = '1';
     });
@@ -90,14 +91,14 @@
     const n = bottles();
     openBtn.hidden = n === 0 && !dialog.open;
     count.textContent = String(n);
-    openBtn.setAttribute('aria-label', `Warenkorb öffnen, ${n} ${n === 1 ? 'Flasche' : 'Flaschen'}`);
+    openBtn.setAttribute('aria-label', `${T('Warenkorb öffnen')}, ${n} ${n === 1 ? T('Flasche') : T('Flaschen')}`);
     empty.hidden = items.length > 0;
     sums.hidden = items.length === 0;
     dialog.querySelector('[data-to-step="2"]').hidden = items.length === 0;
     setAll('[data-sum-items]', fmt(subtotal()));
     setAll('[data-sum-ship]', fmt(shipping()));
     setAll('[data-sum-total]', fmt(total()));
-    payBtn.textContent = `Jetzt bezahlen · ${fmt(total())}`;
+    payBtn.textContent = `${T('Jetzt bezahlen')} · ${fmt(total())}`;
     // the control that had the focus gets it back once the lines are drawn anew (or its neighbour, if its line went)
     const had = list.contains(document.activeElement) ? document.activeElement : null;
     const was = had && { line: [...list.children].indexOf(had.closest('li')), role: had.dataset.d || 'remove' };
@@ -108,7 +109,7 @@
       li.innerHTML = `<img class="line__pic" alt="" width="1400" height="1750"><div class="line__name"><strong></strong><span class="muted"></span></div>
         <div class="qty qty--small"><button type="button" data-d="-1">−</button><output></output><button type="button" data-d="1">+</button></div>
         <p class="line__price"></p><button type="button" class="line__remove" data-role="remove">Entfernen</button>`;
-      li.querySelector('.line__pic').src = `assets/shop/${it.id}-${it.ml}.webp`;
+      li.querySelector('.line__pic').src = `${document.documentElement.dataset.root || ''}assets/shop/${it.id}-${it.ml}.webp`;
       li.querySelector('strong').textContent = it.name;
       li.querySelector('.muted').textContent = `${it.ml} ml · ${fmt(it.price)}`;
       li.querySelector('output').textContent = String(it.qty);
@@ -133,7 +134,7 @@
   }
 
   // ---- the three steps -------------------------------------------------------------------------------------
-  const TITLES = { 1: 'Dein Warenkorb', 2: 'Lieferung', 3: 'Bezahlen' };
+  const TITLES = { 1: T('Dein Warenkorb'), 2: T('Lieferung'), 3: T('Bezahlen') };
   let step = 1;
   function go(n, focus = true) {
     step = n;
@@ -192,12 +193,12 @@
     const v = (n) => form.elements[n].value.trim();
     const email = form.elements.email;
     const checks = [
-      ['vorname', !v('vorname') && 'Bitte gib deinen Vornamen an.'],
-      ['nachname', !v('nachname') && 'Bitte gib deinen Nachnamen an.'],
-      ['email', (!v('email') || !email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.'],
-      ['strasse', !v('strasse') && 'Bitte gib Strasse und Hausnummer an.'],
-      ['plz', !/^\d{4}$/.test(v('plz')) && 'Vier Ziffern, z. B. 1700.'],
-      ['ort', !v('ort') && 'Bitte gib deinen Ort an.'],
+      ['vorname', !v('vorname') && T('Bitte gib deinen Vornamen an.')],
+      ['nachname', !v('nachname') && T('Bitte gib deinen Nachnamen an.')],
+      ['email', (!v('email') || !email.checkValidity()) && T('Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.')],
+      ['strasse', !v('strasse') && T('Bitte gib Strasse und Hausnummer an.')],
+      ['plz', !/^\d{4}$/.test(v('plz')) && T('Vier Ziffern, z. B. 1700.')],
+      ['ort', !v('ort') && T('Bitte gib deinen Ort an.')],
     ];
     return quiet ? checks.every(([, msg]) => !msg) : firstBad(checks);
   }
@@ -208,7 +209,7 @@
     status.textContent = '';
     if (step < 3) { if (step === 2 && checkDelivery()) go(3); return; }   // Enter in a field: on to the next step
     if (!checkDelivery(true)) { go(2, false); checkDelivery(); return; }
-    if (!firstBad([['zustimmung', !form.elements.zustimmung.checked && 'Bitte bestätige die Bestellbedingungen.']])) return;
+    if (!firstBad([['zustimmung', !form.elements.zustimmung.checked && T('Bitte bestätige die Bestellbedingungen.')]])) return;
     if (form.elements._honey.value) return;                     // a bot filled the hidden field
     const v = (n) => form.elements[n].value.trim();
     const no = C.number('CU');
@@ -221,16 +222,16 @@
       success: C.back(`bezahlt=${no}`), cancel: C.back('zahlung=abgebrochen', '#shop'),
     };
     C.keep('cascarup.lieferung', form, FIELDS);
-    payBtn.disabled = true; status.textContent = 'Die Bezahlseite wird geöffnet …';
+    payBtn.disabled = true; status.textContent = T('Die Bezahlseite wird geöffnet …');
     try {
       const how = await C.pay(dialog.dataset.checkout, order);
       if (how === 'offline') {
-        status.textContent = 'Die Bezahlung wird gerade eingerichtet. Bis dahin bestellst du am einfachsten per E-Mail an info@cascarup.ch.';
+        status.textContent = T('Die Bezahlung wird gerade eingerichtet. Bis dahin bestellst du am einfachsten per E-Mail an info@cascarup.ch.');
       } else if (how === 'preview') {
-        finish(no, 'Vorschau: Hier öffnet sich später die Bezahlseite für TWINT oder Karte. Es wurde nichts bezahlt und nichts gesendet.');
+        finish(no, T('Vorschau: Hier öffnet sich später die Bezahlseite für TWINT oder Karte. Es wurde nichts bezahlt und nichts gesendet.'));
       }
     } catch {
-      status.textContent = 'Die Bezahlseite liess sich nicht öffnen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.';
+      status.textContent = T('Die Bezahlseite liess sich nicht öffnen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.');
     } finally {
       payBtn.disabled = false;
       if (status.textContent === 'Die Bezahlseite wird geöffnet …') status.textContent = '';
@@ -246,7 +247,7 @@
     n.textContent = note || ''; n.hidden = !note;
     body.hidden = true; done.hidden = false;
     dialog.querySelector('[data-cart-steps]').hidden = true; backBtn.hidden = true;
-    title.textContent = 'Bezahlt';
+    title.textContent = T('Bezahlt');
     if (!dialog.open) open(false);
     done.focus({ preventScroll: true }); dialog.querySelector('.cart__inner').scrollTop = 0;
     form.reset(); render();
@@ -276,6 +277,6 @@
   if (back.paid) finish(back.paid);
   else if (back.broken && items.length) {
     open(); go(3, false);
-    status.textContent = 'Die Zahlung wurde abgebrochen. Dein Warenkorb und deine Angaben sind noch da.';
+    status.textContent = T('Die Zahlung wurde abgebrochen. Dein Warenkorb und deine Angaben sind noch da.');
   }
 })();

@@ -1,4 +1,5 @@
 import json, re, importlib.util, pathlib, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 S = str(pathlib.Path(__file__).resolve().parent)
 C = str(pathlib.Path(__file__).resolve().parent.parent)
 L=json.load(open(f'{S}/logo3.json'))
@@ -18,7 +19,14 @@ def sub(m):
     return V[k]
 head=open(f'{S}/v3_head.html').read()
 html=re.sub(r'\{\{([A-Z0-9_]+)\}\}', sub, head+open(f'{S}/v3_body.html').read())
-open(f'{C}/index.html','w').write(html)
+import i18n
+missing=set()
+def publish(name, page):
+    # the German page at the top, the French and English ones in /fr/ and /en/
+    for lang, L in i18n.LANGS.items():
+        out=pathlib.Path(C)/L['folder']/name; out.parent.mkdir(exist_ok=True)
+        out.write_text(i18n.localise(page, name, lang, V['SITE_URL'], missing))
+publish('index.html', html)
 # the participation certificates: their own page, with its own title and description
 ps_head=(head.replace('<title>Cascarup – Sirup aus der Kaffeekirsche · Fribourg</title>', '<title>Werde Teil von Cascarup – Partizipationsschein ab CHF 15</title>')
   .replace('{{SITE_URL}}"', '{{SITE_URL}}partizipation.html"'))
@@ -26,7 +34,8 @@ ps_head=re.sub(r'(<meta name="description" content=")[^"]*', r'\1Werde Teil von 
 ps_head=re.sub(r'(<meta property="og:title" content=")[^"]*', r'\1Werde Teil von Cascarup', ps_head).replace('assets/og.jpg', 'assets/og-ps.jpg')
 ps_head=re.sub(r'(<meta property="og:description" content=")[^"]*', r'\1Partizipationsschein ab CHF 15. Ein Schülerunternehmen aus Fribourg.', ps_head)
 ps=re.sub(r'\{\{([A-Z0-9_]+)\}\}', sub, ps_head+open(f'{S}/ps_body.html').read())
-open(f'{C}/partizipation.html','w').write(ps)
+publish('partizipation.html', ps)
+if missing: print('UNTRANSLATED', len(missing), sorted(missing)[:8])
 (pathlib.Path(C)/'assets'/'ps').mkdir(parents=True, exist_ok=True)
 (pathlib.Path(C)/'assets'/'ps'/'rosette.svg').write_text(content.rosette_svg())
 # one calendar file per stand, next to the page

@@ -320,7 +320,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .hero__name.is-up i { top: -46px; font-size: .9375rem; }
 
 @media (max-width: 900px) {
-  .hero { height: 400svh; }
+  .hero { height: 540svh; }   /* on phones the story takes a longer scroll, so a quick swipe never rushes it */
   .hero__copy, .hero__beat, .hero__end { left: var(--gutter); right: var(--gutter); top: calc(var(--nav-h) + 18px); width: auto; text-align: center; transform: translate3d(0, calc((1 - var(--in, 1)) * 14px), 0); }
   /* the opening words stand under the cherry and its branch, which take the upper part of the first screen */
   .hero__copy { top: auto; bottom: clamp(64px, 9svh, 80px); }
@@ -1198,4 +1198,40 @@ html:has(.is-legal) { background: var(--paper); }
   .ps-tile svg { grid-row: span 2; }
   .ps-tile h3 { margin-top: 0; }
   .ps-done { padding: 26px 22px; }
+}
+
+
+/* ---------- the language: DE · FR · EN ---------- */
+/* a small group of three: the language you read in is filled, the other two are a tap away. On phones it sits next to
+   the logo, on wide screens beside the shop; in the menu it stands above the ways to reach us. */
+.lang { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(58, 33, 22, .07); }
+.lang a { display: grid; place-items: center; min-width: 34px; height: 30px; padding: 0 8px; border-radius: 999px;
+  font: 500 .75rem/1 var(--sans); letter-spacing: .1em; color: var(--ink-2); transition: background-color .25s var(--ease), color .25s var(--ease); }
+.lang a:hover { color: var(--ink); background: rgba(255, 250, 242, .6); }
+.lang a[aria-current] { background: var(--terra); color: var(--milk); }
+.nav[data-ink="light"] .lang { background: rgba(255, 250, 242, .12); }
+.nav[data-ink="light"] .lang a { color: rgba(255, 253, 249, .82); }
+.nav[data-ink="light"] .lang a:hover { color: var(--milk); background: rgba(255, 250, 242, .14); }
+.nav[data-ink="light"] .lang a[aria-current] { background: var(--milk); color: var(--terra-ink); }
+.lang--bar { display: none; }
+.nav__end .lang--end { margin-right: 6px; }
+.menu .lang--menu { margin: 0 0 6px; background: rgba(58, 33, 22, .08); }
+.legal-head .lang--end { display: inline-flex; margin-left: auto; margin-right: 16px; }
+@media (max-width: 900px) {
+  .nav__end .lang--end { display: none; }
+  .lang--bar { display: inline-flex; grid-column: 2; justify-self: start; margin-left: 10px; }
+}
+@media (pointer: coarse) {
+  .lang a { height: 36px; min-width: 36px; }   /* with its frame, 42px to tap */
+}
+/* narrow phones: the three letters, the shop and the menu still fit beside the logo */
+@media (max-width: 430px) {
+  .lang--bar { margin-left: 8px; }
+  .lang--bar a { min-width: 31px; padding: 0 4px; letter-spacing: .06em; }
+  .nav__cta { padding: 0 15px; }
+}
+@media (max-width: 360px) {
+  .lang--bar { margin-left: 6px; }
+  .nav__menu { padding-left: 8px; }
+  .nav__menu span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }

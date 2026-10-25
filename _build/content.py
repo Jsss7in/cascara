@@ -593,7 +593,9 @@ def nav(base=''):
           <use class="mark__ink" href="#lg-line" mask="url(#nav-mask)"/>
         </svg>
       </a>
+      <!--LANGS-->
       <div class="nav__end">
+        <!--LANGS-END-->
         <a class="nav__cta" href="{base}#shop">Shop</a>
         <button class="nav__menu" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu"><span>Menü</span><i aria-hidden="true"></i></button>
       </div>
@@ -627,6 +629,7 @@ def menu(base=''):
           <img class="menu__b menu__b--4" src="assets/bottle/cozy-spice-200.webp" alt="" width="204" height="451" decoding="async">
         </div>
         <div class="menu__reach">
+          <!--LANGS-MENU-->
           {V['SOCIALS']}
           <a class="menu__mail" href="mailto:info@cascarup.ch">info@cascarup.ch</a>
         </div>
@@ -914,7 +917,7 @@ def ps_main():
       <ol class="ps-steps__list">
 {steps_}
       </ol>
-      <p class="ps-steps__cash" data-reveal>Lieber bar? Sprich uns an einem unserer <a href="index.html#staende">Stände</a> an oder frag ein Teammitglied.</p>
+      <p class="ps-steps__cash" data-reveal>Lieber bar? Sprich uns <a href="index.html#staende">an einem unserer Stände</a> an oder frag ein Teammitglied.</p>
     </section>
 
     <!-- the form, with the certificate beside it, filling in as you type -->
@@ -936,6 +939,7 @@ def ps_main():
 
 
 V['END_TEXT'] = 'Von Hand abgefüllt in Fribourg, in zwei Sorten. ' + ('Jetzt im Shop.' if SALES_OPEN else 'Bald im Shop.')
+V['LOADER_WORD'] = ''.join(f'<span style="--i:{i}">{c}</span>' for i, c in enumerate('Cascarup'))
 V['NAV'] = nav()
 V['MENU'] = menu()
 V['MENU_BTN'] = menu_button()

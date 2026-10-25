@@ -218,9 +218,10 @@ function beanGeometry(side) {
 // The photographs of a real roasted bean (assets/bean/): for each, the bean's fitted ellipse in the picture as
 // fractions (centre cx, cy; half axes rx across, ry along). Filled in from the cut-outs' measurements.
 // (a hair inside the outline, so the edge never samples the backdrop the cut-out was laid on)
+const ROOT = document.documentElement.dataset.root || '';   // pages in /fr/ and /en/ sit one folder down
 const BEAN_PHOTO = {
-  flat: { src: 'assets/bean/bohne-flach.webp', cx: .4859, cy: .488, rx: .4932 * .95, ry: .4997 * .96 },
-  round: { src: 'assets/bean/bohne-rund.webp', cx: .5061, cy: .5127, rx: .4911 * .95, ry: .4889 * .96 },
+  flat: { src: ROOT + 'assets/bean/bohne-flach.webp', cx: .4859, cy: .488, rx: .4932 * .95, ry: .4997 * .96 },
+  round: { src: ROOT + 'assets/bean/bohne-rund.webp', cx: .5061, cy: .5127, rx: .4911 * .95, ry: .4889 * .96 },
 };
 
 function parchmentGeometry(side) {
@@ -359,8 +360,8 @@ export function shadowTexture() {
 
 // the two kinds: their syrup's colour (in depth and on top) and their label
 export const KINDS = {
-  original: { label: 'assets/label/original.webp', syrup: '#74290d', surface: '#3c1306', props: 'cascara' },
-  cozy: { label: 'assets/label/cozy.webp', syrup: '#66230b', surface: '#341005', props: 'spice' },
+  original: { label: ROOT + 'assets/label/original.webp', syrup: '#74290d', surface: '#3c1306', props: 'cascara' },
+  cozy: { label: ROOT + 'assets/label/cozy.webp', syrup: '#66230b', surface: '#341005', props: 'spice' },
 };
 
 // cinnamon: a quill, bark rolled up into a loose scroll, with fine ridges along its length
@@ -440,7 +441,7 @@ function steamTexture(seed) {
 // The timeline, in scroll progress 0–1. CHAPTERS are where the page comes to rest (page.js glides between them).
 export const CHAPTERS = [0, .28, .45, .6, .765, .862, 1];
 
-export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
+export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } = {}) {
   // the model takes the photograph's proportions, so the photo and the model are one fruit
   if (photo) { RX = 1; RY = photo.aspect || RY; RZ = .94; }
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
@@ -940,11 +941,19 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   }
 
   let frames = 0, lastError = '';
+  let lastTarget = 0;
   function frame(now) {
     if (!running) return;
     frames++;
     const dt = Math.min(.05, (now - last) / 1000); last = now;
-    progress += (target - progress) * (1 - Math.pow(.0009, dt));   // a soft follow, so the scroll never jerks
+    // a soft follow, so the scroll never jerks; on phones softer still, and never faster than a calm pace, so a
+    // quick flick of the thumb glides through the story instead of flinging it past
+    let step = (target - progress) * (1 - Math.pow(gentle ? .02 : .0009, dt));
+    if (gentle) step = Math.max(-.3 * dt, Math.min(.3 * dt, step));   // the whole story takes at least ~3 s
+    progress += step;
+    // a jump (a link, the menu's «Home») is no scroll: the story is simply there, not rewound in front of you
+    if (Math.abs(target - lastTarget) > .25) progress = target;
+    lastTarget = target;
     if (Math.abs(target - progress) < 1e-4) progress = target;
     try {
       apply(progress, dt);

@@ -6,6 +6,12 @@ Die HTML-Seiten im Ordner darüber werden hier erzeugt. Texte ändern: `content.
 
 Ordner mit `_` am Anfang veröffentlicht GitHub Pages nicht.
 
+## Drei Sprachen
+
+Geschrieben wird nur auf Deutsch. `build.py` und `legal.py` machen daraus mit `i18n.py` die Seiten in `/fr/` und `/en/`: jeder Text und jedes lesbare Attribut wird in `i18n/fr.json` bzw. `i18n/en.json` nachgeschlagen (Deutsch → Übersetzung), die Pfade zu Bildern und Skripten führen einen Ordner hinauf. Die Texte, die die Skripte selbst schreiben (Fehlermeldungen, Knöpfe), stehen in `i18n/js.json` und kommen als `window.cascarupT` in den Kopf der Seite.
+
+Nach einer Textänderung: bauen, dann `python3 _build/i18n.py extract` → `i18n/strings.json` listet alle deutschen Texte; neue oder geänderte fehlen in fr.json/en.json (der Build meldet sie als `UNTRANSLATED` und lässt sie deutsch). Übersetzung ergänzen, neu bauen. Der Umschalter DE · FR · EN steht neben dem Logo (Handy), neben dem Shop (Laptop) und im Menü.
+
 ## Der 3D-Anfang, die Flaschen, der Zweig
 
 - `zsh _build/hero3d/build.sh` bündelt `hero3d/hero3d.js` + `page.js` nach `assets/hero3d.js` (Testen: `?debug`, `?debug=ui`, `?debug&at=0.9`). Die 3D-Flasche ist unsere 500-ml-Flasche (Profil `BOTTLE`, vom Foto abgemessen), die Etiketten kommen aus `assets/label/`.

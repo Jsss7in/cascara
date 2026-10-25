@@ -2,6 +2,7 @@
 // The cherry lives in hero3d.js, the way to pay in checkout.js, the participation certificates in ps.js.
 (() => {
   const root = document.documentElement;
+  const T = window.cascarupT || ((s) => s);   // the page's language (i18n.py puts its words in the head)
   const nav = document.querySelector('[data-nav]');
   const hero = document.querySelector('[data-hero]');
   const reveals = [...document.querySelectorAll('[data-reveal]')];
@@ -142,7 +143,7 @@
     for (const el of stands) {
       const past = el.dataset.stand < today;
       const badge = el.querySelector('[data-stand-badge]');
-      const text = past ? 'Vorbei' : el === next ? (el.dataset.stand === today ? 'Heute' : 'Als Nächstes') : '';
+      const text = T(past ? 'Vorbei' : el === next ? (el.dataset.stand === today ? 'Heute' : 'Als Nächstes') : '') || '';
       el.classList.toggle('is-past', past);
       el.classList.toggle('is-next', el === next);
       if (badge) { badge.textContent = text; badge.hidden = !text; }
@@ -184,6 +185,14 @@
       setTimeout(() => { target.scrollIntoView(); history.replaceState(null, '', a.hash); }, 30);
     }));
   }
+
+  // Another language: the same page, at the same chapter (the section at the top of the screen)
+  document.querySelectorAll('[data-lang-link]').forEach((a) => a.addEventListener('click', () => {
+    if (a.hasAttribute('aria-current')) return;
+    const here = [...document.querySelectorAll('main > section[id], main [id].shop, main section[id]')]
+      .filter((el) => el.getBoundingClientRect().top <= innerHeight * .4).pop();
+    if (here && here.id !== 'top') a.hash = here.id;
+  }));
 
   // Drinks on phones: tabs jump the card row; swiping moves the active tab along.
   const menu = document.querySelector('[data-drinks-menu]');

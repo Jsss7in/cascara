@@ -1,4 +1,7 @@
-import json, re, importlib.util, pathlib
+import json, re, importlib.util, pathlib, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import i18n
+missing = set()
 S = str(pathlib.Path(__file__).resolve().parent)
 C = str(pathlib.Path(__file__).resolve().parent.parent)
 
@@ -59,7 +62,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
       {sources}
     </ul>
 
-    <p class="legal__stand">Stand: Oktober 2026</p>'''
+    <p class="legal__stand">Stand: Oktober 2026. Diese Seite gibt es auf Deutsch, Französisch und Englisch; massgebend ist die deutsche Fassung.</p>'''
 
 datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten wie möglich. Hier steht, welche es sind, wofür wir sie brauchen und welche Rechte du hast. Grundlage ist das Schweizer Datenschutzgesetz (DSG).</p>
 
@@ -107,7 +110,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <h2>Änderungen</h2>
     <p>Ändert sich etwas an dieser Website, passen wir diese Erklärung an. Es gilt die hier veröffentlichte Fassung.</p>
 
-    <p class="legal__stand">Stand: Oktober 2026</p>'''
+    <p class="legal__stand">Stand: Oktober 2026. Diese Seite gibt es auf Deutsch, Französisch und Englisch; massgebend ist die deutsche Fassung.</p>'''
 
 prices = ''.join(f"<li>{p['name']}: " + ', '.join(f"{ml} ml CHF&nbsp;{price:.2f}" for ml, price in p['sizes']) + "</li>" for p in content.PRODUCTS)
 ship = content.SHIPPING
@@ -144,7 +147,7 @@ bedingungen = f'''<p class="legal__lead">{'' if content.SALES_OPEN else 'Unser O
     <h2>Recht</h2>
     <p>Es gilt Schweizer Recht.</p>
 
-    <p class="legal__stand">Stand: Oktober 2026</p>'''
+    <p class="legal__stand">Stand: Oktober 2026. Diese Seite gibt es auf Deutsch, Französisch und Englisch; massgebend ist die deutsche Fassung.</p>'''
 
 for fname, title, eyebrow, body in [('impressum.html', 'Impressum', 'Rechtliches', impressum),
                                     ('datenschutz.html', 'Datenschutz&shy;erklärung', 'Rechtliches', datenschutz),
@@ -154,5 +157,8 @@ for fname, title, eyebrow, body in [('impressum.html', 'Impressum', 'Rechtliches
                  'COMPANY': content.COMPANY_PLAIN, 'VER': __import__('time').strftime('%Y%m%d%H%M')}.items():
         h = h.replace('{{' + k + '}}', v)
     h = h.replace('<title>Datenschutz&shy;erklärung', '<title>Datenschutzerklärung').replace('<title>Bestell&shy;bedingungen', '<title>Bestellbedingungen')  # no soft hyphen in the tab title
-    open(f'{C}/{fname}', 'w').write(h)
+    for lang, Lg in i18n.LANGS.items():
+        out = pathlib.Path(C) / Lg['folder'] / fname; out.parent.mkdir(exist_ok=True)
+        out.write_text(i18n.localise(h, fname, lang, content.V['SITE_URL'], missing))
     print('built', fname, len(h))
+if missing: print('UNTRANSLATED', len(missing), sorted(missing)[:8])

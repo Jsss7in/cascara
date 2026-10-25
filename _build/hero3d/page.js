@@ -47,11 +47,12 @@ import { createHero, CHAPTERS } from './hero3d.js';
 
   let three = null;
   try {
-    three = createHero(canvas, { onFrame, photo: pic, plantBox: pl && pl.box });
+    three = createHero(canvas, { onFrame, photo: pic, plantBox: pl && pl.box, gentle: matchMedia('(pointer: coarse)').matches });
   } catch {
     three = null;
   }
-  if (!three) { hero.classList.add('is-flat'); if (out) out.textContent = 'kein WebGL'; return; }
+  const ready = () => document.dispatchEvent(new Event('cascarup:ready'));   // the loading screen may lift
+  if (!three) { hero.classList.add('is-flat'); if (out) out.textContent = 'kein WebGL'; ready(); return; }
   if (out) setInterval(() => {
     out.textContent = JSON.stringify(three.state()) + ` reduce=${reduce} y=${Math.round(scrollY)} cls=${hero.className}\n${out.dataset.taps || ''}`;
   }, 400);
@@ -238,7 +239,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
   // the cherry fades in once the page is ready, together with the words; the real cherry and its branch arrive
   // together, once the branch's picture is there (never the cherry alone, then the branch popping in)
   requestAnimationFrame(() => hero.classList.add('is-ready'));
-  const arrive = () => { hero.classList.add('has-plant'); setTimeout(() => hero.classList.add('is-settled'), 1000); };
+  const arrive = () => { hero.classList.add('has-plant'); ready(); setTimeout(() => hero.classList.add('is-settled'), 1000); };
   // loaded is not enough: a large picture is painted only once it is decoded
   if (!plant) arrive();
   else (plant.decode ? plant.decode() : Promise.resolve()).then(arrive, () => plant.addEventListener('load', arrive, { once: true }));
