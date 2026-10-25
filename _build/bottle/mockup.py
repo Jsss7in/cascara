@@ -1,10 +1,9 @@
 # The shop pictures: our real bottles (phone photos in ~/ClaudeC/cascara-quellen/bottle), cut out of the room,
-# with our labels laid onto the glass the way paper sits on it, on a quiet backdrop with their shadows.
+# with our labels laid onto the glass the way paper sits on it, alone on a quiet, neutral backdrop with their shadows.
 #   …/branch/venv/bin/python -I _build/bottle/mockup.py      (after node _build/label/render.mjs)
 # → assets/shop/<kind>-<ml>.webp (1400 × 1750) and assets/bottle/<kind>-<ml>.webp (cut-out with alpha, for small uses)
 import pathlib, subprocess
 import cv2, numpy as np
-import scene
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
@@ -212,7 +211,7 @@ def compose(ml, kind, tones):
         return canvas
     I, M, G, D = put(img), put(m), put(region), put(detail)
 
-    bg = scene.back(kind, ml, backdrop(tones))
+    bg = backdrop(tones)
     # shadows: a tight dark line where the glass touches, a soft pool round it leaning away from the light (which
     # comes from the front left), warmed on that side where the light has passed through the syrup
     # the footprint: the base's own ellipse on the floor (a cylinder touches all round, not only at its front)
@@ -242,7 +241,6 @@ def compose(ml, kind, tones):
     seen = seen * np.array([.99, .995, .985], np.float32)                     # glass is never quite neutral
     bottle = I * (1 - G[..., None]) + seen * G[..., None]
     out = bg * (1 - M[..., None]) + bottle * M[..., None]
-    out = scene.front(kind, ml, out, FLOOR)
 
     shop = ROOT / 'assets' / 'shop'; shop.mkdir(parents=True, exist_ok=True)
     name = f'{FILES[kind]}-{ml}'
@@ -267,12 +265,9 @@ def compose(ml, kind, tones):
 
 FILES = {'original': 'original', 'cozy': 'cozy-spice'}   # label → product id (the pictures are named after it)
 
-# the backdrop of each kind: warm paper, a little deeper towards the floor
-TONES = {
-    'original': ['#F3E2CB', '#EBD2B3', '#DDBC97'],
-    'cozy': ['#EEE5D1', '#E3D6BB', '#D2C19F'],
-}
+# one backdrop for every bottle: a neutral, barely warm grey, a little deeper towards the floor
+TONES = ['#F2EEE8', '#E9E3DA', '#DCD4C8']
 if __name__ == '__main__':
-    for kind in TONES:
+    for kind in FILES:
         for ml in (200, 500):
-            compose(ml, kind, TONES[kind])
+            compose(ml, kind, TONES)

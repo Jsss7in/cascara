@@ -537,10 +537,9 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* a product: its studio shot as a tall stage, everything to choose beneath it on the paper */
 .product { display: flex; flex-direction: column; }
 .product__stage {
-  position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 30px; background: #EBD3B4;
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 30px; background: #E9E3DA;
   box-shadow: 0 1px 0 rgba(255, 250, 242, .5) inset, 0 40px 70px -50px rgba(58, 33, 22, .55);
 }
-.product--cozy-spice .product__stage { background: #E4D8BE; }
 /* on wide screens the stage is nearly square: the picture's sky and floor are cut a little */
 @media (min-width: 901px) { .product__stage { aspect-ratio: 1 / 1.03; } .product__shot { object-position: 50% 74%; } }   /* the sky is cut, the table stays */
 /* the two sizes are two photographs on the same floor line: the flask grows into the tall bottle */
