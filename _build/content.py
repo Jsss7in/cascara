@@ -147,7 +147,7 @@ SKYLINES = {
 STANDS = [
  dict(date='2026-10-29', weekday='Donnerstag', day='29', month='Oktober', time='19:00', title='Eröffnungsfeier',
       place='Aula, Collège de Gambach', town='Fribourg', icon='fribourg', map='gambach', at=(46.8069923, 7.1497324)),
- dict(date='2026-11-14', weekday='Samstag', day='14', month='November', title='Wochenmarkt',
+ dict(date='2026-11-21', weekday='Samstag', day='21', month='November', title='Wochenmarkt',
       place='Altstadt', town='Estavayer-le-Lac', icon='estavayer', map='estavayer', at=(46.84918, 6.84732),
       view=(46.8503, 6.8430)),   # framed towards the lake, so Estavayer-le-Lac shows its lake
  dict(date='2026-12-05', weekday='Samstag', day='5', month='Dezember', title='Saint-Nicolas-Markt',
@@ -263,6 +263,10 @@ V['SOCIALS'] = ('<ul class="socials" aria-label="Cascarup in den sozialen Medien
 import json
 CHECKOUT_URL = ''
 V['CHECKOUT_URL'] = CHECKOUT_URL
+# Until payment is connected the shop is closed: the bottles and prices show, the button says «Bald erhältlich», and
+# the certificates take a name and an e-mail through FormSubmit, so we can write once they can be bought online.
+SALES_OPEN = False
+NOTIFY_ENDPOINT = 'https://formsubmit.co/ajax/info@cascarup.ch'
 # The two kinds we start with (Management Summary and pitch: «Original» and «Cozy Spice», inspired by the
 # Gifferstee of our region). Each picture is a photograph of our real bottle in that size with our label on it
 # (_build/bottle/mockup.py): 200 ml is the flat flask, 500 ml the tall round bottle.
@@ -294,9 +298,9 @@ SHIP_FROM = SHIPPING['tiers'][0][1]
 
 # small line icons for what comes with every order, in the drawn style of the drink icons
 PERKS = [
- ('Versand', f'Per Post in die ganze Schweiz, ab CHF {SHIP_FROM:.0f}.–.',
+ ('Versand', 'Per Post in die ganze Schweiz.',
   '<path d="M10 22 32 12l22 10v24L32 56 10 46z"/><path d="M10 22l22 10 22-10"/><path d="M32 32v24"/><path d="M21 17l22 10v8"/>'),
- ('Bezahlen', 'Sicher online, mit TWINT oder mit Karte.',
+ ('Bezahlen', 'Online mit TWINT oder Karte, sobald der Shop öffnet.' if not SALES_OPEN else 'Sicher online, mit TWINT oder mit Karte.',
   '<rect x="8" y="22" width="32" height="22" rx="3.5"/><path d="M8 29h32"/><path d="M14 37h9"/><rect x="38" y="12" width="18" height="36" rx="4"/><path d="M44 43h6"/>'),
  ('Von Hand', 'In kleinen Chargen in Fribourg abgefüllt, jede mit eigener Nummer.',
   '<path d="M28.5 6h7v5h-7z"/><path d="M29 11v6c-4 1.6-6 4.6-6 8.6V55a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V25.6c0-4-2-7-6-8.6v-6"/><path d="M23 31h18v15H23z"/>'),
@@ -317,6 +321,17 @@ def shop():
             f'width="{SHOT[0]}" height="{SHOT[1]}" alt="{pr["name"]}, {BOTTLE_NAME[ml]} mit {ml} ml"{"" if i == 0 else " loading=" + chr(34) + "lazy" + chr(34)} decoding="async">'
             for i, (ml, _) in enumerate(pr['sizes']))
         notes = ''.join(f'<li>{t}</li>' for t in pr['notes'])
+        buy = ('            <div class="product__buy">\n'
+               '              <div class="qty" data-qty>\n'
+               '                <button type="button" data-step="-1" aria-label="Eine Flasche weniger">−</button>\n'
+               '                <input type="number" inputmode="numeric" min="1" max="24" value="1" aria-label="Anzahl">\n'
+               '                <button type="button" data-step="1" aria-label="Eine Flasche mehr">+</button>\n'
+               '              </div>\n'
+               '              <button type="button" class="button button--solid product__add" data-add>In den Warenkorb</button>\n'
+               '            </div>\n')
+        soon = ('            <div class="product__buy">\n'
+                '              <button type="button" class="button product__add product__soon" disabled>Bald erhältlich</button>\n'
+                '            </div>\n')
         cards.append(
             f'        <article class="product product--{pr["id"]}" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
             f'          <div class="product__stage"><p class="product__tag">{pr["tag"]}</p>{shots}</div>\n'
@@ -328,14 +343,7 @@ def shop():
             f'            <p class="product__text">{pr["text"]}</p>\n'
             f'            <ul class="product__notes" aria-label="Geschmack">{notes}</ul>\n'
             f'            <div class="product__sizes" role="group" aria-label="Grösse">{sizes}</div>\n'
-            '            <div class="product__buy">\n'
-            '              <div class="qty" data-qty>\n'
-            '                <button type="button" data-step="-1" aria-label="Eine Flasche weniger">−</button>\n'
-            '                <input type="number" inputmode="numeric" min="1" max="24" value="1" aria-label="Anzahl">\n'
-            '                <button type="button" data-step="1" aria-label="Eine Flasche mehr">+</button>\n'
-            '              </div>\n'
-            '              <button type="button" class="button button--solid product__add" data-add>In den Warenkorb</button>\n'
-            '            </div>\n'
+            + (buy if SALES_OPEN else soon) +
             '          </div>\n'
             '        </article>')
     facts = '\n'.join(
@@ -353,7 +361,8 @@ def shop():
         '          <p class="eyebrow" data-reveal>Shop</p>\n'
         '          <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>\n'
         '          <p class="shop__intro" data-reveal style="--d:2">Das Original und Cozy Spice, je als Taschenflasche mit 200 ml '
-        'und als grosse Flasche mit 500 ml. Bezahl online mit TWINT oder Karte, wir schicken dir deine Flaschen per Post.</p>\n'
+        'und als grosse Flasche mit 500 ml. ' + ('Bezahl online mit TWINT oder Karte, wir schicken dir deine Flaschen per Post.' if SALES_OPEN
+        else 'Bald kannst du sie hier bestellen, und wir schicken sie dir per Post in die ganze Schweiz.') + '</p>\n'
         '        </header>\n'
         '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
         '        <ul class="shop__perks">\n' + perks + '\n        </ul>\n'
@@ -361,8 +370,9 @@ def shop():
         '          <summary>Zutaten und Hinweise</summary>\n'
         '          <dl class="facts">\n' + facts + '\n          </dl>\n'
         '        </details>\n'
-        '        <p class="shop__note">Alle Preise in Schweizer Franken, Versand nach Gewicht dazu. Mit der Bestellung akzeptierst du unsere '
-        '<a href="bestellbedingungen.html">Bestellbedingungen</a>.</p>\n'
+        + ('        <p class="shop__note">Alle Preise in Schweizer Franken, Versand nach Gewicht dazu. Mit der Bestellung akzeptierst du unsere '
+           '<a href="bestellbedingungen.html">Bestellbedingungen</a>.</p>\n' if SALES_OPEN else
+           '        <p class="shop__note">Alle Preise in Schweizer Franken. Versand per Post in die ganze Schweiz.</p>\n') +
         '      </div>\n'
         '    </section>')
 
@@ -569,6 +579,28 @@ CHAPTERS = [
 JOIN_URL = 'partizipation.html'
 
 
+def mini_bottle(y, cls='b'):
+    """One of our bottles lying down, its cap to the right: 29 wide, 5.6 high, its top at y (for the small icons)."""
+    return (f'<g class="{cls}"><rect class="b__glass" x=".8" y="{y}" width="17.6" height="5.6" rx="2"/>'
+            f'<path class="b__glass" d="M18 {y + .15:.2f}C21 {y + .15:.2f} 21.6 {y + 1.5:.2f} 23 {y + 1.75:.2f}V{y + 3.85:.2f}C21.6 {y + 4.1:.2f} 21 {y + 5.45:.2f} 18 {y + 5.45:.2f}Z"/>'
+            f'<rect class="b__glass" x="22.8" y="{y + 1.7:.2f}" width="2.1" height="2.2"/>'
+            f'<rect class="b__cap" x="24.6" y="{y + 1.05:.2f}" width="4.5" height="3.5" rx=".8"/>'
+            f'<rect class="b__label" x="5.2" y="{y}" width="8" height="5.6"/></g>')
+
+
+def bottles_icon(cls=''):
+    """The menu's sign: three of our bottles lying one above the other, where other menus have three lines."""
+    return (f'<svg class="bottles {cls}" viewBox="0 0 30 22" aria-hidden="true">'
+            + mini_bottle(1) + mini_bottle(8.2) + mini_bottle(15.4) + '</svg>')
+
+
+def crossed_bottles():
+    """The sign to close the menu: two of the bottles, crossed."""
+    one = mini_bottle(12.2)
+    return ('<svg class="bottles bottles--x" viewBox="0 0 30 30" aria-hidden="true">'
+            f'<g transform="rotate(40 15 15)">{one}</g><g transform="rotate(-40 15 15)">{one}</g></svg>')
+
+
 def nav(base=''):
     links = ''.join(f'<li><a href="{base}#{k}">{t}</a></li>' for k, t, _ in CHAPTERS[1:])
     here = ' aria-current="page"' if base else ''
@@ -592,9 +624,9 @@ def nav(base=''):
 
 
 def menu(base=''):
-    """The menu on phones, dressed like our label: the espresso head, the rust drips over the chapters, the cream
-    foot, and a bottle of the Original leaning in at the bottom left."""
-    items = [CHAPTERS[0], ('__join', 'Werde Teil', 'ab CHF 15')] + CHAPTERS[1:]
+    """The menu on phones, dressed like our label: the espresso head, the rust dripping from it over the chapters, the
+    cream foot beneath its own drip, and on it our three bottles, which stand up one after the other as it opens."""
+    items = [('top', 'Home', 'Zum Anfang'), CHAPTERS[0], ('__join', 'Werde Teil', 'ab CHF 15')] + CHAPTERS[1:]
     lis = ''.join(
         f'<li><a href="{JOIN_URL if k == "__join" else base + "#" + k}" data-menu-link'
         f'{" class=" + chr(34) + "menu__join" + chr(34) if k == "__join" else ""}><span>{t}</span><small>{sub}</small></a></li>'
@@ -603,13 +635,19 @@ def menu(base=''):
     <div class="menu__inner" tabindex="-1" autofocus>
       <div class="menu__head">
         <a class="menu__home" href="{base}#top" data-menu-link><svg class="menu__logo" viewBox="{LOGO_VB}" aria-hidden="true"><use href="#lg-fill"/></svg><span>Cascarup</span></a>
-        <button class="menu__close" type="button" data-menu-close aria-label="Menü schliessen">×</button>
+        <button class="menu__close" type="button" data-menu-close aria-label="Menü schliessen">{crossed_bottles()}</button>
       </div>
       <svg class="menu__drip" viewBox="0 0 1007 {DRIP_TOP[1]}" preserveAspectRatio="none" aria-hidden="true"><path d="{DRIP_TOP[0]}"/></svg>
       <ol class="menu__list">{lis}</ol>
       <svg class="menu__drip menu__drip--low" viewBox="0 0 1007 {DRIP_LOW[1]}" preserveAspectRatio="none" aria-hidden="true"><path d="{DRIP_LOW[0]}"/></svg>
       <div class="menu__foot">
-        <img class="menu__bottle" src="assets/bottle/original-500.webp" alt="" width="140" height="581" decoding="async">
+        <div class="menu__shelf" aria-hidden="true">
+          <span class="menu__floor"></span>
+          <img class="menu__b menu__b--1" src="assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async">
+          <img class="menu__b menu__b--2" src="assets/bottle/cozy-spice-500.webp" alt="" width="140" height="582" decoding="async">
+          <img class="menu__b menu__b--3" src="assets/bottle/original-200.webp" alt="" width="204" height="451" decoding="async">
+          <img class="menu__b menu__b--4" src="assets/bottle/cozy-spice-200.webp" alt="" width="204" height="451" decoding="async">
+        </div>
         <div class="menu__reach">
           {V['SOCIALS']}
           <a class="menu__mail" href="mailto:info@cascarup.ch">info@cascarup.ch</a>
@@ -619,11 +657,44 @@ def menu(base=''):
   </dialog>'''
 
 
+LEAF = 'M0 0C5-9 24-13 45-1.5C27 10 6 8.5 0 0Z'   # a coffee leaf: broad, drawn out to a point
+LEAF_VEINS = 'M2 0C14-1 30-1.6 43-1.4M9-.3l5.5-5.6M17-.7l6-6M26-1l5.5-5M35-1.2l4-3.4M9 .1l5.5 4.8M17 .3l6 5.2M26 .2l5.4 4.4M35-.4l4 3'
+
+
+def menu_sprig():
+    """The menu, on phones: a coffee sprig grows out of the corner – its stem, a few leaves, and four ripe cherries
+    that read M, E, N, Ü. Drawn, not photographed; it grows in each time it appears."""
+    leaves = [  # where a leaf sits on the stem, its turn and size
+        (21, 83, -126, 1.0), (55, 58, -82, .9), (78, 50, 28, .72), (110, 37, -58, .74), (147, 22, -22, .8),
+    ]
+    cherries = [(36, 80, 'M'), (66, 67, 'E'), (96, 58, 'N'), (125, 47, 'Ü')]
+    out = ['<svg class="sprig" viewBox="0 0 160 104" aria-hidden="true">',
+           '<defs><radialGradient id="sp-c" cx=".38" cy=".3" r=".75"><stop offset="0" stop-color="#F0573C"/>'
+           '<stop offset=".45" stop-color="#C21F22"/><stop offset="1" stop-color="#6A0C10"/></radialGradient>'
+           '<linearGradient id="sp-l" x1="0" y1="-8" x2="0" y2="8" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5E9A45"/>'
+           '<stop offset="1" stop-color="#1E4A22"/></linearGradient>'
+           '</defs>',
+           # a fine light edge under the stem, so it reads on the dark sections too
+           '<path class="sprig__edge" pathLength="1" d="M9 102C17 84 29 70 51 59C77 46 104 39 152 19"/>',
+           '<path class="sprig__stem" pathLength="1" d="M9 102C17 84 29 70 51 59C77 46 104 39 152 19"/>']
+    for i, (x, y, r, k) in enumerate(leaves):
+        out.append(f'<g class="sprig__leaf" style="--i:{i}" transform="translate({x} {y}) rotate({r}) scale({k})">'
+                   f'<path d="{LEAF}" fill="url(#sp-l)"/><path class="sprig__vein" d="{LEAF_VEINS}"/></g>')
+    for i, (x, y, ch) in enumerate(cherries):
+        out.append(f'<g class="sprig__cherry" style="--i:{i}"><path class="sprig__stalk" d="M{x + 1} {y - 13}l-1 -6"/>'
+                   f'<ellipse class="sprig__ring" cx="{x}" cy="{y}" rx="12.4" ry="13.8"/>'
+                   f'<ellipse cx="{x}" cy="{y}" rx="11.6" ry="13" fill="url(#sp-c)"/>'
+                   f'<ellipse class="sprig__shine" cx="{x - 4.2}" cy="{y - 6}" rx="3.2" ry="2" transform="rotate(-30 {x - 4.2} {y - 6})"/>'
+                   f'<circle class="sprig__navel" cx="{x + .6}" cy="{y + 11.2}" r="1.6"/>'
+                   f'<text x="{x}" y="{y + 4.6}">{ch}</text></g>')
+    out.append('</svg>')
+    return ''.join(out)
+
+
 def menu_button():
-    # on phones, once the opening is behind you: the way back to the chapters, a little bottle leaning out of it
-    return ('  <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden>'
-            '<img class="menu-btn__bottle" src="assets/bottle/original-500.webp" alt="" width="140" height="581" decoding="async">'
-            '<span>Menü</span></button>')
+    # on phones, once the opening is behind you: the way back to the chapters, a coffee sprig in the corner
+    return ('  <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" aria-label="Menü" hidden>'
+            f'{menu_sprig()}</button>')
 
 
 def footer(base=''):
@@ -679,13 +750,13 @@ def rosette_svg():
             + f'<circle cx="{c}" cy="{c}" r="575" stroke-width="4" stroke-opacity=".8"/><circle cx="{c}" cy="{c}" r="590" stroke-width="1.6" stroke-opacity=".6"/></svg>')
 
 
-def certificate(live=False, small=False):
+def certificate(live=False, small=False, full=True):
     """Our certificate, as in the pitch: double frame, rosette with our mark, the value, number, place and year.
     Live, it carries the name and number of certificates as they are typed in (ps.js)."""
     holder = ('<p class="cert__holder" data-cert-holder><span class="cert__line">Ausgestellt auf</span>'
               '<span data-cert-name>Dein Name</span></p>') if live else ''
-    count = '<p class="cert__count" data-cert-count>1 Schein</p>' if live else ''
-    stamp = '<p class="cert__stamp" data-cert-stamp hidden></p>' if live else ''
+    count = '<p class="cert__count" data-cert-count>1 Schein</p>' if live and full else ''
+    stamp = '<p class="cert__stamp" data-cert-stamp hidden></p>' if live and full else ''
     micro = ' · '.join(['CASCARUP', 'DIE KAFFEEKIRSCHE KANN MEHR'] * 4)
     return f'''<div class="cert{' cert--small' if small else ''}"{' data-cert' if live else ''}>
           <img class="cert__rosette" src="assets/ps/rosette.svg" alt="" width="1200" height="1200" decoding="async">
@@ -743,7 +814,7 @@ PS_CHOICE = [
 ]
 PS_STEPS = [
  ('Schein wählen', 'Wie viele Scheine, deine Angaben und was am Ende mit deinem Geld passiert.'),
- ('Bezahlen', 'Online mit TWINT oder Karte, auf der sicheren Bezahlseite.'),
+ ('Bezahlen', 'Online mit TWINT oder Karte, auf der sicheren Bezahlseite.' if SALES_OPEN else 'Bald online mit TWINT oder Karte. Schon jetzt bar oder mit TWINT an unseren Ständen.'),
  ('Bestätigung', 'Du bekommst eine Bestätigung per E-Mail, mit der Nummer deines Scheins.'),
  ('Am Ende des Jahres', 'Geld zurück oder Andenken, so wie du es gewählt hast.'),
 ]
@@ -775,61 +846,7 @@ def ps_main():
         f'<span><strong>{t}</strong><span class="muted">{p}</span></span></label>'
         for k, t, p, svg in PS_CHOICE)
     terms = '\n'.join(f'            <li>{t}</li>' for t in PS_TERMS)
-    return f'''  <main id="main" class="ps">
-    <!-- the way in: what a certificate is, beside the certificate itself -->
-    <section class="ps-hero" data-tone="paper" id="top" aria-labelledby="ps-title">
-      <div class="ps-hero__copy">
-        <p class="eyebrow" data-reveal>Partizipationsschein · 2026/27</p>
-        <h1 class="display ps-hero__title" id="ps-title" data-reveal style="--d:1">Werde Teil von <em>Cascarup.</em></h1>
-        <p class="ps-hero__lede" data-reveal style="--d:2">Schon ab 15 Franken bist du von Anfang an dabei. Mit deinem Partizipationsschein gibst du uns das Startkapital für unser erstes Unternehmungsjahr.</p>
-        <ul class="ps-why" data-reveal style="--d:3">
-{why}
-        </ul>
-        <div class="hero__actions" data-reveal style="--d:4">
-          <a class="button button--solid" href="#zeichnen">Schein sichern</a>
-          <a class="hero__more" href="#so-gehts">So funktioniert es</a>
-        </div>
-      </div>
-      <div class="ps-hero__cert" data-reveal style="--d:2">
-        {certificate()}
-      </div>
-    </section>
-
-    <!-- where the money goes (pitch, slide 22) -->
-    <section class="ps-money" data-tone="paper" aria-labelledby="ps-money-title">
-      <p class="eyebrow" data-reveal>Dein Beitrag</p>
-      <h2 class="display" id="ps-money-title" data-reveal style="--d:1">Dahin fliesst<br>dein <em>Geld.</em></h2>
-      <ul class="ps-tiles">
-{money}
-      </ul>
-    </section>
-
-    <!-- no needless risk: what happens at the end is chosen now -->
-    <section class="ps-choice" data-tone="paper" aria-labelledby="ps-choice-title">
-      <div class="ps-choice__head">
-        <p class="eyebrow" data-reveal>Kein unnötiges Risiko</p>
-        <h2 class="display" id="ps-choice-title" data-reveal style="--d:1">Du wählst,<br>wie es <em>endet.</em></h2>
-        <p data-reveal style="--d:2">Beim Zeichnen wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert: zurück zu dir oder als Andenken bei uns.</p>
-      </div>
-      <div class="ps-ways">
-{choice}
-      </div>
-    </section>
-
-    <section class="ps-steps" data-tone="paper" id="so-gehts" aria-labelledby="ps-steps-title">
-      <p class="eyebrow" data-reveal>So steigst du ein</p>
-      <h2 class="display" id="ps-steps-title" data-reveal style="--d:1">Einsteigen ist<br>ganz <em>einfach.</em></h2>
-      <ol class="ps-steps__list">
-{steps_}
-      </ol>
-      <p class="ps-steps__cash" data-reveal>Lieber bar? Sprich uns an einem unserer <a href="index.html#staende">Stände</a> an oder frag ein Teammitglied.</p>
-    </section>
-
-    <!-- the form, with the certificate beside it, filling in as you type -->
-    <section class="ps-form" data-tone="paper" id="zeichnen" aria-labelledby="ps-form-title">
-      <div class="ps-form__grid">
-        <div class="ps-form__main">
-          <p class="eyebrow">Dein Schein</p>
+    buy = f'''          <p class="eyebrow">Dein Schein</p>
           <h2 class="display" id="ps-form-title">Jetzt <em>zeichnen.</em></h2>
           <form class="order ps-order" data-ps data-checkout="{CHECKOUT_URL}" data-price="{PS_PRICE}" data-max="{PS_MAX}" novalidate>
             <fieldset class="order__group">
@@ -877,8 +894,90 @@ def ps_main():
             <a class="button button--solid" href="index.html#shop">Zum Shop</a>
           </div>
         </div>
-        <div class="ps-form__aside" aria-hidden="true">
-          {certificate(live=True)}
+'''
+    # until the certificates can be bought online: a name and an e-mail, so we can write once they can
+    notify = f'''          <p class="eyebrow">Dein Schein</p>
+          <h2 class="display" id="ps-form-title">Bald <em>erhältlich.</em></h2>
+          <p class="ps-soon">Online zeichnen kannst du deinen Schein bald. Lass uns deinen Namen und deine E-Mail-Adresse da, dann schreiben wir dir, sobald es losgeht.</p>
+          <form class="order ps-order" data-notify data-endpoint="{NOTIFY_ENDPOINT}" novalidate>
+            <fieldset class="order__group">
+              <legend>Deine Angaben</legend>
+              <div class="fields">{field('vorname', 'Vorname', ' autocomplete="given-name"')}{field('nachname', 'Name', ' autocomplete="family-name"')}</div>
+              {field('email', 'E-Mail', ' type="email" autocomplete="email" inputmode="email"', wide=True)}
+            </fieldset>
+            <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
+              <span>Ich bin einverstanden, dass Cascarup meinen Namen und meine E-Mail-Adresse für diese Benachrichtigung speichert und dafür über den Dienst FormSubmit ins Ausland übermittelt. Mehr in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
+            <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
+            <button class="button button--solid order__submit" type="submit" data-pay>Benachrichtige mich</button>
+            <p class="order__pay">Lieber schon jetzt? Bar oder mit TWINT an unseren <a href="index.html#staende">Ständen</a> oder bei einem Teammitglied.</p>
+            <p class="order__status" role="status" aria-live="polite"></p>
+          </form>
+          <div class="ps-done" data-ps-done hidden tabindex="-1">
+            <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
+            <p class="eyebrow">Danke!</p>
+            <p class="cart__done-title">Du hörst von uns.</p>
+            <p class="cart__done-text">Sobald du deinen Partizipationsschein online zeichnen kannst, schreiben wir dir eine E-Mail.</p>
+            <p class="cart__done-note" data-done-note hidden></p>
+            <a class="button button--solid" href="index.html#shop">Zum Shop</a>
+          </div>
+'''
+    return f'''  <main id="main" class="ps">
+    <!-- the way in: what a certificate is, beside the certificate itself -->
+    <section class="ps-hero" data-tone="paper" id="top" aria-labelledby="ps-title">
+      <div class="ps-hero__copy">
+        <p class="eyebrow" data-reveal>Partizipationsschein · 2026/27</p>
+        <h1 class="display ps-hero__title" id="ps-title" data-reveal style="--d:1">Werde Teil von <em>Cascarup.</em></h1>
+        <p class="ps-hero__lede" data-reveal style="--d:2">Schon ab 15 Franken bist du von Anfang an dabei. Mit deinem Partizipationsschein gibst du uns das Startkapital für unser erstes Unternehmungsjahr.</p>
+        <ul class="ps-why" data-reveal style="--d:3">
+{why}
+        </ul>
+        <div class="hero__actions" data-reveal style="--d:4">
+          <a class="button button--solid" href="#zeichnen">{'Schein sichern' if SALES_OPEN else 'Bald erhältlich'}</a>
+          <a class="hero__more" href="#so-gehts">So funktioniert es</a>
+        </div>
+      </div>
+      <div class="ps-hero__cert" data-reveal style="--d:2">
+        {certificate()}
+      </div>
+    </section>
+
+    <!-- where the money goes (pitch, slide 22) -->
+    <section class="ps-money" data-tone="paper" aria-labelledby="ps-money-title">
+      <p class="eyebrow" data-reveal>Dein Beitrag</p>
+      <h2 class="display" id="ps-money-title" data-reveal style="--d:1">Dahin fliesst<br>dein <em>Geld.</em></h2>
+      <ul class="ps-tiles">
+{money}
+      </ul>
+    </section>
+
+    <!-- no needless risk: what happens at the end is chosen now -->
+    <section class="ps-choice" data-tone="paper" aria-labelledby="ps-choice-title">
+      <div class="ps-choice__head">
+        <p class="eyebrow" data-reveal>Kein unnötiges Risiko</p>
+        <h2 class="display" id="ps-choice-title" data-reveal style="--d:1">Du wählst,<br>wie es <em>endet.</em></h2>
+        <p data-reveal style="--d:2">Beim Zeichnen wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert: zurück zu dir oder als Andenken bei uns.</p>
+      </div>
+      <div class="ps-ways">
+{choice}
+      </div>
+    </section>
+
+    <section class="ps-steps" data-tone="paper" id="so-gehts" aria-labelledby="ps-steps-title">
+      <p class="eyebrow" data-reveal>So steigst du ein</p>
+      <h2 class="display" id="ps-steps-title" data-reveal style="--d:1">Einsteigen ist<br>ganz <em>einfach.</em></h2>
+      <ol class="ps-steps__list">
+{steps_}
+      </ol>
+      <p class="ps-steps__cash" data-reveal>Lieber bar? Sprich uns an einem unserer <a href="index.html#staende">Stände</a> an oder frag ein Teammitglied.</p>
+    </section>
+
+    <!-- the form, with the certificate beside it, filling in as you type -->
+    <section class="ps-form" data-tone="paper" id="zeichnen" aria-labelledby="ps-form-title">
+      <div class="ps-form__grid">
+        <div class="ps-form__main">
+{buy if SALES_OPEN else notify}        <div class="ps-form__aside" aria-hidden="true">
+          {certificate(live=True, full=SALES_OPEN)}
         </div>
       </div>
       <details class="ps-terms" id="bedingungen">
@@ -891,6 +990,7 @@ def ps_main():
   </main>'''
 
 
+V['END_TEXT'] = 'Von Hand abgefüllt in Fribourg, in zwei Sorten. ' + ('Jetzt im Shop.' if SALES_OPEN else 'Bald im Shop.')
 V['NAV'] = nav()
 V['MENU'] = menu()
 V['MENU_BTN'] = menu_button()

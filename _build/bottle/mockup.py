@@ -4,6 +4,7 @@
 # → assets/shop/<kind>-<ml>.webp (1400 × 1750) and assets/bottle/<kind>-<ml>.webp (cut-out with alpha, for small uses)
 import pathlib, subprocess
 import cv2, numpy as np
+import scene
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
@@ -62,9 +63,9 @@ def flask_outline():
 
 BOTTLES = {
     500: dict(src='gross-500.webp', outline=tall_outline, top=78, base=933, cx=231.1, height=1160,
-              glass=(152, 199), foot=(231.1, 903, 83.1, 30), label=dict(shape='cylinder', cy=600, reach=.93)),
+              glass=(152, 199), foot=(231.1, 903, 83.1, 30), label=dict(shape='cylinder', cy=598, reach=.972)),
     200: dict(src='klein-200.png', outline=flask_outline, top=52, base=633, cx=199, height=900,
-              glass=(127, 217), foot=(190, 626, 113, 7), label=dict(shape='flask', cy=448, cx=183, width=178)),
+              glass=(127, 217), foot=(190, 626, 113, 7), label=dict(shape='flask', cy=454, face=.34, turn=.3, near=.9, share=.88, pitch=.16)),
 }
 
 
@@ -106,18 +107,31 @@ def label_tall(img, lab, b):
 
 
 def label_flask(img, lab, b):
-    """The flask's face is flat with a gentle bulge; the label lies on it straight, a little darker to the right."""
+    """The flask was photographed a little from its right and from above: its front is a gently bulging face, turned
+    a few degrees to the left (its right flank shows), and its sides draw together towards the floor. The label is laid
+    onto that face as onto a wide cylinder seen at that turn – its left part, further away, a little narrower and
+    lower, its right part nearer – between the face's own edges, measured on the photo row by row."""
     h, w = img.shape[:2]
     ys, xs = np.mgrid[0:h, 0:w].astype(np.float32)
-    lw, lh = b['width'] * K, b['width'] / LABEL_ASPECT * K
-    bulge = 2.4 * lw / 2
-    th = np.arcsin(np.clip((xs - b['cx'] * K) / bulge, -1, 1))
-    tm = np.arcsin(lw / 2 / bulge)
+    L = lambda y: (62.0 + (y / K - 300) * .0155) * K           # the face's left edge (the silhouette)
+    R = lambda y: (303.0 - (y / K - 300) * .0125) * K          # its right edge (where the flank begins, a gleam)
+    face, turn, near = b['face'], b['turn'], b['near']         # half-width of the face in radians of bulge, yaw, depth
+    tm = face * b['share']                                     # how much of the face the label covers
+    X = lambda t: np.sin(t - turn)                             # where a point of the face lands across the picture
+    x0, x1 = X(-face), X(face)
+    px = (R(ys) - L(ys)) / (x1 - x0)                           # pixels per unit of the bulge, row by row
+    th = turn + np.arcsin(np.clip(x0 + (xs - L(ys)) / px, -1, 1))
+    depth = (1 + near * np.cos(th - turn)) / (1 + near * np.cos(turn))   # nearer points look larger
+    pxc = (R(b['cy'] * K) - L(b['cy'] * K)) / (x1 - x0)
+    lh = 2 * tm / LABEL_ASPECT * pxc
     u = .5 + th / (2 * tm)
-    v = (ys - (b['cy'] * K - lh / 2)) / lh
-    shade = .9 + .08 * np.cos(th + .5) - .05 * (xs / w)
-    sheen = .05 * np.exp(-((th + .35) / .22) ** 2)
-    return place(img, lab, u, v, np.abs(th) < tm, shade, sheen, slope=np.cos(th))
+    # seen from a little above, the label's lines bow where the bulge turns away (lowest where it faces the camera)
+    sag = pxc * (1 - np.cos(th - turn)) * b['pitch']
+    v = .5 + (ys + sag - b['cy'] * K) / (lh * depth)
+    # the light comes from the window at the front left; the paper darkens a little where it turns from the camera
+    shade = (.78 + .22 * np.cos(th + .35)) * (.9 + .1 * np.cos(th - turn) ** 4)
+    sheen = .045 * np.exp(-((th + .12) / .1) ** 2)
+    return place(img, lab, u, v, np.abs(th) < tm, shade, sheen, slope=np.cos(th - turn))
 
 
 def place(img, lab, u, v, inside, shade, sheen, slope):
@@ -195,7 +209,7 @@ def compose(ml, kind, tones):
         return canvas
     I, M, G, D = put(img), put(m), put(region), put(detail)
 
-    bg = backdrop(tones)
+    bg = scene.back(kind, ml, backdrop(tones))
     # shadows: a tight dark line where the glass touches, a soft pool round it leaning away from the light (which
     # comes from the front left), warmed on that side where the light has passed through the syrup
     # the footprint: the base's own ellipse on the floor (a cylinder touches all round, not only at its front)
@@ -225,6 +239,7 @@ def compose(ml, kind, tones):
     seen = seen * np.array([.99, .995, .985], np.float32)                     # glass is never quite neutral
     bottle = I * (1 - G[..., None]) + seen * G[..., None]
     out = bg * (1 - M[..., None]) + bottle * M[..., None]
+    out = scene.front(kind, ml, out, FLOOR)
 
     shop = ROOT / 'assets' / 'shop'; shop.mkdir(parents=True, exist_ok=True)
     name = f'{FILES[kind]}-{ml}'

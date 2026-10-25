@@ -1,5 +1,84 @@
-// Cascarup – participation certificates: choose how many, give your details and what happens at the end (money back
-// or keep it), pay through our payment service (checkout.js). The certificate beside the form fills in as you type.
+// Cascarup – participation certificates. Until they can be bought online, the form only takes a name and an e-mail
+// (sent through FormSubmit, data-endpoint), so we can write once they can; then it becomes the full form below.
+// The certificate beside the form fills in as you type.
+(() => {
+  const form = document.querySelector('[data-notify]');
+  if (!form) return;
+  const status = form.querySelector('.order__status'), button = form.querySelector('[data-pay]');
+  const done = document.querySelector('[data-ps-done]'), cert = document.querySelector('[data-cert]');
+  const v = (n) => (form.elements[n].value || '').trim();
+
+  function paint() {
+    if (!cert) return;
+    const name = `${v('vorname')} ${v('nachname')}`.trim(), el = cert.querySelector('[data-cert-name]');
+    el.textContent = name || 'Dein Name';
+    cert.classList.toggle('is-named', !!name);
+    el.style.fontSize = '';   // a long name gets smaller until it fits on its line
+    for (let k = 1; k > .55 && el.scrollWidth > el.clientWidth + 1; k -= .05) el.style.fontSize = `${4 * k}cqw`;
+  }
+  form.addEventListener('input', paint);
+
+  const errors = Object.fromEntries([...form.querySelectorAll('[data-error]')].map((el) => [el.dataset.error, el]));
+  const mark = (key, msg) => {
+    const el = errors[key];
+    el.textContent = msg || ''; el.hidden = !msg;
+    form.querySelectorAll(`[name="${key}"]`).forEach((i) => i.toggleAttribute('aria-invalid', !!msg));
+    return !msg;
+  };
+  const clearOn = (e) => { const key = e.target.name; if (errors[key] && !errors[key].hidden) mark(key, ''); };
+  form.addEventListener('input', clearOn);
+  form.addEventListener('change', clearOn);
+
+  const finish = (note) => {
+    const el = done.querySelector('[data-done-note]');
+    el.textContent = note || ''; el.hidden = !note;
+    form.hidden = true; done.hidden = false;
+    done.scrollIntoView({ block: 'center' }); done.focus({ preventScroll: true });
+  };
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    status.textContent = '';
+    const checks = [
+      ['vorname', !v('vorname') && 'Bitte gib deinen Vornamen an.'],
+      ['nachname', !v('nachname') && 'Bitte gib deinen Namen an.'],
+      ['email', (!v('email') || !form.elements.email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.'],
+      ['zustimmung', !form.elements.zustimmung.checked && 'Bitte bestätige, dass wir deine Angaben dafür speichern dürfen.'],
+    ];
+    let first = null;
+    for (const [key, msg] of checks) if (!mark(key, msg) && !first) first = form.querySelector(`[name="${key}"]`);
+    if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    if (form.elements._honey.value) return;                      // a bot filled the hidden field
+    if (document.documentElement.dataset.preview) return finish('Vorschau: Hier wird nichts gesendet.');
+    if (!form.dataset.endpoint) { status.textContent = 'Die Anmeldung öffnet in Kürze. Schreib uns bis dahin an info@cascarup.ch.'; return; }
+    const name = `${v('vorname')} ${v('nachname')}`;
+    button.disabled = true; status.textContent = 'Wird gesendet …';
+    try {
+      const res = await fetch(form.dataset.endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: `Partizipationsschein: ${name} möchte benachrichtigt werden`, _template: 'table',
+          _autoresponse: 'Danke! Sobald du deinen Partizipationsschein bei Cascarup online zeichnen kannst, schreiben wir dir. Fragen? info@cascarup.ch',
+          Vorname: v('vorname'), Name: v('nachname'), email: v('email'),
+          Anliegen: 'Benachrichtigen, sobald die Partizipationsscheine online erhältlich sind',
+        }),
+      });
+      // FormSubmit answers 200 with success "false" when something is off, so read the body too
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);
+      status.textContent = '';
+      finish();
+    } catch {
+      status.textContent = 'Die Anmeldung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.';
+    } finally {
+      button.disabled = false;
+    }
+  });
+  paint();
+})();
+
+// Once the certificates are on sale (content.py SALES_OPEN): choose how many, give your details and what happens at
+// the end (money back or keep it), pay through our payment service (checkout.js).
 (() => {
   const form = document.querySelector('[data-ps]');
   const C = window.CascarupCheckout;

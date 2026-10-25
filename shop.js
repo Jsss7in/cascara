@@ -13,6 +13,7 @@
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* private mode: the basket lives as long as the page */ } };
   const known = new Set(products.map((p) => JSON.parse(p.dataset.product).id));
   let items = load().filter((it) => it && known.has(it.id) && it.ml && it.qty > 0 && it.price > 0);
+  if (!products.some((p) => p.querySelector('[data-add]'))) items = [];   // the shop is not open yet: no basket
   try { localStorage.removeItem('cascarup.cart.v3'); } catch { /* nothing to tidy */ }
 
   const SHIP = JSON.parse(dialog.dataset.shipping);
@@ -61,6 +62,7 @@
       price.textContent = fmt(data.sizes.find((s) => s.ml === m).price);
     };
     sizes.forEach((b) => b.addEventListener('click', () => pick(+b.dataset.size)));
+    if (!add) continue;                // the shop is not open yet: the sizes show, nothing goes into a basket
     const clampQty = () => { qty.value = String(Math.min(24, Math.max(1, Math.round(+qty.value) || 1))); };
     card.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => {
       qty.value = String(+qty.value + +b.dataset.step); clampQty();
