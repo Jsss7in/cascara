@@ -182,7 +182,7 @@ function cutRing(side, inner) {
 function beanGeometry(side) {
   // a coffee bean as everyone knows it: roasted brown, domed outside, flat towards its twin, the winding crease
   const g = new SphereGeometry(1, 72, 54);
-  const p = g.attributes.position, n = p.count, col = new Float32Array(n * 3);
+  const p = g.attributes.position, uv = g.attributes.uv, n = p.count, col = new Float32Array(n * 3);
   const roast = new Color('#6b3b1f'), light = new Color('#8a5430'), crease = new Color('#2a1309'), c = new Color();
   for (let i = 0; i < n; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
@@ -198,11 +198,29 @@ function beanGeometry(side) {
     p.setXYZ(i, nx, ny, nz);
     c.copy(roast).lerp(light, smooth(-.2, .8, noise3(x * 3, y * 3, z * 3))).lerp(crease, groove * .9);
     col.set([c.r, c.g, c.b], i * 3);
+    // where a photograph of a real bean lies on it: seen square-on from its own side, the bean's outline filling
+    // the picture's fitted ellipse (BEAN_PHOTO), the flat side's crease along the middle
+    const ph = BEAN_PHOTO[flat ? 'flat' : 'round'];
+    uv.setXY(i, ph.cx + (flat ? -side : side) * z * ph.rx, 1 - (ph.cy - y * ph.ry));
   }
   g.setAttribute('color', new BufferAttribute(col, 3));
+  // two parts, so each side can wear its own photograph: the flat side (group 0) and the dome (group 1)
+  const idx = g.index.array, flatTris = [], domeTris = [];
+  for (let t = 0; t < idx.length; t += 3) {
+    const xs = (p.getX(idx[t]) + p.getX(idx[t + 1]) + p.getX(idx[t + 2])) * side;
+    (xs < 0 ? flatTris : domeTris).push(idx[t], idx[t + 1], idx[t + 2]);
+  }
+  g.setIndex([...flatTris, ...domeTris]);
+  g.addGroup(0, flatTris.length, 0); g.addGroup(flatTris.length, domeTris.length, 1);
   g.computeVertexNormals();
   return g;
 }
+// The photographs of a real roasted bean (assets/bean/): for each, the bean's fitted ellipse in the picture as
+// fractions (centre cx, cy; half axes rx across, ry along). Filled in from the cut-outs' measurements.
+const BEAN_PHOTO = {
+  flat: { src: 'assets/bean/bohne-flach.webp', cx: .5, cy: .5, rx: .45, ry: .45 },
+  round: { src: 'assets/bean/bohne-rund.webp', cx: .5, cy: .5, rx: .45, ry: .45 },
+};
 
 function parchmentGeometry(side) {
   // the parchment: a thin papery cup around the outer dome of the bean
@@ -458,7 +476,16 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     side: DoubleSide, transparent: true,
   });
   const parchMat = new MeshPhysicalMaterial({ color: '#efe4cc', roughness: .95, side: DoubleSide, transparent: true });
-  const beanMat = new MeshPhysicalMaterial({ vertexColors: true, roughness: .42, clearcoat: .3, clearcoatRoughness: .35 });
+  // the beans: painted roast until the photographs of a real bean have loaded, then those (flat side, dome)
+  const beanMats = ['flat', 'round'].map((k) => {
+    const m = new MeshPhysicalMaterial({ vertexColors: true, roughness: .42, clearcoat: .3, clearcoatRoughness: .35 });
+    new TextureLoader().load(BEAN_PHOTO[k].src, (tex) => {
+      tex.colorSpace = SRGBColorSpace; tex.anisotropy = 8;
+      Object.assign(m, { map: tex, vertexColors: false, roughness: .5, clearcoat: .22, clearcoatRoughness: .4, emissiveMap: tex, emissiveIntensity: .3 });
+      m.color.set('#ffffff'); m.emissive.set('#ffffff'); m.needsUpdate = true;
+    });
+    return m;
+  });
 
   // per side: the skin half (with its flesh, cut edge and the pieces it will break into), pulp, parchment, bean
   const skinMats = [];
@@ -472,7 +499,7 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     half.add(skin, flesh, cut);
     const pulp = new Mesh(new SphereGeometry(1, 72, 54, side > 0 ? Math.PI / 2 : -Math.PI / 2, Math.PI), pulpMat);
     const parch = new Mesh(parchmentGeometry(side), parchMat);
-    const bean = new Mesh(beanGeometry(side), beanMat);
+    const bean = new Mesh(beanGeometry(side), beanMats);
     cherry.add(half, pulp, parch, bean);
     return { side, half, skin, flesh, cut, pulp, parch, bean };
   });
