@@ -579,28 +579,6 @@ CHAPTERS = [
 JOIN_URL = 'partizipation.html'
 
 
-def mini_bottle(y, cls='b'):
-    """One of our bottles lying down, its cap to the right: 29 wide, 5.6 high, its top at y (for the small icons)."""
-    return (f'<g class="{cls}"><rect class="b__glass" x=".8" y="{y}" width="17.6" height="5.6" rx="2"/>'
-            f'<path class="b__glass" d="M18 {y + .15:.2f}C21 {y + .15:.2f} 21.6 {y + 1.5:.2f} 23 {y + 1.75:.2f}V{y + 3.85:.2f}C21.6 {y + 4.1:.2f} 21 {y + 5.45:.2f} 18 {y + 5.45:.2f}Z"/>'
-            f'<rect class="b__glass" x="22.8" y="{y + 1.7:.2f}" width="2.1" height="2.2"/>'
-            f'<rect class="b__cap" x="24.6" y="{y + 1.05:.2f}" width="4.5" height="3.5" rx=".8"/>'
-            f'<rect class="b__label" x="5.2" y="{y}" width="8" height="5.6"/></g>')
-
-
-def bottles_icon(cls=''):
-    """The menu's sign: three of our bottles lying one above the other, where other menus have three lines."""
-    return (f'<svg class="bottles {cls}" viewBox="0 0 30 22" aria-hidden="true">'
-            + mini_bottle(1) + mini_bottle(8.2) + mini_bottle(15.4) + '</svg>')
-
-
-def crossed_bottles():
-    """The sign to close the menu: two of the bottles, crossed."""
-    one = mini_bottle(12.2)
-    return ('<svg class="bottles bottles--x" viewBox="0 0 30 30" aria-hidden="true">'
-            f'<g transform="rotate(40 15 15)">{one}</g><g transform="rotate(-40 15 15)">{one}</g></svg>')
-
-
 def nav(base=''):
     links = ''.join(f'<li><a href="{base}#{k}">{t}</a></li>' for k, t, _ in CHAPTERS[1:])
     here = ' aria-current="page"' if base else ''
@@ -635,7 +613,7 @@ def menu(base=''):
     <div class="menu__inner" tabindex="-1" autofocus>
       <div class="menu__head">
         <a class="menu__home" href="{base}#top" data-menu-link><svg class="menu__logo" viewBox="{LOGO_VB}" aria-hidden="true"><use href="#lg-fill"/></svg><span>Cascarup</span></a>
-        <button class="menu__close" type="button" data-menu-close aria-label="Menü schliessen">{crossed_bottles()}</button>
+        <button class="menu__close" type="button" data-menu-close aria-label="Menü schliessen"><i aria-hidden="true"></i></button>
       </div>
       <svg class="menu__drip" viewBox="0 0 1007 {DRIP_TOP[1]}" preserveAspectRatio="none" aria-hidden="true"><path d="{DRIP_TOP[0]}"/></svg>
       <ol class="menu__list">{lis}</ol>
@@ -657,44 +635,11 @@ def menu(base=''):
   </dialog>'''
 
 
-LEAF = 'M0 0C5-9 24-13 45-1.5C27 10 6 8.5 0 0Z'   # a coffee leaf: broad, drawn out to a point
-LEAF_VEINS = 'M2 0C14-1 30-1.6 43-1.4M9-.3l5.5-5.6M17-.7l6-6M26-1l5.5-5M35-1.2l4-3.4M9 .1l5.5 4.8M17 .3l6 5.2M26 .2l5.4 4.4M35-.4l4 3'
-
-
-def menu_sprig():
-    """The menu, on phones: a coffee sprig grows out of the corner – its stem, a few leaves, and four ripe cherries
-    that read M, E, N, Ü. Drawn, not photographed; it grows in each time it appears."""
-    leaves = [  # where a leaf sits on the stem, its turn and size
-        (21, 83, -126, 1.0), (55, 58, -82, .9), (78, 50, 28, .72), (110, 37, -58, .74), (147, 22, -22, .8),
-    ]
-    cherries = [(36, 80, 'M'), (66, 67, 'E'), (96, 58, 'N'), (125, 47, 'Ü')]
-    out = ['<svg class="sprig" viewBox="0 0 160 104" aria-hidden="true">',
-           '<defs><radialGradient id="sp-c" cx=".38" cy=".3" r=".75"><stop offset="0" stop-color="#F0573C"/>'
-           '<stop offset=".45" stop-color="#C21F22"/><stop offset="1" stop-color="#6A0C10"/></radialGradient>'
-           '<linearGradient id="sp-l" x1="0" y1="-8" x2="0" y2="8" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5E9A45"/>'
-           '<stop offset="1" stop-color="#1E4A22"/></linearGradient>'
-           '</defs>',
-           # a fine light edge under the stem, so it reads on the dark sections too
-           '<path class="sprig__edge" pathLength="1" d="M9 102C17 84 29 70 51 59C77 46 104 39 152 19"/>',
-           '<path class="sprig__stem" pathLength="1" d="M9 102C17 84 29 70 51 59C77 46 104 39 152 19"/>']
-    for i, (x, y, r, k) in enumerate(leaves):
-        out.append(f'<g class="sprig__leaf" style="--i:{i}" transform="translate({x} {y}) rotate({r}) scale({k})">'
-                   f'<path d="{LEAF}" fill="url(#sp-l)"/><path class="sprig__vein" d="{LEAF_VEINS}"/></g>')
-    for i, (x, y, ch) in enumerate(cherries):
-        out.append(f'<g class="sprig__cherry" style="--i:{i}"><path class="sprig__stalk" d="M{x + 1} {y - 13}l-1 -6"/>'
-                   f'<ellipse class="sprig__ring" cx="{x}" cy="{y}" rx="12.4" ry="13.8"/>'
-                   f'<ellipse cx="{x}" cy="{y}" rx="11.6" ry="13" fill="url(#sp-c)"/>'
-                   f'<ellipse class="sprig__shine" cx="{x - 4.2}" cy="{y - 6}" rx="3.2" ry="2" transform="rotate(-30 {x - 4.2} {y - 6})"/>'
-                   f'<circle class="sprig__navel" cx="{x + .6}" cy="{y + 11.2}" r="1.6"/>'
-                   f'<text x="{x}" y="{y + 4.6}">{ch}</text></g>')
-    out.append('</svg>')
-    return ''.join(out)
-
-
 def menu_button():
-    # on phones, once the opening is behind you: the way back to the chapters, a coffee sprig in the corner
-    return ('  <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" aria-label="Menü" hidden>'
-            f'{menu_sprig()}</button>')
+    # on phones, once the opening is behind you: the way back to the chapters, a small bottle leaning out of it
+    return ('  <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden>'
+            '<img class="menu-btn__bottle" src="assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async">'
+            '<span>Menü</span><i aria-hidden="true"></i></button>')
 
 
 def footer(base=''):

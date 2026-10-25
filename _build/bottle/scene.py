@@ -91,30 +91,32 @@ def plant():
     return _plant
 
 
-def garland(bg, y0=150, y1=120, sag=150, n=9):
-    """A string of warm lights across the top, far behind the bottle: only their soft discs of light are seen."""
+def garland(bg, y0=150, y1=120, sag=150, n=11):
+    """A string of Christmas lights across the top, far behind the bottle: a green wire and, out of focus, the soft
+    discs of its bulbs in red, gold, green and warm white."""
     H, W = bg.shape[:2]
     xs = np.linspace(-60, W + 60, 400)
     t = (xs - xs[0]) / (xs[-1] - xs[0])
     ys = y0 + (y1 - y0) * t + sag * 4 * t * (1 - t)
     wire = np.zeros((H, W), np.float32)
     cv2.polylines(wire, [np.stack([xs, ys], 1).astype(np.int32)], False, 1, 4, cv2.LINE_AA)
-    wire = cv2.GaussianBlur(wire, (0, 0), 6)
-    out = bg * (1 - .2 * wire[..., None])
-    glow = np.zeros((H, W), np.float32)
+    wire = cv2.GaussianBlur(wire, (0, 0), 5)
+    out = bg * (1 - .35 * wire[..., None]) + wire[..., None] * .35 * np.array([.16, .30, .12], np.float32)   # BGR: fir green
+    colours = [np.array(c, np.float32) for c in ((.18, .22, .95), (.25, .78, 1.0), (.30, .62, .18), (.62, .86, 1.0))]   # BGR: red, gold, green, warm white
     rng = np.random.default_rng(5)
     for i in range(n):
-        u = (i + .5) / n + rng.uniform(-.02, .02)
-        x = xs[0] + u * (xs[-1] - xs[0]); y = y0 + (y1 - y0) * u + sag * 4 * u * (1 - u) + 24
+        u = (i + .5) / n + rng.uniform(-.015, .015)
+        x = xs[0] + u * (xs[-1] - xs[0]); y = y0 + (y1 - y0) * u + sag * 4 * u * (1 - u) + 26
+        r = int(rng.uniform(30, 40))
         disc = np.zeros((H, W), np.float32)
-        r = int(rng.uniform(30, 42))
-        cv2.circle(disc, (int(x), int(y)), r, rng.uniform(.8, 1), -1, cv2.LINE_AA)
-        cv2.circle(disc, (int(x), int(y)), r - 3, 1.15, 3, cv2.LINE_AA)       # a bokeh disc is a little brighter at its rim
-        glow = np.maximum(glow, cv2.GaussianBlur(disc, (0, 0), 5))
-    halo = cv2.GaussianBlur(glow, (0, 0), 34)
-    warm = np.array([.32, .70, 1.0], np.float32)          # BGR: the amber light of a warm bulb
-    out = 1 - (1 - out) * (1 - np.clip(glow * .62 + halo * .5, 0, 1)[..., None] * warm)   # screen: light only adds
-    return out
+        cv2.circle(disc, (int(x), int(y)), r, 1, -1, cv2.LINE_AA)
+        cv2.circle(disc, (int(x), int(y)), r - 3, 1.2, 3, cv2.LINE_AA)         # a bokeh disc is a little brighter at its rim
+        disc = cv2.GaussianBlur(disc, (0, 0), 5)
+        halo = cv2.GaussianBlur(disc, (0, 0), 30)
+        c = colours[i % 4]
+        light = np.clip(disc * .72 + halo * .55, 0, 1)[..., None]
+        out = out * (1 - light * .5) + light * .5 * c * 1.15 + light * .18     # coloured light over the paper
+    return np.clip(out, 0, 1)
 
 
 def back(kind, ml, bg):
@@ -123,7 +125,7 @@ def back(kind, ml, bg):
         # the branch reaches into the picture from the right, its cut end beyond the edge
         col, al = transform(col, al, 1250 if ml == 500 else 1150, angle=14)
         return out_of_focus(bg, col, al, 1330, 380 if ml == 500 else 560, blur=10, haze=.46)
-    return garland(bg, y0=170, y1=130, sag=150) if ml == 500 else garland(bg, y0=330, y1=290, sag=140)
+    return garland(bg, y0=250, y1=215, sag=150) if ml == 500 else garland(bg, y0=330, y1=290, sag=140)
 
 
 def front(kind, ml, out, floor):

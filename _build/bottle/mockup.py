@@ -65,7 +65,7 @@ BOTTLES = {
     500: dict(src='gross-500.webp', outline=tall_outline, top=78, base=933, cx=231.1, height=1160,
               glass=(152, 199), foot=(231.1, 903, 83.1, 30), label=dict(shape='cylinder', cy=598, reach=.972)),
     200: dict(src='klein-200.png', outline=flask_outline, top=52, base=633, cx=199, height=900,
-              glass=(127, 217), foot=(190, 626, 113, 7), label=dict(shape='flask', cy=454, face=.34, turn=.3, near=.9, share=.88, pitch=.16)),
+              glass=(127, 217), foot=(190, 626, 113, 7), label=dict(shape='flask', cy=454, face=.34, turn=.3, near=.9, share=.88, pitch=.16, lean=(.045, .02))),
 }
 
 
@@ -128,6 +128,9 @@ def label_flask(img, lab, b):
     # seen from a little above, the label's lines bow where the bulge turns away (lowest where it faces the camera)
     sag = pxc * (1 - np.cos(th - turn)) * b['pitch']
     v = .5 + (ys + sag - b['cy'] * K) / (lh * depth)
+    # the face leans a hair: the label's right edge runs a little further out at the top, a little in at the bottom
+    vc = np.clip(v, 0, 1)
+    u = u * (1 - b['lean'][0] * (1 - vc) + b['lean'][1] * vc)
     # the light comes from the window at the front left; the paper darkens a little where it turns from the camera
     shade = (.78 + .22 * np.cos(th + .35)) * (.9 + .1 * np.cos(th - turn) ** 4)
     sheen = .045 * np.exp(-((th + .12) / .1) ** 2)
