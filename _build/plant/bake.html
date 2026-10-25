@@ -37,7 +37,7 @@ window.bake = async (cfg, S, cropX, hero) => {
   bg.setTransform(S, 0, 0, S, -x0 * S, -y0 * S);
   bg.save(); bg.translate(4992, 0); bg.scale(-1, 1); bg.drawImage(zw, 0, 0, 4992, 2527); bg.restore();
   bg.globalCompositeOperation = 'destination-in';
-  const fade = bg.createLinearGradient(cropX - 1100, 0, cropX - 250, 0);   // gone well inside the picture
+  const fade = bg.createLinearGradient(cropX - 90, 0, cropX, 0);   // a soft end of a few millimetres, the rest sharp
   fade.addColorStop(0, '#000'); fade.addColorStop(1, 'rgba(0,0,0,0)');
   bg.fillStyle = fade; bg.fillRect(x0, y0, x1 - x0, y1 - y0);
   const branch = () => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(bc, 0, 0); g.restore(); };

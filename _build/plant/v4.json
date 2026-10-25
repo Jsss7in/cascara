@@ -15,26 +15,6 @@
    "filter": "hue-rotate(-10deg) saturate(.9) brightness(.94)"
   },
   {
-   "src": "src/blatt-3.png",
-   "x": 222.2,
-   "y": 583.4,
-   "w": 1118.3,
-   "rot": -169.99,
-   "z": 0,
-   "flip": false,
-   "filter": "brightness(.84) saturate(1.08) contrast(1.05)"
-  },
-  {
-   "src": "src/blatt-2.png",
-   "x": 1099.2,
-   "y": 1831.7,
-   "w": 620.6,
-   "rot": 109.68,
-   "z": 0,
-   "flip": false,
-   "filter": "brightness(.86) saturate(1.06) contrast(1.05)"
-  },
-  {
    "src": "src/blatt-paar-1.png",
    "x": -309.4,
    "y": 1083.0,

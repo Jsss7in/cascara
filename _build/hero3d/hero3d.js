@@ -984,6 +984,8 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
       while (pending.size && performance.now() - t0 < 6000) await new Promise((r) => setTimeout(r, 60));
       const keep = progress;
       for (const p of [.12, .3, .45, .58, .66, .74, .79, .83, .88, .95, 1]) {
+        // only while the loading screen covers it (on a very slow phone it may lift first: then stop at once)
+        if (!document.documentElement.classList.contains('is-loading')) break;
         apply(p, 0); renderer.render(scene, camera);
         await new Promise((r) => requestAnimationFrame(r));
       }
