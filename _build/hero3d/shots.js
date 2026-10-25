@@ -10,13 +10,9 @@ import {
 } from 'three';
 import {
   studio, setFruit, skinTexture, skinHalf, skinMaterial, BOTTLE, MOUTH, lathe, radiusAt, capGeometry,
-  labelTexture, shadowTexture,
+  labelTexture, shadowTexture, KINDS, cinnamon, starAnise,
 } from './hero3d.js';
 
-const KINDS = {
-  cascara: { label: 'CASCARA', syrup: '#8f3612', surface: '#7d2e0f', cap: '#9C4B23', props: 'cascara' },
-  gifferstee: { label: 'GIFFERSTEE', syrup: '#6a260c', surface: '#5a200a', cap: '#5b2f1c', props: 'spice' },
-};
 // a 500 ml bottle is the 200 ml one scaled by the cube root of the volumes
 const SIZE = { 200: 1, 500: Math.cbrt(2.5) };
 const W = 1200, H = 800;
@@ -39,53 +35,6 @@ function softShadow(opacity, sx, sz) {
   const m = new Mesh(new PlaneGeometry(1, 1), new MeshBasicMaterial({ map: shadowTexture(), transparent: true, depthWrite: false, opacity }));
   m.rotation.x = -Math.PI / 2; m.scale.set(sx, sz, 1); m.position.y = .003;
   return m;
-}
-
-// cinnamon: a quill, bark rolled up into a loose scroll, with fine ridges along its length
-function cinnamon(len) {
-  const s = new Shape(), t = .018, turns = 1.6, r0 = .085, k = .022, n = 90;
-  const pt = (a, r) => [Math.cos(a) * r, Math.sin(a) * r];
-  for (let i = 0; i <= n; i++) { const a = (i / n) * turns * Math.PI * 2; const [x, y] = pt(a, r0 - k * a / Math.PI); i ? s.lineTo(x, y) : s.moveTo(x, y); }
-  for (let i = n; i >= 0; i--) { const a = (i / n) * turns * Math.PI * 2; const [x, y] = pt(a, r0 - k * a / Math.PI - t); s.lineTo(x, y); }
-  const g = new ExtrudeGeometry(s, { depth: len, steps: 48, bevelEnabled: false, curveSegments: 4 });
-  g.translate(0, 0, -len / 2);
-  const p = g.attributes.position, col = new Float32Array(p.count * 3), a = new Color('#7a3c1c'), b = new Color('#a4592c'), c = new Color();
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), z = p.getZ(i), ang = Math.atan2(y, x);
-    const ridge = .5 + .5 * Math.sin(ang * 38 + Math.sin(z * 9) * .6), fleck = .5 + .5 * Math.sin(z * 41 + ang * 3) * Math.sin(z * 17);
-    c.copy(a).lerp(b, ridge * .45 + fleck * .25);
-    col.set([c.r, c.g, c.b], i * 3);
-  }
-  g.setAttribute('color', new BufferAttribute(col, 3));
-  g.computeVertexNormals();
-  return new Mesh(g, new MeshStandardMaterial({ vertexColors: true, roughness: .86 }));
-}
-
-// star anise: eight boat-shaped pods around a centre, each split open on a glossy seed
-function starAnise() {
-  const g = new Group();
-  const pod = new MeshStandardMaterial({ color: '#4e2311', roughness: .9 });
-  const inner = new MeshStandardMaterial({ color: '#8a4f27', roughness: .75 });
-  const seed = new MeshPhysicalMaterial({ color: '#7a4220', roughness: .3, clearcoat: .8, clearcoatRoughness: .25 });
-  // a pod: an ellipsoid drawn out to a point at its outer end, a little crinkled
-  const podGeo = new SphereGeometry(1, 32, 18), pp = podGeo.attributes.position;
-  for (let i = 0; i < pp.count; i++) {
-    const x = pp.getX(i), taper = x > 0 ? 1 - x * x * .82 : 1 - x * x * .25, w = 1 + .06 * Math.sin(x * 23 + pp.getZ(i) * 9);
-    pp.setXYZ(i, x, pp.getY(i) * taper * w, pp.getZ(i) * taper * w);
-  }
-  podGeo.computeVertexNormals();
-  for (let i = 0; i < 8; i++) {
-    const arm = new Group(); arm.rotation.y = (i / 8) * Math.PI * 2 + (i % 2) * .05;
-    const body = new Mesh(podGeo, pod);
-    body.scale.set(.21, .07, .08); body.position.x = .19; body.rotation.z = -.1;
-    const lip = new Mesh(new SphereGeometry(1, 20, 12), inner);
-    lip.scale.set(.15, .03, .045); lip.position.set(.2, .068, 0);
-    const bean = new Mesh(new SphereGeometry(1, 20, 14), seed);
-    bean.scale.set(.06, .035, .04); bean.position.set(.2, .075, 0);
-    arm.add(body, lip, bean); g.add(arm);
-  }
-  const hub = new Mesh(new SphereGeometry(.055, 16, 12), pod); hub.scale.y = .9; g.add(hub);
-  return g;
 }
 
 export async function setup(canvas) {
