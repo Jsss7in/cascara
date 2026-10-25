@@ -32,9 +32,11 @@ def tall_outline():
     shoulder = [(188, 43.5), (193, 46.5), (197, 51), (202, 57), (208, 69), (214, 77.5), (220, 84), (226, 88.5),
                 (232, 92), (238, 95), (244, 97.5), (250, 100), (256, 101.5), (262, 102.6)]
     left, right = [], []
-    left += [(188.5, 78), (185.5, 78.6), (183.6, 80.5), (183, 84)]          # the cap, its corners rounded
-    right += [(274.5, 78), (277.5, 78.6), (279.4, 80.5), (280, 84)]
-    left += [(183, 151), (cx - 43.2, 152.5)]; right += [(280, 151), (cx + 43.2, 152.5)]
+    # the cap: seen a little from above, its top is the far half of an ellipse, its corners round into its sides
+    arc = lambda d: 77 + 10 * (d / 48) ** 2
+    left += [(231.5 - d, arc(d)) for d in range(0, 47, 3)] + [(184.4, 88.6), (183.7, 90.6), (183.4, 93)]
+    right += [(231.5 + d, arc(d)) for d in range(0, 47, 3)] + [(278.7, 88.6), (279.4, 90.6), (279.7, 93)]
+    left += [(183.4, 151), (cx - 43.2, 152.5)]; right += [(279.7, 151), (cx + 43.2, 152.5)]
     for y, hw in shoulder:
         left.append((cx - hw, y)); right.append((cx + hw, y))
     for y in range(270, 904, 6):
@@ -45,10 +47,13 @@ def tall_outline():
 
 def flask_outline():
     """Outline of the 200 ml flask: its left side against the wall, its right side (front and a sliver of its flank)."""
-    left = [(151, 52), (148.5, 52.4), (146.6, 54), (146, 57), (146, 126), (150, 128), (148, 180), (144.5, 200), (141, 206),
+    arc = lambda d: 52.5 + 5 * (d / 52) ** 2                                # the cap's top, as on the tall one
+    top_l = [(199.5 - d, arc(d)) for d in range(0, 51, 3)] + [(147, 57.6), (146.3, 59.6), (146, 62)]
+    top_r = [(199.5 + d, arc(d)) for d in range(0, 51, 3)] + [(252.2, 57.6), (252.8, 59.6), (253, 62)]
+    left = top_l + [(146, 126), (150, 128), (148, 180), (144.5, 200), (141, 206),
             (137, 210), (112, 220), (93, 230), (82, 240), (75, 250), (70, 260), (66.5, 270), (63, 285), (62, 300),
             (62.5, 400), (64, 450), (65.5, 520), (66.5, 580), (67.5, 605), (69.5, 615), (73, 622), (80, 627.5), (92, 631)]
-    right = [(247.5, 52), (250, 52.4), (251.9, 54), (252.5, 57), (252.5, 126), (250, 128), (251, 180), (254, 200), (258, 206),
+    right = top_r + [(252.8, 126), (250, 128), (251, 180), (254, 200), (258, 206),
              (262, 210), (280, 220), (293, 230), (303, 240), (310, 250), (315, 260), (319, 270), (322, 285), (323, 300),
              (321.5, 380), (318, 450), (315.5, 520), (313, 580), (311.5, 600), (309, 611), (305, 619), (298, 625.5), (288, 631)]
     bottom = [(92 + (288 - 92) * t, 631 + 2.2 * np.sin(np.pi * t)) for t in np.linspace(0, 1, 30)]
@@ -90,12 +95,12 @@ def label_tall(img, lab, b):
     r0 = ((342.40 - .0311 * b['cy']) - (119.86 + .0312 * b['cy'])) / 2 * K
     hgt = 2 * tm * r0 / LABEL_ASPECT
     yc = b['cy'] * K
-    tilt = lambda y: .146 + (y / K - 150) / (918 - 150) * (.28 - .146)
+    tilt = lambda y: 1.25 * (.146 + (y / K - 150) / (918 - 150) * (.28 - .146))
     y_top = yc - hgt / 2 - r0 * tilt(yc - hgt / 2) * (1 - np.cos(th))
     y_bot = yc + hgt / 2 - r0 * tilt(yc + hgt / 2) * (1 - np.cos(th))
     u = .5 + th / (2 * tm)
     v = (ys - y_top) / (y_bot - y_top)
-    shade = .66 + .34 * np.cos(th + .32)                         # the room's light comes a little from the left
+    shade = (.66 + .34 * np.cos(th + .32)) * (1 - .16 * smoothstep(.5 * tm, tm, np.abs(th)))   # light from the left; the paper turns away at both sides
     sheen = .07 * np.exp(-((th + .45) / .2) ** 2)                # a soft gleam on the paper from the window
     return place(img, lab, u, v, (np.abs(th) < tm), shade, sheen, slope=np.cos(th))
 
@@ -129,7 +134,9 @@ def place(img, lab, u, v, inside, shade, sheen, slope):
     # a hair of shadow along the label's edges, where the paper ends on the glass
     edge = np.minimum(np.minimum(u, 1 - u) * slope * 60, np.minimum(v, 1 - v) * 260)
     paper *= (.8 + .2 * np.clip(edge, 0, 1))[..., None]
-    a = cv2.GaussianBlur(keep.astype(np.float32), (0, 0), .7)
+    paper = cv2.GaussianBlur(paper, (0, 0), 1.1)                 # as soft as the photograph around it …
+    paper += np.random.default_rng(7).normal(0, .012, paper.shape[:2]).astype(np.float32)[..., None]   # … and as grainy
+    a = cv2.GaussianBlur(keep.astype(np.float32), (0, 0), .9)
     out = img * (1 - a[..., None]) + np.clip(paper, 0, 1) * a[..., None]
     return out
 
@@ -227,14 +234,15 @@ def compose(ml, kind, tones):
 
     # the cut-out alone, for small places (the menu button): tight round the bottle, glass half clear
     alpha = M * (1 - G * .55)
-    rgba = np.dstack([I * (1 - G[..., None]) + (.92 + D[..., None]) * G[..., None], alpha])
+    # colour where it is clear set to black (premultiplied), or Safari shows the room's colour round it under a filter
+    rgba = np.dstack([(I * (1 - G[..., None]) + (.92 + D[..., None]) * G[..., None]) * (alpha[..., None] > .004), alpha])
     ys_, xs_ = np.nonzero(M > .02)
     crop = rgba[ys_.min():ys_.max() + 1, xs_.min():xs_.max() + 1]
     crop = cv2.resize(crop, None, fx=.5, fy=.5, interpolation=cv2.INTER_AREA)
     cut = HERE / 'out' / f'{name}-cut.png'
     cv2.imwrite(str(cut), np.clip(crop * 255 + .5, 0, 255).astype(np.uint8))
     (ROOT / 'assets' / 'bottle').mkdir(exist_ok=True)
-    subprocess.run(['cwebp', '-quiet', '-q', '88', '-alpha_q', '100', '-exact', str(cut), '-o',
+    subprocess.run(['cwebp', '-quiet', '-q', '88', '-alpha_q', '100', str(cut), '-o',
                     str(ROOT / 'assets' / 'bottle' / f'{name}.webp')], check=True)
     print(kind, ml, 'scale', round(s, 3))
 

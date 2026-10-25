@@ -30,7 +30,7 @@
   const steps = [...dialog.querySelectorAll('[data-step]')];
   const status = form.querySelector('.order__status');
   const payBtn = form.querySelector('[data-pay]');
-  const FIELDS = ['vorname', 'nachname', 'email', 'telefon', 'strasse', 'zusatz', 'plz', 'ort', 'bemerkung'];
+  const FIELDS = ['vorname', 'nachname', 'email', 'telefon', 'strasse', 'zusatz', 'plz', 'ort', 'bemerkung', 'zahlung'];
 
   const subtotal = () => items.reduce((a, it) => a + it.qty * it.price, 0);
   const bottles = () => items.reduce((a, it) => a + it.qty, 0);
@@ -96,17 +96,24 @@
     setAll('[data-sum-ship]', fmt(shipping()));
     setAll('[data-sum-total]', fmt(total()));
     payBtn.textContent = `Jetzt bezahlen · ${fmt(total())}`;
+    // the control that had the focus gets it back once the lines are drawn anew (or its neighbour, if its line went)
+    const had = list.contains(document.activeElement) ? document.activeElement : null;
+    const was = had && { line: [...list.children].indexOf(had.closest('li')), role: had.dataset.d || 'remove' };
     list.replaceChildren(...items.map((it, i) => {
       const li = document.createElement('li');
+      const what = `${it.name} ${it.ml} ml`;
       li.className = 'line';
       li.innerHTML = `<img class="line__pic" alt="" width="1400" height="1750"><div class="line__name"><strong></strong><span class="muted"></span></div>
-        <div class="qty qty--small"><button type="button" data-d="-1" aria-label="Eine weniger">−</button><output></output><button type="button" data-d="1" aria-label="Eine mehr">+</button></div>
-        <p class="line__price"></p><button type="button" class="line__remove" aria-label="Entfernen">Entfernen</button>`;
+        <div class="qty qty--small"><button type="button" data-d="-1">−</button><output></output><button type="button" data-d="1">+</button></div>
+        <p class="line__price"></p><button type="button" class="line__remove" data-role="remove">Entfernen</button>`;
       li.querySelector('.line__pic').src = `assets/shop/${it.id}-${it.ml}.webp`;
       li.querySelector('strong').textContent = it.name;
       li.querySelector('.muted').textContent = `${it.ml} ml · ${fmt(it.price)}`;
       li.querySelector('output').textContent = String(it.qty);
       li.querySelector('.line__price').textContent = fmt(it.qty * it.price);
+      li.querySelector('[data-d="-1"]').setAttribute('aria-label', `${what}: eine Flasche weniger`);
+      li.querySelector('[data-d="1"]').setAttribute('aria-label', `${what}: eine Flasche mehr`);
+      li.querySelector('.line__remove').setAttribute('aria-label', `${what} entfernen`);
       li.querySelectorAll('[data-d]').forEach((b) => b.addEventListener('click', () => {
         it.qty = Math.min(24, it.qty + +b.dataset.d);
         if (it.qty < 1) items.splice(i, 1);
@@ -115,6 +122,11 @@
       li.querySelector('.line__remove').addEventListener('click', () => { items.splice(i, 1); save(); render(); });
       return li;
     }));
+    if (was && was.line >= 0) {
+      const li = list.children[Math.min(was.line, list.children.length - 1)];
+      const back = li && (li.querySelector(was.role === 'remove' ? '.line__remove' : `[data-d="${was.role}"]`));
+      (back || title).focus({ preventScroll: true });
+    }
     if (!items.length && step > 1) go(1);
   }
 
@@ -182,7 +194,7 @@
       ['nachname', !v('nachname') && 'Bitte gib deinen Nachnamen an.'],
       ['email', (!v('email') || !email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.'],
       ['strasse', !v('strasse') && 'Bitte gib Strasse und Hausnummer an.'],
-      ['plz', !/^\d{4}$/.test(v('plz')) && 'Bitte gib eine Schweizer Postleitzahl mit vier Ziffern an.'],
+      ['plz', !/^\d{4}$/.test(v('plz')) && 'Vier Ziffern, z. B. 1700.'],
       ['ort', !v('ort') && 'Bitte gib deinen Ort an.'],
     ];
     return quiet ? checks.every(([, msg]) => !msg) : firstBad(checks);
@@ -192,6 +204,7 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     status.textContent = '';
+    if (step < 3) { if (step === 2 && checkDelivery()) go(3); return; }   // Enter in a field: on to the next step
     if (!checkDelivery(true)) { go(2, false); checkDelivery(); return; }
     if (!firstBad([['zustimmung', !form.elements.zustimmung.checked && 'Bitte bestätige die Bestellbedingungen.']])) return;
     if (form.elements._honey.value) return;                     // a bot filled the hidden field
@@ -224,6 +237,7 @@
 
   function finish(no, note) {
     items = []; save();
+    step = 1;   // the basket is empty now: render() must not take the sheet back to step 1 (and its title)
     C.forget('cascarup.lieferung');
     done.querySelector('[data-done-number]').textContent = no;
     const n = done.querySelector('[data-done-note]');
@@ -232,7 +246,7 @@
     dialog.querySelector('[data-cart-steps]').hidden = true; backBtn.hidden = true;
     title.textContent = 'Bezahlt';
     if (!dialog.open) open(false);
-    done.focus();
+    done.focus({ preventScroll: true }); dialog.querySelector('.cart__inner').scrollTop = 0;
     form.reset(); render();
   }
 

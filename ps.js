@@ -10,7 +10,7 @@
   const payBtn = form.querySelector('[data-pay]'), status = form.querySelector('.order__status');
   const done = document.querySelector('[data-ps-done]');
   const cert = document.querySelector('[data-cert]');
-  const FIELDS = ['anzahl', 'vorname', 'nachname', 'email', 'strasse', 'plz', 'ort', 'telefon'];
+  const FIELDS = ['anzahl', 'vorname', 'nachname', 'email', 'strasse', 'plz', 'ort', 'telefon', 'ende', 'zahlung'];
   const v = (n) => (form.elements[n].value || '').trim();
   const n = () => Math.min(MAX, Math.max(1, Math.round(+qty.value) || 1));
 
@@ -22,8 +22,12 @@
     payBtn.textContent = `Jetzt bezahlen · ${C.fmt(k * PRICE)}`;
     if (!cert) return;
     const name = `${v('vorname')} ${v('nachname')}`.trim();
-    cert.querySelector('[data-cert-name]').textContent = name || 'Dein Name';
+    const el = cert.querySelector('[data-cert-name]');
+    el.textContent = name || 'Dein Name';
     cert.classList.toggle('is-named', !!name);
+    // a long name gets smaller until it fits on its line
+    el.style.fontSize = '';
+    for (let k = 1; k > .55 && el.scrollWidth > el.clientWidth + 1; k -= .05) el.style.fontSize = `${4 * k}cqw`;
     cert.querySelector('[data-cert-count]').textContent = k === 1 ? `1 Schein · CHF ${PRICE}.–` : `${k} Scheine · CHF ${k * PRICE}.–`;
     const end = form.querySelector('input[name="ende"]:checked');
     const stamp = cert.querySelector('[data-cert-stamp]');
@@ -57,7 +61,7 @@
       ['nachname', !v('nachname') && 'Bitte gib deinen Nachnamen an.'],
       ['email', (!v('email') || !form.elements.email.checkValidity()) && 'Bitte gib eine gültige E-Mail-Adresse an, zum Beispiel name@beispiel.ch.'],
       ['strasse', !v('strasse') && 'Bitte gib Strasse und Hausnummer an.'],
-      ['plz', !/^\d{4}$/.test(v('plz')) && 'Bitte gib eine Schweizer Postleitzahl mit vier Ziffern an.'],
+      ['plz', !/^\d{4}$/.test(v('plz')) && 'Vier Ziffern, z. B. 1700.'],
       ['ort', !v('ort') && 'Bitte gib deinen Ort an.'],
       ['ende', !end && 'Bitte wähl, ob du dein Geld am Ende zurück möchtest oder den Schein behältst.'],
       ['zustimmung', !form.elements.zustimmung.checked && 'Bitte bestätige die Bedingungen.'],
@@ -98,6 +102,11 @@
     form.hidden = true; done.hidden = false;
     done.scrollIntoView({ block: 'center' }); done.focus({ preventScroll: true });
   }
+
+  // a link to the conditions opens them (they are folded away)
+  document.querySelectorAll('a[href="#bedingungen"]').forEach((a) => a.addEventListener('click', () => {
+    const d = document.getElementById('bedingungen'); if (d) d.open = true;
+  }));
 
   // ---- back from the payment page ----------------------------------------------------------------------------
   C.restore('cascarup.schein', form);

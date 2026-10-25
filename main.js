@@ -108,6 +108,10 @@
   }
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+  // Safari may run this script before it knows the window's height (a page opened from another app, or restored
+  // from its cache): then nothing would show until the first scroll, so look again once the page is there
+  window.addEventListener('load', update);
+  window.addEventListener('pageshow', update);
   // hero.js reports its colours after this script has run for the same scroll, so repaint with them
   if (hero) hero.addEventListener('tone', () => { if (nav) paintNav(); if (toned.length) paintCanvas(); });
   update();
@@ -122,6 +126,7 @@
     const target = id && document.getElementById(id);
     if (target) target.scrollIntoView();
     root.classList.add('is-loaded');
+    update();
   };
   const fallback = setTimeout(start, 1400);
   if (document.fonts && document.fonts.ready) {
@@ -161,11 +166,16 @@
       window.addEventListener('scroll', place, { passive: true });
       window.addEventListener('resize', place);
       place();
+      // while a field has the focus (the keyboard is up), the pill steps aside
+      const typing = (e) => e.target.matches?.('input:not([type=checkbox]):not([type=radio]), textarea, select');
+      document.addEventListener('focusin', (e) => { if (typing(e)) root.classList.add('is-typing'); });
+      document.addEventListener('focusout', (e) => { if (typing(e)) root.classList.remove('is-typing'); });
     }
     menuSheet.querySelector('[data-menu-close]')?.addEventListener('click', close);
     menuSheet.addEventListener('click', (e) => { if (e.target === menuSheet) close(); });   // a tap beside the sheet
     menuSheet.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', (e) => {
-      const target = document.getElementById(a.hash.slice(1));
+      // a chapter of another page (the home page, from the participation page) is simply followed
+      const target = a.pathname === location.pathname && document.getElementById(a.hash.slice(1));
       if (!target) return;
       e.preventDefault();
       // the page must be scrollable again before it can glide there ('close' arrives a moment later)

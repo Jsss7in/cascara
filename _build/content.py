@@ -720,13 +720,13 @@ def join():
 PS_WHY = [
  ('Eine Idee unterstützen', 'Aus einem Nebenprodukt der Kaffee-Ernte wird ein Sirup.',
   '<path d="M32 58V30"/><path d="M32 34c0-10-7-16-18-16 0 10 7 16 18 16z"/><path d="M32 28c0-9 6-15 17-15 0 9-6 15-17 15z"/>'),
- ('Junge Unternehmer fördern', 'Du hilfst sechs Schülerinnen und Schülern bei ihren ersten Schritten.',
+ ('Junge Unternehmerinnen und Unternehmer fördern', 'Du hilfst sechs Schülerinnen und Schülern bei ihren ersten Schritten.',
   '<path d="M8 54h12V42h12V30h12V18h12"/><path d="M48 10h8v8"/><path d="M40 26 56 10"/>'),
  ('Von Anfang an dabei', 'Du bist dabei, wenn aus einer Kaffeekirsche ein Produkt wird.',
   '<path d="M18 58V8"/><path d="M18 11h30l-7 9 7 9H18"/>'),
 ]
 PS_MONEY = [
- ('Produktion', 'unsere Sirups',
+ ('Produktion', 'unsere Sirupe',
   '<path d="M12 28h40v18a10 10 0 0 1-10 10H22a10 10 0 0 1-10-10z"/><path d="M6 28h6m40 0h6"/><path d="M24 20c-2.5-3 2.5-5 0-9M32 20c-2.5-3 2.5-5 0-9M40 20c-2.5-3 2.5-5 0-9"/>'),
  ('Weihnachtsmärkte', 'Stand und Degustation',
   '<path d="M10 24h44l-5-12H15z"/><path d="M10 24c0 4 3.7 6 7.3 6s7.4-2 7.4-6c0 4 3.6 6 7.3 6s7.3-2 7.3-6c0 4 3.7 6 7.4 6S54 28 54 24"/><path d="M14 30v26m36-26v26"/><path d="M8 56h48"/><path d="M23 44h18v12H23z"/>'),
@@ -808,8 +808,8 @@ def ps_main():
     <section class="ps-choice" data-tone="paper" aria-labelledby="ps-choice-title">
       <div class="ps-choice__head">
         <p class="eyebrow" data-reveal>Kein unnötiges Risiko</p>
-        <h2 class="display" id="ps-choice-title" data-reveal style="--d:1">Am Ende des Jahres<br>entscheidest <em>du.</em></h2>
-        <p data-reveal style="--d:2">Schon beim Zeichnen wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert.</p>
+        <h2 class="display" id="ps-choice-title" data-reveal style="--d:1">Du wählst,<br>wie es <em>endet.</em></h2>
+        <p data-reveal style="--d:2">Beim Zeichnen wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert: zurück zu dir oder als Andenken bei uns.</p>
       </div>
       <div class="ps-ways">
 {choice}

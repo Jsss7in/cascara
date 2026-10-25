@@ -582,13 +582,13 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
     meniscus.rotation.x = Math.PI / 2;
     const cap = new Mesh(capGeo, capMat.clone());
     const tex = labelMap(k.label);
-    const labelMat = new MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: '#ffffff', emissiveIntensity: .32, roughness: .6, side: DoubleSide, transparent: true, opacity: 0 });
+    const labelMat = new MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: '#ffffff', emissiveIntensity: .1, roughness: .6, side: DoubleSide });
     const label = new Mesh(labelGeo, labelMat); label.position.y = LABEL_Y;
     const shade = softShadow(1.3, 1); shade.position.y = .004;
     g.add(shade, syrup, surface, meniscus, new Mesh(bottleGeo, glassMat), label, cap);
     syrup.renderOrder = surface.renderOrder = meniscus.renderOrder = 1;
     g.scale.setScalar(BOTTLE_S);
-    return { id, k, g, fill, syrup, surface, meniscus, cap, label, labelMat, shade, x: i ? .55 : -.55 };
+    return { id, k, g, fill, syrup, surface, meniscus, cap, label, labelMat, tex, shade, x: i ? .55 : -.55 };
   });
   // the pours: one clean, glossy thread of syrup into each bottle, from the pot above the picture
   const streamGeo = new CylinderGeometry(.04, .03, 1, 28, 1, true); streamGeo.translate(0, -.5, 0);
@@ -602,13 +602,13 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   streamMat.onBeforeCompile = (sh) => {
     sh.uniforms.uFadeTop = uFadeTop;
     sh.fragmentShader = 'uniform float uFadeTop;\n' + sh.fragmentShader.replace('#include <alphamap_fragment>',
-      '#include <alphamap_fragment>\n\tdiffuseColor.a *= smoothstep( uFadeTop, uFadeTop - 0.6, vWorldPosition.y );');
+      '#include <alphamap_fragment>\n\tdiffuseColor.a *= smoothstep( uFadeTop, uFadeTop - 1.1, vWorldPosition.y );');
   };
-  streamMat.customProgramCacheKey = () => 'cascarup-stream-1';
+  streamMat.customProgramCacheKey = () => 'cascarup-stream-2';
   const streams = bottles.map(() => { const m = new Mesh(streamGeo, streamMat); m.visible = false; world.add(m); return m; });
   // what makes the second one Cozy Spice: a stick of cinnamon slipped through its neck before it is filled (the star
   // anise, brewed with it, would not fit; it lies beside the bottle at the end)
-  const dropStick = cinnamon(.9); dropStick.scale.setScalar(.42); world.add(dropStick);
+  const dropStick = cinnamon(.9); dropStick.scale.setScalar(.56); world.add(dropStick);
 
   // the still life: beside the Original a fresh cherry and two pieces of cascara, beside Cozy Spice its spices
   const dried = sides.map((sd, i) => {
@@ -634,8 +634,8 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
   for (const s of sides) { const m = new Mesh(s.skin.geometry, freshMat); m.morphTargetInfluences = [0]; fresh.add(m); }
   const fStalk = new Mesh(stalk.geometry, woody); fStalk.position.y = RY + .06; fStalk.rotation.z = -.15; fresh.add(fStalk);
   const fCrown = crown.clone(); fresh.add(fCrown);
-  const FRESH = .2; fresh.scale.setScalar(FRESH); world.add(fresh);
-  const freshShadow = softShadow(.55, .55); world.add(freshShadow);
+  const FRESH = .15; fresh.scale.setScalar(FRESH); world.add(fresh);
+  const freshShadow = softShadow(.42, .42); world.add(freshShadow);
 
   // the cherry's own shadow on the table
   const shadow = softShadow(1, 1); world.add(shadow);
@@ -725,7 +725,7 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
     const reduce = smooth(.715, .775, p);             // it simmers down to syrup
     const potOut = ease(.77, .79, p);                 // the pot rises a little and fades, to pour…
     const toBottles = smooth(.772, .82, p);           // …into two bottles
-    const labelIn = smooth(.885, .925, p);
+    const labelIn = ease(.885, .925, p);           // each label is put on: it unrolls from its middle
     const settleIn = ease(.885, .95, p);
     const rollIn = ease(.89, .955, p);
     const endPhase = smooth(.875, .95, p);
@@ -747,7 +747,7 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
     }
     const first = fit || (wide ? { ox: -.22, oy: .08, zoom: 1.32 } : { ox: 0, oy: .26, zoom: 2.02 });
     aim(lerp(ox, first.ox, intro), lerp(oy, first.oy, intro), lerp(zoom, first.zoom, intro), camY, pitch);
-    uFadeTop.value = wide ? 99 : MOUTH_Y + .55;
+    uFadeTop.value = wide ? 99 : MOUTH_Y + 1.45;
 
     // the whole fruit floats; for the exploded view a three-quarter view (on phones a diagonal)
     world.rotation.y = -.35 * explode * (1 - together);
@@ -789,7 +789,7 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
     for (const sp of steam) {
       const u = sp.userData, life = (time * .16 + u.seed) % 1;
       sp.visible = steamAmt > .002;
-      sp.position.set(u.x * (1 - life * .3) + Math.sin(life * 3 + u.seed * 12) * .1 + u.drift * life, level + .5 + life * 1.3, u.z);
+      sp.position.set(u.x * (1 - life * .3) + Math.sin(life * 3 + u.seed * 12) * .1 + u.drift * life, level + .5 + life * (wide ? 1.3 : .75), u.z);
       sp.scale.set(.42 + life * .3, .9 + life * .6, 1);
       sp.material.opacity = steamAmt * .5 * Math.sin(Math.PI * life);
     }
@@ -878,14 +878,16 @@ export function createHero(canvas, { onFrame, photo, plantBox } = {}) {
       b.cap.position.y = lerp(MOUTH + (wide ? 1.6 : .45), CAP_AT, c);
       b.cap.rotation.y = (1 - c) * 4;
       b.cap.material.opacity = smooth(0, .35, c);
-      b.labelMat.opacity = labelIn; b.label.visible = labelIn > .001;
+      // the label grows out from its middle at its true size (the picture is cut, not squashed)
+      b.label.scale.set(1, Math.max(.001, labelIn), 1); b.label.visible = labelIn > .001;
+      b.tex.repeat.set(1, Math.max(.001, labelIn)); b.tex.offset.set(0, (1 - labelIn) / 2);
       b.shade.material.opacity = .8 * up;
     });
     // the spices fall into the second bottle and come to rest on its floor
     // the stick falls upright through the neck and comes to lean against the glass
-    const B = bottles[1], fallS = smooth(.804, .82, p), lean = .1 * smooth(.816, .824, p), bed = B.g.position.y + .04 * BOTTLE_S;
+    const B = bottles[1], fallS = smooth(.804, .82, p), lean = .21 * smooth(.814, .824, p), bed = B.g.position.y + .04 * BOTTLE_S;
     dropStick.visible = fallS > .001 && B.g.visible;
-    dropStick.position.set(B.x + .035 + lean * .19, lerp(STREAM_TOP, bed + .19 * Math.cos(lean), fallS * fallS), 0);
+    dropStick.position.set(B.x - .02 + lean * .6, lerp(STREAM_TOP, bed + .25 * Math.cos(lean), fallS * fallS), 0);
     dropStick.rotation.set(Math.PI / 2, 0, -lean);
 
     // the still life: the dried pieces and the spices appear where they lie (no falling through the air)

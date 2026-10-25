@@ -59,7 +59,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
   three.background = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#E6D3B7';
   if (/[?&]debug\b/.test(location.search)) window.__hero = three;   // test shots jump straight to a moment
   // ?debug&at=0.765: the page opens at that moment of the story (for checking a frame on a phone)
-  const at = /[?&]debug\b/.test(location.search) && parseFloat(new URLSearchParams(location.search).get('at'));
+  const at = /[?&]debug\b/.test(location.search) ? parseFloat(new URLSearchParams(location.search).get('at')) : NaN;
 
   // the stage ends a little before the hero, so it leaves as ordinary content (styles.css: --release)
   const release = () => parseFloat(getComputedStyle(hero).getPropertyValue('--release')) || 0;
@@ -232,7 +232,8 @@ import { createHero, CHAPTERS } from './hero3d.js';
   clearTimeout(idle);                                 // a page that opens part way down is left where it is
   if (reduce) { three.jump(0); three.stop(); }
   else three.begin();
-  if (at >= 0 && at <= 1) setTimeout(() => { document.documentElement.style.scrollBehavior = 'auto'; scrollTo(0, heroTop() + run() * at); }, 600);
+  // (only then: without it a page opened part way down, or at a #section, must stay where it is)
+  if (Number.isFinite(at) && at >= 0 && at <= 1) setTimeout(() => { document.documentElement.style.scrollBehavior = 'auto'; scrollTo(0, heroTop() + run() * at); }, 600);
   if (photo && !photo.complete) photo.addEventListener('load', () => three.jump(three.progress), { once: true });
   // the cherry fades in once the page is ready, together with the words; the real cherry and its branch arrive
   // together, once the branch's picture is there (never the cherry alone, then the branch popping in)

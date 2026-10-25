@@ -47,7 +47,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
     <p>Wir prüfen die Inhalte dieser Website sorgfältig. Für Vollständigkeit, Richtigkeit und Aktualität übernehmen wir keine Gewähr. Für die Inhalte verlinkter Websites sind ausschliesslich deren Betreiber verantwortlich.</p>
 
     <h2>Urheberrecht</h2>
-    <p>Texte, Logo, Etiketten und Gestaltung: Cascarup. Die Fotos unserer Flaschen haben wir selbst aufgenommen. Die übrigen Fotos stammen von Flickr und Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
+    <p>Texte, Logo, Etiketten und Gestaltung: Cascarup. Die Fotos unserer Flaschen und die Teamfotos sind von uns. Die übrigen Fotos stammen von Flickr und Wikimedia Commons und stehen unter freien Lizenzen; Urheberinnen und Urheber sind im Bildnachweis genannt.</p>
     <p>Karten bei den Ständen: gezeichnet aus Daten von © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap-Mitwirkenden</a>, verfügbar unter der Open Database License (ODbL).</p>
 
     <h2 id="bildnachweis">Bildnachweis</h2>
