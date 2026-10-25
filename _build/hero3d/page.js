@@ -239,9 +239,23 @@ import { createHero, CHAPTERS } from './hero3d.js';
   // the cherry fades in once the page is ready, together with the words; the real cherry and its branch arrive
   // together, once the branch's picture is there (never the cherry alone, then the branch popping in)
   requestAnimationFrame(() => hero.classList.add('is-ready'));
-  const arrive = () => { hero.classList.add('has-plant'); ready(); setTimeout(() => hero.classList.add('is-settled'), 1000); };
+  // The page is ready once the branch is painted, the scene has been drawn through once (three.warm) and a few
+  // frames in a row have come smoothly – only then does the loading screen lift.
+  const smoothFrames = () => new Promise((res) => {
+    let ok = 0, last = performance.now(); const t0 = last;
+    const tick = (now) => { ok = now - last < 34 ? ok + 1 : 0; last = now;
+      if (ok >= 12 || now - t0 > 2500) res(); else requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+  let arrived = false;
+  const arrive = () => {
+    if (arrived) return; arrived = true;
+    hero.classList.add('has-plant');
+    (reduce ? Promise.resolve() : three.warm()).then(smoothFrames).then(ready, ready);
+    setTimeout(() => hero.classList.add('is-settled'), 1000);
+  };
   // loaded is not enough: a large picture is painted only once it is decoded
   if (!plant) arrive();
   else (plant.decode ? plant.decode() : Promise.resolve()).then(arrive, () => plant.addEventListener('load', arrive, { once: true }));
-  setTimeout(arrive, 4000);   // never keep the cherry hidden for long
+  setTimeout(arrive, 5000);   // never keep the cherry hidden for long
 })();

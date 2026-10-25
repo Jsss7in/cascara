@@ -340,8 +340,12 @@ export function capGeometry() {
   return g;
 }
 // our labels (drawn by _build/label from the designs), wrapped round the front of the bottle
+// every picture the scene loads is counted, so the page can wait until all of them are there (warm())
+export const pending = new Set();
+const track = (src, done) => { const k = {}; pending.add(k); return (...a) => { pending.delete(k); done && done(...a); }; };
 export function labelMap(src) {
-  const t = new TextureLoader().load(src); t.colorSpace = SRGBColorSpace; t.anisotropy = 8;
+  const done = track(src);   // one tracker for both outcomes: loaded or failed
+  const t = new TextureLoader().load(src, done, undefined, done); t.colorSpace = SRGBColorSpace; t.anisotropy = 8;
   return t;
 }
 export const LABEL_TURN = 2.38;               // how far round the bottle the label reaches (radians), as on the photo
@@ -482,11 +486,11 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   // the beans: painted roast until the photographs of a real bean have loaded, then those (flat side, dome)
   const beanMats = ['flat', 'round'].map((k) => {
     const m = new MeshPhysicalMaterial({ vertexColors: true, roughness: .42, clearcoat: .3, clearcoatRoughness: .35 });
-    new TextureLoader().load(BEAN_PHOTO[k].src, (tex) => {
+    new TextureLoader().load(BEAN_PHOTO[k].src, track(0, (tex) => {
       tex.colorSpace = SRGBColorSpace; tex.anisotropy = 8;
       Object.assign(m, { map: tex, vertexColors: false, roughness: .5, clearcoat: .22, clearcoatRoughness: .4, emissiveMap: tex, emissiveIntensity: .3 });
       m.color.set('#ffffff'); m.emissive.set('#ffffff'); m.needsUpdate = true;
-    });
+    }));
     return m;
   });
 
@@ -644,12 +648,12 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   // the photograph: projected onto the skin (fresh) – the page shows the same picture over the model at first
   let hasPhoto = false;
   if (photo && photo.texture) {
-    new TextureLoader().load(photo.texture, (tex) => {
+    new TextureLoader().load(photo.texture, track(0, (tex) => {
       tex.anisotropy = 8;
       for (const m of skinMats) { m.userData.photo.value = tex; m.userData.usePhoto.value = 1; m.userData.glow.value = .72; }
       hasPhoto = true;
       fStalk.visible = fCrown.visible = false;
-    });
+    }));
   }
 
   // anchors for the anatomy labels, on the layers of the right-hand half
@@ -973,6 +977,18 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     start() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); } },
     stop() { running = false; },
     begin() { last = performance.now(); requestAnimationFrame(frame); },
+    // Before the page shows: wait for every picture, then draw the whole story once, moment by moment, behind the
+    // loading screen. That compiles every material and uploads every picture now, so nothing stutters later.
+    async warm() {
+      const t0 = performance.now();
+      while (pending.size && performance.now() - t0 < 6000) await new Promise((r) => setTimeout(r, 60));
+      const keep = progress;
+      for (const p of [.12, .3, .45, .58, .66, .74, .79, .83, .88, .95, 1]) {
+        apply(p, 0); renderer.render(scene, camera);
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+      apply(keep, 0); renderer.render(scene, camera);
+    },
     labels, fruitBox,
     get photoReady() { return hasPhoto; },
     renderer,

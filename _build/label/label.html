@@ -76,9 +76,10 @@ window.label = async (kind, scale = 2) => {
   ctx.font = `600 ${claimSize}px DynaPuff`;
   const cm = ctx.measureText('Die Kaffeekirsche kann mehr.');
   const claimW = cm.actualBoundingBoxLeft + cm.actualBoundingBoxRight;
-  const markW = 132 * 587 / 614, gap = 330 - 307;
+  const [, , vbW, vbH] = logo.vb.split(' ').map(Number);   // the mark keeps its own proportions
+  const markW = 132 * vbW / vbH, gap = 330 - 307;
   const groupW = markW + gap + Math.max(491, claimW), x0 = (W - groupW) / 2;
-  ctx.save(); ctx.translate(x0, 86); ctx.scale(132 / 614, 132 / 614);
+  ctx.save(); ctx.translate(x0, 86); ctx.scale(132 / vbH, 132 / vbH);
   ctx.fill(new Path2D(logo.fill), 'evenodd'); ctx.restore();
   set(ctx, 'Cascarup', 700, word, x0 + markW + gap, 86);
   ctx.font = `600 ${claimSize}px DynaPuff`;
