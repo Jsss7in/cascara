@@ -79,7 +79,6 @@
  "Bezahlen": "Paiement",
  "Online mit TWINT oder Karte, sobald der Shop öffnet.": "En ligne avec TWINT ou par carte, dès l’ouverture de la boutique.",
  "Von Hand": "À la main",
- "In kleinen Chargen in Fribourg abgefüllt, jede mit eigener Nummer.": "Mis en bouteille par petits lots à Fribourg, chacun avec son propre numéro.",
  "Zutaten und Hinweise": "Ingrédients et informations",
  "Zutaten": "Ingrédients",
  "folgt": "à venir",
@@ -127,7 +126,6 @@
  "Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.": "Nous infusons la cascara dans de l’eau chaude, puis nous faisons réduire l’infusion jusqu’à obtenir un sirop. Pour Cozy Spice, la cannelle et l’anis étoilé infusent en même temps.",
  "In Fribourg": "À Fribourg",
  "Abfüllen": "Mettre en bouteille",
- "Wir füllen in kleinen Chargen ab. Jede Charge bekommt eine Nummer, damit sich jede Flasche zurückverfolgen lässt.": "Nous mettons en bouteille par petits lots. Chaque lot reçoit un numéro, afin de pouvoir retracer chaque bouteille.",
  "Ideen fürs Glas": "Idées pour ton verre",
  "Heiss, kalt": "Chaud, froid",
  "oder im": "ou en",
@@ -515,5 +513,7 @@
  "Als Nächstes": "Prochain",
  "Vier Ziffern, z. B. 1700.": "Quatre chiffres, p. ex. 1700.",
  "Lieber bar? Sprich uns": "Tu préfères payer en espèces ? Viens nous voir",
- "an einem unserer Stände": "à l’un de nos stands"
+ "an einem unserer Stände": "à l’un de nos stands",
+ "Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.": "Nous versons le sirop à la main dans les bouteilles, en petites quantités et avec beaucoup de soin.",
+ "Jede Flasche ist handgemacht: gekocht und abgefüllt in Fribourg.": "Chaque bouteille est faite à la main : préparée et mise en bouteille à Fribourg."
 }

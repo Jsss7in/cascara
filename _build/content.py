@@ -45,7 +45,7 @@ V = {
      ('Reifen und ernten', 'Nach der Blüte brauchen Arabica-Kirschen rund sieben bis neun Monate, bis sie reif und rot sind. Dann werden sie geerntet.', 'Auf der Plantage'),
      ('Trennen und trocknen', 'Die Bohnen werden aus der Frucht gelöst. Haut und Fruchtfleisch werden getrocknet: Das ist Cascara.', 'Bei der Aufbereitung'),
      ('Aufgiessen und einkochen', 'Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.', 'In Fribourg'),
-     ('Abfüllen', 'Wir füllen in kleinen Chargen ab. Jede Charge bekommt eine Nummer, damit sich jede Flasche zurückverfolgen lässt.', 'In Fribourg'),
+     ('Abfüllen', 'Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.', 'In Fribourg'),
  ]),
 
  'PROJECT_P1': 'Wir sind ein Schülerunternehmen am Collège Saint-Michel. Im Company Programme von Young Enterprise '
@@ -302,7 +302,7 @@ PERKS = [
   '<path d="M10 22 32 12l22 10v24L32 56 10 46z"/><path d="M10 22l22 10 22-10"/><path d="M32 32v24"/><path d="M21 17l22 10v8"/>'),
  ('Bezahlen', 'Online mit TWINT oder Karte, sobald der Shop öffnet.' if not SALES_OPEN else 'Sicher online, mit TWINT oder mit Karte.',
   '<rect x="8" y="22" width="32" height="22" rx="3.5"/><path d="M8 29h32"/><path d="M14 37h9"/><rect x="38" y="12" width="18" height="36" rx="4"/><path d="M44 43h6"/>'),
- ('Von Hand', 'In kleinen Chargen in Fribourg abgefüllt, jede mit eigener Nummer.',
+ ('Von Hand', 'Jede Flasche ist handgemacht: gekocht und abgefüllt in Fribourg.',
   '<path d="M28.5 6h7v5h-7z"/><path d="M29 11v6c-4 1.6-6 4.6-6 8.6V55a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V25.6c0-4-2-7-6-8.6v-6"/><path d="M23 31h18v15H23z"/>'),
 ]
 

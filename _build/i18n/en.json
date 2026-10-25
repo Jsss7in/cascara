@@ -79,7 +79,6 @@
  "Bezahlen": "Payment",
  "Online mit TWINT oder Karte, sobald der Shop öffnet.": "Online with TWINT or card, once the shop opens.",
  "Von Hand": "By hand",
- "In kleinen Chargen in Fribourg abgefüllt, jede mit eigener Nummer.": "Bottled in small batches in Fribourg, each with its own number.",
  "Zutaten und Hinweise": "Ingredients and notes",
  "Zutaten": "Ingredients",
  "folgt": "to follow",
@@ -127,7 +126,6 @@
  "Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.": "We steep the cascara in hot water and simmer the infusion down into syrup. For Cozy Spice, cinnamon and star anise steep along with it.",
  "In Fribourg": "In Fribourg",
  "Abfüllen": "Bottling",
- "Wir füllen in kleinen Chargen ab. Jede Charge bekommt eine Nummer, damit sich jede Flasche zurückverfolgen lässt.": "We bottle in small batches. Every batch gets a number, so each bottle can be traced.",
  "Ideen fürs Glas": "Ideas for your glass",
  "Heiss, kalt": "Hot, cold",
  "oder im": "or in a",
@@ -515,5 +513,7 @@
  "Als Nächstes": "Next up",
  "Vier Ziffern, z. B. 1700.": "Four digits, e.g. 1700.",
  "Lieber bar? Sprich uns": "Rather pay cash? Talk to us",
- "an einem unserer Stände": "at one of our stalls"
+ "an einem unserer Stände": "at one of our stalls",
+ "Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.": "We fill the syrup into the bottles by hand, in small amounts and with great care.",
+ "Jede Flasche ist handgemacht: gekocht und abgefüllt in Fribourg.": "Every bottle is handmade: brewed and bottled in Fribourg."
 }
