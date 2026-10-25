@@ -111,7 +111,7 @@ def drinks():
           </ul>
         </article>''')
     return f'''    <!-- Ideas for the glass: a bar menu, alcohol-free -->
-    <section class="drinks" data-tone="night" id="ideen" aria-labelledby="ideen-title">
+    <section class="drinks" data-tone="night" data-fade="top bottom" id="ideen" aria-labelledby="ideen-title">
       <header class="drinks__head">
         <p class="eyebrow" data-reveal>Ideen fürs Glas</p>
         <h2 class="display" id="ideen-title" data-reveal style="--d:1">Heiss, kalt<br>oder im <em>Punsch.</em></h2>
@@ -275,7 +275,7 @@ PRODUCTS = [
       notes=['Zimt', 'Anis'],
       sizes=[(200, 7.95), (500, 13.95)]),
 ]
-SHOT = (1200, 800)   # the studio shots' size in pixels (3:2)
+SHOT = (1000, 1250)   # the studio shots' size in pixels (4:5, upright)
 # What a buyer must be able to read before ordering food online (LIV Art. 44); «folgt» until we have it.
 PRODUCT_FACTS = [
  ('Zutaten', None), ('Allergene', None), ('Füllmenge', '200 ml oder 500 ml'),
@@ -339,7 +339,7 @@ def shop():
         for i, (t, p, svg) in enumerate(PERKS))
     return (
         '    <!-- The shop: two kinds, two sizes; ordered here, collected at a stand or at school, paid on collection -->\n'
-        '    <section class="shop" data-tone="terra" id="shop" aria-labelledby="shop-title">\n'
+        '    <section class="shop" data-tone="paper" id="shop" aria-labelledby="shop-title">\n'
         '      <div class="shop__inner">\n'
         '        <header class="shop__head">\n'
         '          <p class="eyebrow" data-reveal>Shop</p>\n'
@@ -363,7 +363,7 @@ def shop():
 # The team (Management Summary, autumn 2026). The portraits come from it, cut out as in the document.
 TEAM = [
  ('joel', 'Joël Schaller', 'CEO', (110, 131)),
- ('luis', 'Luis Brülhart', 'CMO · stv. CEO', (95, 123)),
+ ('luis', 'Luis Brülhart', 'CMO / stv. CEO', (95, 123)),
  ('lucile', 'Lucile Bapst', 'CAO', (124, 123)),
  ('jaelle', 'Jaëlle Brügger', 'CFO', (124, 118)),
  ('justin', 'Justin Meissner', 'CTO', (106, 118)),
@@ -379,13 +379,17 @@ V['TEAM_P2'] = ('Im Company Programme von Young Enterprise Switzerland gründen 
 
 
 def team():
-    people = '\n'.join(
-        f'          <li class="member" data-reveal style="--d:{i}">\n'
-        f'            <div class="member__pic"><img src="assets/team/{key}.webp" alt="{name}" width="{w}" height="{h}" loading="lazy" decoding="async"></div>\n'
-        f'            <p class="member__role">{role}</p>\n'
-        f'            <h3 class="member__name">{name}</h3>\n'
-        '          </li>'
-        for i, (key, name, role, (w, h)) in enumerate(TEAM))
+    # as in our summary: an organisation chart – the CEO on top, the deputy and administration beside, three below
+    def member(i, extra=''):
+        key, name, role, (w, h) = TEAM[i]
+        return (f'          <li class="member{extra}" data-reveal style="--d:{i}">\n'
+                f'            <img class="member__pic" src="assets/team/{key}.webp" alt="{name}" width="{w}" height="{h}" loading="lazy" decoding="async">\n'
+                f'            <p class="member__role">{role}</p>\n'
+                f'            <h3 class="member__name">{name}</h3>\n'
+                '          </li>')
+    people = ('        <ul class="org__lead">\n' + member(0, ' member--lead') + '\n        </ul>\n'
+              '        <ul class="org__pair">\n' + member(1, ' member--deputy') + '\n' + member(2) + '\n        </ul>\n'
+              '        <ul class="org__team">\n' + member(3) + '\n' + member(4) + '\n' + member(5) + '\n        </ul>')
     return (
         '    <!-- The team: six students, one company -->\n'
         '    <section class="team" data-tone="paper" id="team" aria-labelledby="team-title">\n'
@@ -400,7 +404,7 @@ def team():
         f'          <dl class="team__facts" data-reveal style="--d:2">\n            {V["PROJECT_FACTS"]}\n          </dl>\n'
         '        </div>\n'
         '        <span class="ranke" aria-hidden="true"></span>\n'
-        '        <ul class="team__grid">\n' + people + '\n        </ul>\n'
+        '        <div class="org" aria-label="Organigramm">\n' + people + '\n        </div>\n'
         f'        <div class="team__social">{V["SOCIALS"]}</div>\n'
         f'        {ig_feed()}\n'
         '      </div>\n'

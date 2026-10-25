@@ -21,8 +21,8 @@
   <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/dynapuff-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/fonts.css?v=20261025092849">
-  <link rel="stylesheet" href="styles.css?v=20261025092849">
+  <link rel="stylesheet" href="assets/fonts.css?v=20261025093543">
+  <link rel="stylesheet" href="styles.css?v=20261025093543">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -129,7 +129,7 @@
     </section>
 
     <!-- The shop: two kinds, two sizes; ordered here, collected at a stand or at school, paid on collection -->
-    <section class="shop" data-tone="terra" id="shop" aria-labelledby="shop-title">
+    <section class="shop" data-tone="paper" id="shop" aria-labelledby="shop-title">
       <div class="shop__inner">
         <header class="shop__head">
           <p class="eyebrow" data-reveal>Shop</p>
@@ -138,7 +138,7 @@
         </header>
         <div class="shop__grid">
         <article class="product product--cascara" data-reveal style="--d:0" data-product='{"id": "cascara", "name": "Cascara", "sizes": [{"ml": 200, "price": 6.95}, {"ml": 500, "price": 12.95}]}'>
-          <div class="product__stage"><p class="product__tag">Das Original</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/cascara-200.webp" width="1200" height="800" alt="Cascara, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/cascara-500.webp" width="1200" height="800" alt="Cascara, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
+          <div class="product__stage"><p class="product__tag">Das Original</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/cascara-200.webp" width="1000" height="1250" alt="Cascara, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/cascara-500.webp" width="1000" height="1250" alt="Cascara, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
           <div class="product__body">
             <div class="product__top">
               <h3 class="product__name">Cascara</h3>
@@ -158,7 +158,7 @@
           </div>
         </article>
         <article class="product product--gifferstee" data-reveal style="--d:1" data-product='{"id": "gifferstee", "name": "Gifferstee", "sizes": [{"ml": 200, "price": 7.95}, {"ml": 500, "price": 13.95}]}'>
-          <div class="product__stage"><p class="product__tag">Mit Zimt und Anis</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/gifferstee-200.webp" width="1200" height="800" alt="Gifferstee, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/gifferstee-500.webp" width="1200" height="800" alt="Gifferstee, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
+          <div class="product__stage"><p class="product__tag">Mit Zimt und Anis</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/gifferstee-200.webp" width="1000" height="1250" alt="Gifferstee, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/gifferstee-500.webp" width="1000" height="1250" alt="Gifferstee, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
           <div class="product__body">
             <div class="product__top">
               <h3 class="product__name">Gifferstee</h3>
@@ -247,7 +247,7 @@
     </section>
 
     <!-- Ideas for the glass: a bar menu, alcohol-free -->
-    <section class="drinks" data-tone="night" id="ideen" aria-labelledby="ideen-title">
+    <section class="drinks" data-tone="night" data-fade="top bottom" id="ideen" aria-labelledby="ideen-title">
       <header class="drinks__head">
         <p class="eyebrow" data-reveal>Ideen fürs Glas</p>
         <h2 class="display" id="ideen-title" data-reveal style="--d:1">Heiss, kalt<br>oder im <em>Punsch.</em></h2>
@@ -357,45 +357,51 @@
           </dl>
         </div>
         <span class="ranke" aria-hidden="true"></span>
-        <ul class="team__grid">
-          <li class="member" data-reveal style="--d:0">
-            <div class="member__pic"><img src="assets/team/joel.webp" alt="Joël Schaller" width="110" height="131" loading="lazy" decoding="async"></div>
+        <div class="org" aria-label="Organigramm">
+        <ul class="org__lead">
+          <li class="member member--lead" data-reveal style="--d:0">
+            <img class="member__pic" src="assets/team/joel.webp" alt="Joël Schaller" width="110" height="131" loading="lazy" decoding="async">
             <p class="member__role">CEO</p>
             <h3 class="member__name">Joël Schaller</h3>
           </li>
-          <li class="member" data-reveal style="--d:1">
-            <div class="member__pic"><img src="assets/team/luis.webp" alt="Luis Brülhart" width="95" height="123" loading="lazy" decoding="async"></div>
-            <p class="member__role">CMO · stv. CEO</p>
+        </ul>
+        <ul class="org__pair">
+          <li class="member member--deputy" data-reveal style="--d:1">
+            <img class="member__pic" src="assets/team/luis.webp" alt="Luis Brülhart" width="95" height="123" loading="lazy" decoding="async">
+            <p class="member__role">CMO / stv. CEO</p>
             <h3 class="member__name">Luis Brülhart</h3>
           </li>
           <li class="member" data-reveal style="--d:2">
-            <div class="member__pic"><img src="assets/team/lucile.webp" alt="Lucile Bapst" width="124" height="123" loading="lazy" decoding="async"></div>
+            <img class="member__pic" src="assets/team/lucile.webp" alt="Lucile Bapst" width="124" height="123" loading="lazy" decoding="async">
             <p class="member__role">CAO</p>
             <h3 class="member__name">Lucile Bapst</h3>
           </li>
+        </ul>
+        <ul class="org__team">
           <li class="member" data-reveal style="--d:3">
-            <div class="member__pic"><img src="assets/team/jaelle.webp" alt="Jaëlle Brügger" width="124" height="118" loading="lazy" decoding="async"></div>
+            <img class="member__pic" src="assets/team/jaelle.webp" alt="Jaëlle Brügger" width="124" height="118" loading="lazy" decoding="async">
             <p class="member__role">CFO</p>
             <h3 class="member__name">Jaëlle Brügger</h3>
           </li>
           <li class="member" data-reveal style="--d:4">
-            <div class="member__pic"><img src="assets/team/justin.webp" alt="Justin Meissner" width="106" height="118" loading="lazy" decoding="async"></div>
+            <img class="member__pic" src="assets/team/justin.webp" alt="Justin Meissner" width="106" height="118" loading="lazy" decoding="async">
             <p class="member__role">CTO</p>
             <h3 class="member__name">Justin Meissner</h3>
           </li>
           <li class="member" data-reveal style="--d:5">
-            <div class="member__pic"><img src="assets/team/niklas.webp" alt="Niklas Broch" width="110" height="117" loading="lazy" decoding="async"></div>
+            <img class="member__pic" src="assets/team/niklas.webp" alt="Niklas Broch" width="110" height="117" loading="lazy" decoding="async">
             <p class="member__role">CPO</p>
             <h3 class="member__name">Niklas Broch</h3>
           </li>
         </ul>
+        </div>
         <div class="team__social"><ul class="socials" aria-label="Cascarup in den sozialen Medien"><li><a href="https://www.instagram.com/cascarup/" target="_blank" rel="noopener" aria-label="Cascarup auf Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/></svg></a></li><li><a href="https://www.tiktok.com/@cascarup" target="_blank" rel="noopener" aria-label="Cascarup auf TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 2.8v12.6a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14.4 2.8c.6 3.2 2.9 5.4 6.2 5.6"/></svg></a></li><li><a href="https://x.com/cascarup_ch" target="_blank" rel="noopener" aria-label="Cascarup auf X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.6 4.5h4l10.8 15h-4z"/><path d="M19 4.5l-5.9 6.5M10.9 13.4 5 19.5"/></svg></a></li></ul></div>
         <ul class="feed" style="--n:2" aria-label="Unsere neuesten Beiträge auf Instagram"><li><a class="feed__post" href="https://www.instagram.com/p/DeKD0cnCoG1/" target="_blank" rel="noopener"><img src="assets/instagram/2026-10-06-eroeffnungsfeier.jpg" alt="Plakat: Eröffnungsfeier von Cascarup und Young Enterprise Switzerland, Donnerstag, 29. Oktober 2026, 19 Uhr, Aula Kollegium Gambach" width="1080" height="1350" loading="lazy" decoding="async"></a></li><li><a class="feed__more" href="https://www.instagram.com/cascarup/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/></svg><span>Mehr auf Instagram<br><strong>@cascarup</strong></span></a></li></ul>
       </div>
     </section>
   </main>
 
-  <footer class="footer" data-tone="terra">
+  <footer class="footer" data-tone="terra" data-fade="top">
     <div class="footer__top">
       <a class="footer__brand" href="#top" aria-label="Zum Seitenanfang">
         <svg viewBox="0 0 587 614" aria-hidden="true"><use href="#lg-fill"/></svg>
@@ -475,8 +481,8 @@
   <!-- on phones, once the opening is behind you: the way back to the chapters -->
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden>Menü</button>
 
-  <script src="main.js?v=20261025092849" defer></script>
-  <script src="shop.js?v=20261025092849" defer></script>
-  <script type="module" src="assets/hero3d.js?v=20261025092849"></script>
+  <script src="main.js?v=20261025093543" defer></script>
+  <script src="shop.js?v=20261025093543" defer></script>
+  <script type="module" src="assets/hero3d.js?v=20261025093543"></script>
 </body>
 </html>

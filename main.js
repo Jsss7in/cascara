@@ -13,8 +13,22 @@
   const RGB = { terra: [180, 89, 42], paper: [230, 211, 183], night: [43, 24, 16], photo: [28, 19, 13] };
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
   const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
+  // A section with data-fade blends into the paper over --fade px at the edges named (as its CSS gradient does).
+  const fades = new Map();
+  const fadeOf = (el) => {
+    if (!fades.has(el)) fades.set(el, el.dataset.fade ? parseFloat(getComputedStyle(el).getPropertyValue('--fade')) || 0 : 0);
+    return fades.get(el);
+  };
+  window.addEventListener('resize', () => fades.clear());
   const colourOf = (el, y) => {
-    if (el !== hero) return RGB[el.dataset.tone];
+    if (el !== hero) {
+      const own = RGB[el.dataset.tone], f = fadeOf(el);
+      if (!f) return own;
+      const r = el.getBoundingClientRect(), edges = el.dataset.fade;
+      if (edges.includes('top') && y - r.top < f) return mix(RGB.paper, own, Math.max(0, y - r.top) / f);
+      if (edges.includes('bottom') && r.bottom - y < f) return mix(RGB.paper, own, Math.max(0, r.bottom - y) / f);
+      return own;
+    }
     const e = hero.edge;
     if (!e) return RGB[hero.dataset.tone] || RGB.paper;   // until the opening reports its colours
     const t = e.fadeH ? Math.min(1, Math.max(0, (y - e.fadeFrom) / e.fadeH)) : +(y > e.fadeFrom);

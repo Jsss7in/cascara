@@ -1,5 +1,5 @@
-// Cascarup – the shop's studio shots: the bottle from the opening, in both kinds and both sizes, on a cream
-// seamless, with what goes into the syrup lying beside it. Rendered once, not on the page:
+// Cascarup – the shop's studio shots: the bottle from the opening, in both kinds and both sizes, upright on a
+// seamless in its own warm tone (apricot for Cascara, cinnamon for Gifferstee), with what goes into it in front. Rendered once, not on the page:
 //   zsh _build/hero3d/shots.sh      (bundles this file, renders every shot in a browser, saves assets/shop/*.webp)
 // They stand in for photographs of the real bottles until those exist.
 import {
@@ -15,17 +15,19 @@ import {
 
 // a 500 ml bottle is the 200 ml one scaled by the cube root of the volumes
 const SIZE = { 200: 1, 500: Math.cbrt(2.5) };
-const W = 1200, H = 800;
+const W = 1000, H = 1250;
+// each kind's seamless: light at the top, deeper towards the floor
+const TONES = { cascara: ['#F4E0C6', '#ECCBA6', '#DEB08A'], gifferstee: ['#ECDDCA', '#DCC2A5', '#C8A381'] };
 
-// the backdrop: a cream seamless, lighter where the light falls, a little deeper towards the edges
-function backdrop() {
+// the backdrop: a seamless in the kind's tone, a soft light behind the bottle
+function backdrop([top, mid, low]) {
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
   const g = x.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, '#eee1cb'); g.addColorStop(.62, '#e8d6ba'); g.addColorStop(1, '#ddc6a6');
+  g.addColorStop(0, top); g.addColorStop(.58, mid); g.addColorStop(1, low);
   x.fillStyle = g; x.fillRect(0, 0, W, H);
-  const r = x.createRadialGradient(W * .56, H * .4, 0, W * .56, H * .4, W * .62);
-  r.addColorStop(0, 'rgba(255,250,240,.5)'); r.addColorStop(1, 'rgba(255,250,240,0)');
+  const r = x.createRadialGradient(W * .54, H * .4, 0, W * .54, H * .4, W * .7);
+  r.addColorStop(0, 'rgba(255,250,240,.55)'); r.addColorStop(1, 'rgba(255,250,240,0)');
   x.fillStyle = r; x.fillRect(0, 0, W, H);
   const t = new CanvasTexture(c); t.colorSpace = SRGBColorSpace;
   return t;
@@ -46,26 +48,28 @@ export async function setup(canvas) {
   renderer.toneMapping = NeutralToneMapping;
   renderer.localClippingEnabled = true;
   const scene = new Scene();
-  scene.background = backdrop();
+  const backdrops = Object.fromEntries(Object.entries(TONES).map(([id, t]) => [id, backdrop(t)]));
   const pmrem = new PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(studio(), .03).texture;
+  // lit as the opening is: from the upper right, like the photograph of the cherry (shown mirrored)
+  scene.environment = pmrem.fromScene(studio(-1), .03).texture;
   scene.environmentIntensity = .9;
-  const key = new DirectionalLight('#fff1df', 1.5); key.position.set(-4, 6, 6); scene.add(key);
-  const rim = new DirectionalLight('#ffe9da', 1.3); rim.position.set(5, 3, -6); scene.add(rim);
+  const key = new DirectionalLight('#fff1df', 1.5); key.position.set(4, 6, 6); scene.add(key);
+  const rim = new DirectionalLight('#ffe9da', 1.3); rim.position.set(-5, 3, -6); scene.add(rim);
   scene.add(new HemisphereLight('#fff6ea', '#9a6a48', .25));
 
-  const camera = new PerspectiveCamera(21, W / H, .1, 100);
-  camera.position.set(0, 1.8, 11.4); camera.lookAt(-.1, 1.4, 0);
+  const camera = new PerspectiveCamera(24, W / H, .1, 100);
+  camera.position.set(0, 1.75, 11.9); camera.lookAt(0, 1.3, 0);
 
   const speckle = skinTexture();
   const photo = await new Promise((ok) => new TextureLoader().load('/assets/cherry/kirsche-textur.jpg', ok, undefined, () => ok(null)));
 
   return (id, ml) => {
     const k = KINDS[id], S = SIZE[ml];
+    scene.background = backdrops[id];
     const stage = new Group(); scene.add(stage);
 
     // the bottle, as in the opening, filled to its shoulder
-    const bottle = new Group(); bottle.scale.setScalar(S); bottle.position.set(.42, 0, 0); stage.add(bottle);
+    const bottle = new Group(); bottle.scale.setScalar(S); bottle.position.set(.08, 0, 0); stage.add(bottle);
     const glass = new Mesh(lathe(BOTTLE), new MeshPhysicalMaterial({
       color: '#ffffff', roughness: .03, transmission: 1, thickness: .3, ior: 1.5, clearcoat: 1, clearcoatRoughness: .02,
       attenuationColor: new Color('#e4ebe2'), attenuationDistance: 2.5, transparent: true, side: DoubleSide, depthWrite: false,
@@ -89,8 +93,9 @@ export async function setup(canvas) {
     bottle.add(syrup, surface, meniscus, glass, label, cap);
     syrup.renderOrder = surface.renderOrder = meniscus.renderOrder = 1;   // drawn after the glass, or the glass would hide them
     bottle.rotation.y = -.18;
-    const bs = softShadow(.8, 2.2 * S, 1.6 * S); bs.position.x = .42; stage.add(bs);
-    const cast = softShadow(.32, 3.4 * S, 1.1 * S); cast.position.set(.42 + 1.1 * S, .002, -.55 * S); cast.rotation.z = -.32; stage.add(cast);
+    const bs = softShadow(.8, 2.2 * S, 1.6 * S); bs.position.x = .08; stage.add(bs);
+    // its long soft shadow falls away from the light, to the back left
+    const cast = softShadow(.3, 3.2 * S, 1.1 * S); cast.position.set(.08 - 1.05 * S, .002, -.6 * S); cast.rotation.z = .35; stage.add(cast);
 
     // beside it, what the syrup is made of
     const half = (dry, side) => {
@@ -105,26 +110,26 @@ export async function setup(canvas) {
       }
       return m;
     };
+    const lay = (o, x, z, sh) => { o.position.x = x; o.position.z = z; stage.add(o); const d = softShadow(sh[0], sh[1], sh[2]); d.position.set(x, .003, z); stage.add(d); };
     if (k.props === 'cascara') {
-      // a fresh cherry standing as in the photograph, and two dried halves of its skin: cascara
+      // in front: a fresh cherry standing as in the photograph, and two dried halves of its skin – cascara
       const cherry = new Group(); cherry.add(half(false, -1), half(false, 1));
-      cherry.scale.setScalar(.36); cherry.position.set(-1.28, .36 * 1.2751 + .02, .62); stage.add(cherry);
-      const cs = softShadow(.75, .95, .7); cs.position.set(-1.28, .003, .62); stage.add(cs);
-      [[-2.02, .1, -.6, 1], [-.7, .72, 2.5, -1]].forEach(([x, z, ry, side]) => {
-        const d = half(true, side); d.scale.setScalar(.3);
-        d.position.set(x, .19, z); d.rotation.set(Math.PI / 2 * side * .92, ry, 0); stage.add(d);
-        const s = softShadow(.55, .75, .5); s.position.set(x, .003, z); stage.add(s);
+      cherry.scale.setScalar(.3); cherry.position.y = .3 * 1.2751 + .02;
+      lay(cherry, -.98, 1.05, [.75, .8, .6]);
+      [[.98, 1.1, 2.5, -1], [-1.32, .1, -.6, 1]].forEach(([x, z, ry, side]) => {
+        const d = half(true, side); d.scale.setScalar(.27); d.position.y = .17; d.rotation.set(Math.PI / 2 * side * .92, ry, 0);
+        lay(d, x, z, [.55, .66, .44]);
       });
     } else {
-      // two sticks of cinnamon and a star anise; one dried half of cascara between them
-      [[-1.45, .085, .62, 0, -.28], [-1.25, .2, .3, .1, -.62]].forEach(([x, y, z, rz, ry], i) => {
-        const c = cinnamon(1.35); c.position.set(x, y, z); c.rotation.set(0, Math.PI / 2 + ry, rz); stage.add(c);
-        if (!i) { const s = softShadow(.5, 1.6, .38); s.position.set(x, .003, z + .05); s.rotation.z = -ry; stage.add(s); }
+      // in front: two sticks of cinnamon, one across the other, and a star anise; a piece of cascara behind
+      [[-.92, .07, 1.05, 0, -.42], [-.78, .17, .82, .1, -.8]].forEach(([x, y, z, rz, ry], i) => {
+        const c = cinnamon(1.15); c.position.y = y; c.rotation.set(0, Math.PI / 2 + ry, rz);
+        if (i) { c.position.set(x, y, z); stage.add(c); } else lay(c, x, z, [.5, 1.3, .36]);
       });
-      const anise = starAnise(); anise.position.set(-.55, .085, .95); anise.rotation.set(.05, .4, -.04); stage.add(anise);
-      const as = softShadow(.55, .8, .62); as.position.set(-.55, .003, .95); stage.add(as);
-      const d = half(true, 1); d.scale.setScalar(.3); d.position.set(-2.1, .19, -.2); d.rotation.set(Math.PI / 2 * -.92, 1.2, 0); stage.add(d);
-      const s = softShadow(.5, .75, .5); s.position.set(-2.1, .003, -.2); stage.add(s);
+      const anise = starAnise(); anise.position.y = .08; anise.rotation.set(.05, .4, -.04); anise.scale.setScalar(1.05);
+      lay(anise, .98, 1.15, [.55, .8, .62]);
+      const d = half(true, 1); d.scale.setScalar(.26); d.position.y = .165; d.rotation.set(Math.PI / 2 * -.92, 1.2, 0);
+      lay(d, -1.3, .05, [.5, .66, .44]);
     }
 
     renderer.render(scene, camera);

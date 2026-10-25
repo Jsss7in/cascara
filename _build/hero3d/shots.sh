@@ -11,7 +11,7 @@ node _build/hero3d/shots.mjs "$TMP"
 mkdir -p assets/shop
 for f in "$TMP"/*.png; do
   n=${f:t:r}
-  ffmpeg -v error -y -i "$f" -vf scale=1200:800:flags=lanczos "$TMP/$n-s.png"
+  ffmpeg -v error -y -i "$f" -vf scale=1000:1250:flags=lanczos "$TMP/$n-s.png"
   cwebp -quiet -q 88 "$TMP/$n-s.png" -o "assets/shop/$n.webp"
   echo "assets/shop/$n.webp $(stat -f %z assets/shop/$n.webp) B"
 done
