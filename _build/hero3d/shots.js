@@ -15,7 +15,7 @@ import {
 
 const KINDS = {
   cascara: { label: 'CASCARA', syrup: '#8f3612', surface: '#7d2e0f', cap: '#9C4B23', props: 'cascara' },
-  'cozy-spice': { label: 'COZY SPICE', syrup: '#6a260c', surface: '#5a200a', cap: '#5b2f1c', props: 'spice' },
+  gifferstee: { label: 'GIFFERSTEE', syrup: '#6a260c', surface: '#5a200a', cap: '#5b2f1c', props: 'spice' },
 };
 // a 500 ml bottle is the 200 ml one scaled by the cube root of the volumes
 const SIZE = { 200: 1, 500: Math.cbrt(2.5) };

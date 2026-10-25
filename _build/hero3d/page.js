@@ -131,7 +131,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
       if (cue) {
         // at the foot of the picture, below the cherry
         cue.style.setProperty('--x', `${b.x.toFixed(1)}px`);
-        cue.style.setProperty('--y', `${(h - (narrow ? 92 : 76)).toFixed(1)}px`);
+        cue.style.setProperty('--y', `${(h - (narrow ? 50 : 76)).toFixed(1)}px`);
       }
       if (name) {
         // beside the cherry where there is room for the words; on a phone above it, under the buttons

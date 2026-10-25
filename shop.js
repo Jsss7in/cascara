@@ -6,7 +6,7 @@
   const dialog = document.querySelector('[data-cart]');
   if (!products.length || !dialog) return;
 
-  const KEY = 'cascarup.cart.v2';   // v2: the second kind is called Cozy Spice
+  const KEY = 'cascarup.cart.v3';   // v3: the second kind is called Gifferstee
   const fmt = (x) => `CHF ${x.toFixed(2)}`;
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* private mode: the basket lives as long as the page */ } };

@@ -41,20 +41,20 @@
   },
   {
    "src": "src/blatt-2.png",
-   "x": 1048.4,
-   "y": 1949.7,
-   "w": 667.1,
-   "rot": 119.68,
+   "x": 1099.2,
+   "y": 1831.7,
+   "w": 620.6,
+   "rot": 109.68,
    "z": 0,
    "flip": false,
    "filter": "brightness(.86) saturate(1.06) contrast(1.05)"
   },
   {
    "src": "src/blatt-paar-1.png",
-   "x": -685.2,
-   "y": 1590.2,
-   "w": 1467.6,
-   "rot": 82.6,
+   "x": -309.4,
+   "y": 1083.0,
+   "w": 1186.6,
+   "rot": 136.6,
    "z": 3,
    "flip": false,
    "filter": "brightness(.9) saturate(1.05)"
@@ -70,11 +70,11 @@
   },
   {
    "src": "src/kirsche-extra-3.png",
-   "x": 145.6,
-   "y": 1760.9,
-   "w": 534.0,
-   "rot": 30.6,
-   "z": 2,
+   "x": 62.9,
+   "y": 1435.6,
+   "w": 482.1,
+   "rot": 12.6,
+   "z": 4,
    "flip": false
   }
  ]

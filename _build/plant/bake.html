@@ -30,10 +30,16 @@ window.bake = async (cfg, S, cropX) => {
     g.save(); g.translate(it.x, it.y); g.rotate(it.rot); if (it.flip) g.scale(-1, 1);
     g.filter = it.filter; g.drawImage(it.im, -it.w / 2, -it.h / 2, it.w, it.h); g.restore();
   };
-  const branch = () => {
-    g.save(); g.beginPath(); g.rect(0, 0, cropX, 2527); g.clip();
-    g.translate(4992, 0); g.scale(-1, 1); g.drawImage(zw, 0, 0, 4992, 2527); g.restore();
-  };
+  // the branch alone fades out towards cropX (the leaves keep their full strength): drawn apart, then laid in
+  const bc = document.createElement('canvas'); bc.width = W; bc.height = H;
+  const bg = bc.getContext('2d'); bg.imageSmoothingQuality = 'high';
+  bg.setTransform(S, 0, 0, S, -x0 * S, -y0 * S);
+  bg.save(); bg.translate(4992, 0); bg.scale(-1, 1); bg.drawImage(zw, 0, 0, 4992, 2527); bg.restore();
+  bg.globalCompositeOperation = 'destination-in';
+  const fade = bg.createLinearGradient(cropX - 700, 0, cropX, 0);
+  fade.addColorStop(0, '#000'); fade.addColorStop(1, 'rgba(0,0,0,0)');
+  bg.fillStyle = fade; bg.fillRect(x0, y0, x1 - x0, y1 - y0);
+  const branch = () => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(bc, 0, 0); g.restore(); };
   shade(true);
   for (const z of [0, 1, 2, 3, 4]) {
     for (const it of items.filter((i) => i.z === z)) draw(it);
@@ -49,12 +55,6 @@ window.bake = async (cfg, S, cropX) => {
     g.drawImage(k, 0, 0, 1011, 1253);
     g.restore(); g.globalCompositeOperation = 'source-over';
   }
-  // beyond cropX the branch fades out, so on very wide screens it ends softly instead of in a cut
-  g.setTransform(S, 0, 0, S, -x0 * S, -y0 * S); shade(false);
-  g.globalCompositeOperation = 'destination-in';
-  const fade = g.createLinearGradient(cropX - 700, 0, cropX, 0);
-  fade.addColorStop(0, '#000'); fade.addColorStop(1, 'rgba(0,0,0,0)');
-  g.fillStyle = fade; g.fillRect(x0, y0, x1 - x0, y1 - y0);
   const url = c.toDataURL('image/png');
   return { url, meta: { width: W, height: H, scale: S, origin: [x0, y0] } };
 };

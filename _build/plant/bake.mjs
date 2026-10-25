@@ -3,7 +3,8 @@ import { chromium } from '/Users/justinmeissner/ClaudeC/onyx-site/node_modules/p
 import fs from 'fs';
 const [cfgFile, out] = process.argv.slice(2);
 const cfg = JSON.parse(fs.readFileSync(cfgFile, 'utf8'));
-const S = .56, CROP = 3600, HERO = [883.11, 481.39], HRX = 457.7, TURN = -22.59943;
+// CROP: the branch fades out just before the cherries further along it (cherry C starts at 2269)
+const S = .56, CROP = 2250, HERO = [883.11, 481.39], HRX = 457.7, TURN = -22.59943;
 const b = await chromium.launch(); const p = await b.newPage(); p.setDefaultTimeout(180000);
 await p.goto('http://localhost:5191/_build/plant/bake.html?' + Date.now()); await p.waitForFunction(() => document.body.dataset.ready);
 const { url, meta } = await p.evaluate(([c, s, x]) => window.bake(c, s, x), [cfg, S, CROP]);

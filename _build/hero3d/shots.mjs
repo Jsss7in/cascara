@@ -9,7 +9,7 @@ const errs = []; p.on('pageerror', (e) => errs.push(String(e))); p.on('console',
 await p.goto(url + '?' + Date.now(), { waitUntil: 'networkidle' });
 await p.waitForFunction(() => window.shots);
 await p.evaluate(async () => { window.render = await window.shots(document.getElementById('c')); });
-for (const id of ['cascara', 'cozy-spice']) for (const ml of [200, 500]) {
+for (const id of ['cascara', 'gifferstee']) for (const ml of [200, 500]) {
   const data = await p.evaluate(([id, ml]) => window.render(id, ml), [id, ml]);
   fs.writeFileSync(`${out}/${id}-${ml}.png`, Buffer.from(data.split(',')[1], 'base64'));
   console.log(id, ml);

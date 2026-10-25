@@ -532,7 +532,8 @@ export function createHero(canvas, { onFrame, photo } = {}) {
     // At first the camera stands back, so the cherry has room for its branch; as it is picked, the camera comes in.
     const intro = 1 - smooth(.04, .2, p);
     if (wide) aim(-.2 * (1 - open) - .02 * intro, .08 * intro, 1 + .32 * intro, camY);
-    else aim(0, lerp(lerp(-.21, -.03, open), -.06, pourCam) - .02 * intro, 1 + .3 * open - .2 * pourCam + .38 * intro, camY);
+    // on narrow screens the cherry and its branch stand in the upper part at first, the words below them
+    else aim(0, lerp(lerp(-.21, -.03, open), -.06, pourCam) + .47 * intro, 1 + .3 * open - .2 * pourCam + 1.02 * intro, camY);
 
     // the whole fruit floats; for the exploded view a three-quarter view (on phones a diagonal)
     world.rotation.y = -.35 * explode * (1 - together);

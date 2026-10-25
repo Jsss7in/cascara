@@ -40,7 +40,7 @@ V = {
  ]),
 
  'PLAN_LEAD': 'Unser Sirup bringt den Geschmack von Cascara ins Glas: mit Wasser verdünnt, im Kaffee oder in '
-              'Drinks. Zum Start gibt es zwei Sorten, das Original und Cozy Spice mit Zimt und Anis. Weitere Sorten sind geplant.',
+              'Drinks. Zum Start gibt es zwei Sorten, das Original und Gifferstee mit Zimt und Anis. Weitere Sorten sind geplant.',
  'STEPS': steps([
      ('Reifen und ernten', 'Nach der Blüte brauchen Arabica-Kirschen rund sieben bis neun Monate, bis sie reif und rot sind. Dann werden sie geerntet.', 'Auf der Plantage'),
      ('Trennen und trocknen', 'Die Bohnen werden aus der Frucht gelöst. Haut und Fruchtfleisch werden getrocknet: Das ist Cascara.', 'Bei der Aufbereitung'),
@@ -262,7 +262,7 @@ V['SOCIALS'] = ('<ul class="socials" aria-label="Cascarup in den sozialen Medien
 import json
 ORDER_EMAIL = 'info@cascarup.ch'
 V['ORDER_ENDPOINT'] = f'https://formsubmit.co/ajax/{ORDER_EMAIL}'
-# The two kinds we start with (Management Summary: «das Original» and «Cozy Spice mit Zimt und Anis, vom
+# The two kinds we start with (Management Summary: «das Original» and the spiced one, named Gifferstee (25.10.), «vom
 # regionalen Gifferstee inspiriert»). Each picture is a studio shot of the bottle in its size, rendered by
 # _build/hero3d/shots.js until the photographs of the real bottles arrive.
 PRODUCTS = [
@@ -270,8 +270,8 @@ PRODUCTS = [
       text='Das Original aus der Schale der Kaffeekirsche. Mit Wasser verdünnt, im Kaffee oder in Drinks.',
       notes=['Fruchtig', 'Honig', 'Dörrpflaume'],
       sizes=[(200, 6.95), (500, 12.95)]),
- dict(id='cozy-spice', name='Cozy Spice', tag='Mit Zimt und Anis',
-      text='Das Original, gewürzt nach dem Vorbild des Gifferstees aus unserer Region.',
+ dict(id='gifferstee', name='Gifferstee', tag='Mit Zimt und Anis',
+      text='Das Original, warm gewürzt. Inspiriert vom Gifferstee aus unserer Region.',
       notes=['Zimt', 'Anis'],
       sizes=[(200, 7.95), (500, 13.95)]),
 ]
@@ -344,7 +344,7 @@ def shop():
         '        <header class="shop__head">\n'
         '          <p class="eyebrow" data-reveal>Shop</p>\n'
         '          <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>\n'
-        '          <p class="shop__intro" data-reveal style="--d:2">Das Original und Cozy Spice, je in 200 und 500 ml. Leg deine '
+        '          <p class="shop__intro" data-reveal style="--d:2">Das Original und Gifferstee, je in 200 und 500 ml. Leg deine '
         'Flaschen in den Warenkorb, wir halten sie für dich bereit.</p>\n'
         '        </header>\n'
         '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
@@ -469,6 +469,12 @@ def cart():
 
 
 V['IG_FEED'] = ig_feed()
+
+# the branch at the opening: where its cherry sits in the baked picture (_build/plant/bake.mjs writes plant.json)
+import pathlib
+_pl = json.loads((pathlib.Path(__file__).parent / 'plant' / 'plant.json').read_text())
+V.update(PLANT_W=_pl['size'][0], PLANT_H=_pl['size'][1], PLANT_CX=_pl['cx'], PLANT_CY=_pl['cy'], PLANT_RX=_pl['rx'], PLANT_TURN=_pl['turn'])
+V.update({k: str(v) for k, v in V.items() if k.startswith('PLANT_')})
 V['STANDS'] = stands()
 V['SHOP'] = shop()
 V['CART'] = cart()
