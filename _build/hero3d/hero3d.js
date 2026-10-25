@@ -192,7 +192,7 @@ function beanGeometry(side) {
       nx *= .12;
       const s = .08 * Math.sin(y * 3.4);
       groove = Math.exp(-Math.pow((nz - s) / .06, 2)) * (1 - Math.pow(Math.abs(y), 6));
-      nx += side * groove * .12;
+      nx += side * groove * .05;
     }
     nx += noise3(x * 4, y * 4, z * 4) * .006;
     p.setXYZ(i, nx, ny, nz);
@@ -217,9 +217,10 @@ function beanGeometry(side) {
 }
 // The photographs of a real roasted bean (assets/bean/): for each, the bean's fitted ellipse in the picture as
 // fractions (centre cx, cy; half axes rx across, ry along). Filled in from the cut-outs' measurements.
+// (a hair inside the outline, so the edge never samples the backdrop the cut-out was laid on)
 const BEAN_PHOTO = {
-  flat: { src: 'assets/bean/bohne-flach.webp', cx: .5, cy: .5, rx: .45, ry: .45 },
-  round: { src: 'assets/bean/bohne-rund.webp', cx: .5, cy: .5, rx: .45, ry: .45 },
+  flat: { src: 'assets/bean/bohne-flach.webp', cx: .4859, cy: .488, rx: .4932 * .95, ry: .4997 * .96 },
+  round: { src: 'assets/bean/bohne-rund.webp', cx: .5061, cy: .5127, rx: .4911 * .95, ry: .4889 * .96 },
 };
 
 function parchmentGeometry(side) {
