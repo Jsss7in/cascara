@@ -5,7 +5,7 @@
 // each casting a soft shadow onto what lies under it and onto the paper. The hero cherry is not in it (the page
 // lays the real one, and then the 3D one, on top). window.bake(cfg, S, cropX) → { url, meta }
 const load = (src) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
-window.bake = async (cfg, S, cropX) => {
+window.bake = async (cfg, S, cropX, hero) => {
   const items = [];
   for (const L of cfg.layers) {
     const im = await load(L.src); const w = L.w, h = w * im.naturalHeight / im.naturalWidth;
@@ -25,7 +25,8 @@ window.bake = async (cfg, S, cropX) => {
   const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
   g.setTransform(S, 0, 0, S, -x0 * S, -y0 * S);
   // a soft shadow, as from a window up left: down and to the right of each thing, onto the paper behind
-  const shade = (on) => { g.shadowColor = on ? 'rgba(58, 33, 22, .26)' : 'transparent'; g.shadowBlur = on ? 46 * S : 0; g.shadowOffsetX = on ? 26 * S : 0; g.shadowOffsetY = on ? 40 * S : 0; };
+  // (soft and short, so the layers read as one sprig, not as stacked cut-outs)
+  const shade = (on) => { g.shadowColor = on ? 'rgba(58, 33, 22, .17)' : 'transparent'; g.shadowBlur = on ? 34 * S : 0; g.shadowOffsetX = on ? 14 * S : 0; g.shadowOffsetY = on ? 24 * S : 0; };
   const draw = (it) => {
     g.save(); g.translate(it.x, it.y); g.rotate(it.rot); if (it.flip) g.scale(-1, 1);
     g.filter = it.filter; g.drawImage(it.im, -it.w / 2, -it.h / 2, it.w, it.h); g.restore();
@@ -36,7 +37,7 @@ window.bake = async (cfg, S, cropX) => {
   bg.setTransform(S, 0, 0, S, -x0 * S, -y0 * S);
   bg.save(); bg.translate(4992, 0); bg.scale(-1, 1); bg.drawImage(zw, 0, 0, 4992, 2527); bg.restore();
   bg.globalCompositeOperation = 'destination-in';
-  const fade = bg.createLinearGradient(cropX - 700, 0, cropX, 0);
+  const fade = bg.createLinearGradient(cropX - 1100, 0, cropX - 250, 0);   // gone well inside the picture
   fade.addColorStop(0, '#000'); fade.addColorStop(1, 'rgba(0,0,0,0)');
   bg.fillStyle = fade; bg.fillRect(x0, y0, x1 - x0, y1 - y0);
   const branch = () => { g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(bc, 0, 0); g.restore(); };
@@ -56,7 +57,17 @@ window.bake = async (cfg, S, cropX) => {
     g.restore(); g.globalCompositeOperation = 'source-over';
   }
   const url = c.toDataURL('image/png');
-  return { url, meta: { width: W, height: H, scale: S, origin: [x0, y0] } };
+  // how far the plant reaches around its cherry, as the page shows it (cherry upright, its half width = 1):
+  // left, top, right, bottom of everything that is clearly there (alpha above a third)
+  const px = g.getImageData(0, 0, W, H).data, t = hero.turn * Math.PI / 180, ct = Math.cos(t), st = Math.sin(t);
+  const box = [1e9, 1e9, -1e9, -1e9];
+  for (let by = 0; by < H; by += 3) for (let bx = 0; bx < W; bx += 3) {
+    if (px[(by * W + bx) * 4 + 3] < 85) continue;
+    const dx = bx / S + x0 - hero.x, dy = by / S + y0 - hero.y;
+    const sx = (dx * ct - dy * st) / hero.rx, sy = (dx * st + dy * ct) / hero.rx;
+    box[0] = Math.min(box[0], sx); box[1] = Math.min(box[1], sy); box[2] = Math.max(box[2], sx); box[3] = Math.max(box[3], sy);
+  }
+  return { url, meta: { width: W, height: H, scale: S, origin: [x0, y0], box: box.map((v) => +v.toFixed(3)) } };
 };
 document.body.dataset.ready = '1';
 </script></body></html>

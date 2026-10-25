@@ -21,8 +21,8 @@
   <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/dynapuff-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/fonts.css?v=20261025100305">
-  <link rel="stylesheet" href="styles.css?v=20261025100305">
+  <link rel="stylesheet" href="assets/fonts.css?v=20261025102621">
+  <link rel="stylesheet" href="styles.css?v=20261025102621">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -85,10 +85,12 @@
         <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
         <!-- a real coffee cherry on its branch, among real leaves (photographs, mirrored; the branch baked into one
              picture by _build/plant/bake.mjs). The cherry lies exactly over the 3D model until the fruit opens. -->
-        <img class="hero__plant" data-hero-plant src="assets/plant/zweig.webp" alt="" width="2175" height="1679" decoding="async" fetchpriority="high"
-             data-cx="1199.48" data-cy="465.82" data-rx="256.31" data-turn="-22.59943">
-        <img class="hero__cherry" data-hero-cherry src="assets/cherry/kirsche.webp" alt="" width="1011" height="1253" decoding="async" fetchpriority="high"
-             data-texture="assets/cherry/kirsche-textur.jpg" data-aspect="1.2751" data-cx="0.4989" data-cy="0.4951" data-rx="0.4527" data-ry="0.4658">
+        <div class="hero__photos">
+          <img class="hero__plant" data-hero-plant src="assets/plant/zweig.webp" alt="" width="2175" height="1679" decoding="async" fetchpriority="high"
+               data-cx="1199.48" data-cy="465.82" data-rx="256.31" data-turn="-22.59943" data-box="-3.017,-1.688,2.787,3.316">
+          <img class="hero__cherry" data-hero-cherry src="assets/cherry/kirsche.webp" alt="" width="1011" height="1253" decoding="async" fetchpriority="high"
+               data-texture="assets/cherry/kirsche-textur.jpg" data-aspect="1.2751" data-cx="0.4989" data-cy="0.4951" data-rx="0.4527" data-ry="0.4658">
+        </div>
 
         <div class="hero__copy" data-beat="-1,-.5,.04,.1">
           <p class="eyebrow hero__eyebrow">Cascara · Fribourg</p>
@@ -111,8 +113,8 @@
 
         <p class="hero__beat" data-beat=".37,.4,.49,.52"><span class="eyebrow">Die Bohne</span>Sie geht zur Rösterei.</p>
         <p class="hero__beat" data-beat=".53,.56,.63,.655"><span class="eyebrow">Die Schale</span>Sie bleibt. Getrocknet heisst sie <em>Cascara.</em></p>
-        <p class="hero__beat" data-beat=".66,.685,.765,.785"><span class="eyebrow">Der Sirup</span>Aufgegossen und eingekocht wird sie zu <em>Sirup.</em></p>
-        <p class="hero__beat" data-beat=".79,.81,.87,.885"><span class="eyebrow">Zwei Sorten</span>Abgefüllt pur, oder mit Zimt und Anis als <em>Gifferstee.</em></p>
+        <p class="hero__beat" data-beat=".66,.685,.765,.78"><span class="eyebrow">Der Sirup</span>Aufgegossen und eingekocht wird sie zu <em>Sirup.</em></p>
+        <p class="hero__beat" data-beat=".778,.798,.87,.885"><span class="eyebrow">Zwei Sorten</span>Abgefüllt pur oder mit Zimt und Anis als <em>Gifferstee.</em></p>
 
         <div class="hero__end" data-beat=".885,.93,1,1">
           <p class="hero__end-brand">Cascarup</p>
@@ -138,7 +140,7 @@
         </header>
         <div class="shop__grid">
         <article class="product product--cascara" data-reveal style="--d:0" data-product='{"id": "cascara", "name": "Cascara", "sizes": [{"ml": 200, "price": 6.95}, {"ml": 500, "price": 12.95}]}'>
-          <div class="product__stage"><p class="product__tag">Das Original</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/cascara-200.webp" width="1000" height="1250" alt="Cascara, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/cascara-500.webp" width="1000" height="1250" alt="Cascara, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
+          <div class="product__stage"><p class="product__tag">Das Original</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/cascara-200.webp" width="1400" height="1750" alt="Cascara, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/cascara-500.webp" width="1400" height="1750" alt="Cascara, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
           <div class="product__body">
             <div class="product__top">
               <h3 class="product__name">Cascara</h3>
@@ -158,13 +160,13 @@
           </div>
         </article>
         <article class="product product--gifferstee" data-reveal style="--d:1" data-product='{"id": "gifferstee", "name": "Gifferstee", "sizes": [{"ml": 200, "price": 7.95}, {"ml": 500, "price": 13.95}]}'>
-          <div class="product__stage"><p class="product__tag">Mit Zimt und Anis</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/gifferstee-200.webp" width="1000" height="1250" alt="Gifferstee, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/gifferstee-500.webp" width="1000" height="1250" alt="Gifferstee, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
+          <div class="product__stage"><p class="product__tag">Mit Zimt und Anis</p><img class="product__shot is-shown" data-shot="200" src="assets/shop/gifferstee-200.webp" width="1400" height="1750" alt="Gifferstee, Flasche mit 200 ml" decoding="async"><img class="product__shot" data-shot="500" src="assets/shop/gifferstee-500.webp" width="1400" height="1750" alt="Gifferstee, Flasche mit 500 ml" loading="lazy" decoding="async"></div>
           <div class="product__body">
             <div class="product__top">
               <h3 class="product__name">Gifferstee</h3>
               <p class="product__price" data-price>CHF 7.95</p>
             </div>
-            <p class="product__text">Das Original, warm gewürzt. Inspiriert vom Gifferstee aus unserer Region.</p>
+            <p class="product__text">Unsere Cascara, warm gewürzt. Inspiriert vom Gifferstee aus unserer Region.</p>
             <ul class="product__notes" aria-label="Geschmack"><li>Zimt</li><li>Anis</li></ul>
             <div class="product__sizes" role="group" aria-label="Grösse"><button type="button" class="product__size" data-size="200" aria-pressed="true"><span class="product__ml">200 ml</span><span class="product__each">CHF 7.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="false"><span class="product__ml">500 ml</span><span class="product__each">CHF 13.95</span></button></div>
             <div class="product__buy">
@@ -357,38 +359,38 @@
           </dl>
         </div>
         <span class="ranke" aria-hidden="true"></span>
-        <div class="org" aria-label="Organigramm">
+        <div class="org" data-reveal aria-label="Organigramm">
         <ul class="org__lead">
-          <li class="member member--lead" data-reveal style="--d:0">
+          <li class="member member--lead">
             <img class="member__pic" src="assets/team/joel.webp" alt="Joël Schaller" width="110" height="131" loading="lazy" decoding="async">
             <p class="member__role">CEO</p>
             <h3 class="member__name">Joël Schaller</h3>
           </li>
         </ul>
         <ul class="org__pair">
-          <li class="member member--deputy" data-reveal style="--d:1">
+          <li class="member member--deputy">
             <img class="member__pic" src="assets/team/luis.webp" alt="Luis Brülhart" width="95" height="123" loading="lazy" decoding="async">
             <p class="member__role">CMO / stv. CEO</p>
             <h3 class="member__name">Luis Brülhart</h3>
           </li>
-          <li class="member" data-reveal style="--d:2">
+          <li class="member">
             <img class="member__pic" src="assets/team/lucile.webp" alt="Lucile Bapst" width="124" height="123" loading="lazy" decoding="async">
             <p class="member__role">CAO</p>
             <h3 class="member__name">Lucile Bapst</h3>
           </li>
         </ul>
         <ul class="org__team">
-          <li class="member" data-reveal style="--d:3">
+          <li class="member">
             <img class="member__pic" src="assets/team/jaelle.webp" alt="Jaëlle Brügger" width="124" height="118" loading="lazy" decoding="async">
             <p class="member__role">CFO</p>
             <h3 class="member__name">Jaëlle Brügger</h3>
           </li>
-          <li class="member" data-reveal style="--d:4">
+          <li class="member">
             <img class="member__pic" src="assets/team/justin.webp" alt="Justin Meissner" width="106" height="118" loading="lazy" decoding="async">
             <p class="member__role">CTO</p>
             <h3 class="member__name">Justin Meissner</h3>
           </li>
-          <li class="member" data-reveal style="--d:5">
+          <li class="member">
             <img class="member__pic" src="assets/team/niklas.webp" alt="Niklas Broch" width="110" height="117" loading="lazy" decoding="async">
             <p class="member__role">CPO</p>
             <h3 class="member__name">Niklas Broch</h3>
@@ -481,8 +483,8 @@
   <!-- on phones, once the opening is behind you: the way back to the chapters -->
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden>Menü</button>
 
-  <script src="main.js?v=20261025100305" defer></script>
-  <script src="shop.js?v=20261025100305" defer></script>
-  <script type="module" src="assets/hero3d.js?v=20261025100305"></script>
+  <script src="main.js?v=20261025102621" defer></script>
+  <script src="shop.js?v=20261025102621" defer></script>
+  <script type="module" src="assets/hero3d.js?v=20261025102621"></script>
 </body>
 </html>

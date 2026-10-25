@@ -12,6 +12,9 @@
   // reports its colours (hero.edge): the top colour, dissolving into the floor colour at the bottom.
   const RGB = { terra: [180, 89, 42], paper: [230, 211, 183], night: [43, 24, 16], photo: [28, 19, 13] };
   const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  // the fade into the night passes a warm middle (as its CSS gradient does), never a grey
+  const WARM = [156, 106, 74];
+  const fadeMix = (own, t) => (own === RGB.night ? (t < .45 ? mix(RGB.paper, WARM, t / .45) : mix(WARM, own, (t - .45) / .55)) : mix(RGB.paper, own, t));
   const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
   // A section with data-fade blends into the paper over --fade px at the edges named (as its CSS gradient does).
   const fades = new Map();
@@ -25,8 +28,8 @@
       const own = RGB[el.dataset.tone], f = fadeOf(el);
       if (!f) return own;
       const r = el.getBoundingClientRect(), edges = el.dataset.fade;
-      if (edges.includes('top') && y - r.top < f) return mix(RGB.paper, own, Math.max(0, y - r.top) / f);
-      if (edges.includes('bottom') && r.bottom - y < f) return mix(RGB.paper, own, Math.max(0, r.bottom - y) / f);
+      if (edges.includes('top') && y - r.top < f) return fadeMix(own, Math.max(0, y - r.top) / f);
+      if (edges.includes('bottom') && r.bottom - y < f) return fadeMix(own, Math.max(0, r.bottom - y) / f);
       return own;
     }
     const e = hero.edge;
@@ -44,6 +47,17 @@
   function paintNav() {
     const h = nav.offsetHeight;
     const above = sectionAt(0), below = sectionAt(h);
+    // over a fade the bar is a gradient itself, from the colour at its top to the colour at its foot
+    const fading = !!(above.dataset.fade || below.dataset.fade);
+    nav.classList.toggle('is-fading', fading);
+    if (fading) {
+      const c0 = colourOf(above, 0), c1 = colourOf(below, h), c = (v) => `rgb(${v})`;
+      nav.style.setProperty('--nav-c', c(c0)); nav.style.setProperty('--nav-c2', c(c1));
+      nav.style.setProperty('--nav-main', c(colourOf(sectionAt(h * .25), h * .25)));
+      const inner = nav.firstElementChild, mid = inner.offsetTop + inner.offsetHeight / 2;
+      nav.dataset.ink = light(colourOf(sectionAt(mid), mid)) ? 'dark' : 'light';
+      return;
+    }
     // within one section the veil is a single colour, the one halfway down it
     const top = colourOf(above, below === above ? h / 2 : 0);
     let under = top, split = h;

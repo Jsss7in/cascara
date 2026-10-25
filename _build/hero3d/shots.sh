@@ -11,8 +11,8 @@ node _build/hero3d/shots.mjs "$TMP"
 mkdir -p assets/shop
 for f in "$TMP"/*.png; do
   n=${f:t:r}
-  ffmpeg -v error -y -i "$f" -vf scale=1000:1250:flags=lanczos "$TMP/$n-s.png"
-  cwebp -quiet -q 88 "$TMP/$n-s.png" -o "assets/shop/$n.webp"
+  ffmpeg -v error -y -i "$f" -vf scale=1400:1750:flags=lanczos "$TMP/$n-s.png"
+  cwebp -quiet -q 84 "$TMP/$n-s.png" -o "assets/shop/$n.webp"
   echo "assets/shop/$n.webp $(stat -f %z assets/shop/$n.webp) B"
 done
 cp "$TMP"/*.png "${SHOTS_KEEP:-$TMP}/" 2>/dev/null || true

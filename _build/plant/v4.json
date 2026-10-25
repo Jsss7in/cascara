@@ -3,22 +3,6 @@
   "src": "src/zweig.png"
  },
  "hero": "../../assets/cherry/kirsche.webp",
- "hole": {
-  "src": "../../assets/cherry/kirsche.webp",
-  "matrix": [
-   0.923214043,
-   0.38428613,
-   -0.38428613,
-   0.923214043,
-   655.85,
-   -285.21
-  ],
-  "centre": [
-   883.11,
-   481.39
-  ],
-  "shrink": 0.985
- },
  "layers": [
   {
    "src": "src/blatt-1.png",
@@ -27,7 +11,8 @@
    "w": 1068.1,
    "rot": -125.08,
    "z": 0,
-   "flip": false
+   "flip": false,
+   "filter": "hue-rotate(-10deg) saturate(.9) brightness(.94)"
   },
   {
    "src": "src/blatt-3.png",

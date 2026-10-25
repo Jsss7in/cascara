@@ -7,11 +7,11 @@ const cfg = JSON.parse(fs.readFileSync(cfgFile, 'utf8'));
 const S = .56, CROP = 2250, HERO = [883.11, 481.39], HRX = 457.7, TURN = -22.59943;
 const b = await chromium.launch(); const p = await b.newPage(); p.setDefaultTimeout(180000);
 await p.goto('http://localhost:5191/_build/plant/bake.html?' + Date.now()); await p.waitForFunction(() => document.body.dataset.ready);
-const { url, meta } = await p.evaluate(([c, s, x]) => window.bake(c, s, x), [cfg, S, CROP]);
+const { url, meta } = await p.evaluate(([c, s, x, h]) => window.bake(c, s, x, h), [cfg, S, CROP, { x: HERO[0], y: HERO[1], rx: HRX, turn: TURN }]);
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(`${out}/zweig.png`, Buffer.from(url.split(',')[1], 'base64'));
 // in the baked picture's pixels: the hero cherry's centre and half width, and the turn that stands it upright
 const plant = { size: [meta.width, meta.height], cx: +((HERO[0] - meta.origin[0]) * S).toFixed(2), cy: +((HERO[1] - meta.origin[1]) * S).toFixed(2),
-  rx: +(HRX * S).toFixed(2), turn: TURN };
+  rx: +(HRX * S).toFixed(2), turn: TURN, box: meta.box };
 fs.writeFileSync(`${out}/plant.json`, JSON.stringify(plant));
 console.log(JSON.stringify(plant)); await b.close();

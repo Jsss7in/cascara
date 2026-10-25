@@ -143,6 +143,7 @@ html:not(.is-loaded) *, html:not(.is-loaded) *::before, html:not(.is-loaded) *::
 }
 /* With a mouse the bar is pinned. On touch screens it sits at the top of the page and scrolls away with it, so
    the page runs to the very top of the screen, under the clock (main.js says why it never comes back pinned). */
+.nav.is-fading { background-image: linear-gradient(var(--nav-c), var(--nav-c2)); }
 .nav.is-pinned { position: fixed; padding-bottom: 12px; -webkit-mask-image: linear-gradient(#000 0, #000 calc(100% - 22px), transparent 100%); mask-image: linear-gradient(#000 0, #000 calc(100% - 22px), transparent 100%); }
 .nav[data-ink="dark"] { color: var(--ink); }
 .nav[data-ink="dark"] .mark__ink { stroke: var(--terra); }
@@ -217,7 +218,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .hero.is-flat .hero__canvas { display: none; }
 
 .hero__copy, .hero__beat, .hero__end {
-  position: absolute; z-index: 2; left: var(--gutter); top: 50%; width: min(40vw, 560px);
+  position: absolute; z-index: 2; left: max(var(--gutter), calc((100vw - var(--max)) / 2)); top: 50%; width: min(40vw, 560px);
   transform: translate3d(0, calc(-50% + (1 - var(--in, 1)) * 18px), 0);
 }
 .hero__beat, .hero__end, .hero__caption { opacity: 0; visibility: hidden; }
@@ -294,6 +295,15 @@ html.has-menu, html.has-menu body { overflow: hidden; }
   .hero__claim { margin-top: 10px; font-size: clamp(1.25rem, 5.6vw, 1.6rem); }
   .hero__name { display: none; }
 }
+/* short phones (an iPhone SE with Safari's bars out): the opening words a little tighter, so the cherry and its
+   branch above them keep a fair size */
+@media (max-width: 900px) and (max-height: 640px) {
+  .hero__brand { font-size: clamp(2.9rem, 14.5vw, 4rem); margin-top: 8px; }
+  .hero__claim { margin-top: 6px; font-size: 1.2rem; }
+  .hero__lede { margin-top: 10px; font-size: .9375rem; line-height: 1.5; }
+  .hero__actions { margin-top: 14px; }
+  .hero__copy { bottom: 58px; }
+}
 /* no travelling: the fruit sits still on one screen, beside the words that open the page */
 @media (prefers-reduced-motion: reduce) {
   .hero { height: auto; }
@@ -306,9 +316,10 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* its branch, in the branch picture's own pixels; page.js scales and places it so its cherry is this one */
 .hero__plant { position: absolute; z-index: 1; left: 0; top: 0; max-width: none; height: auto; transform-origin: 0 0; pointer-events: none; will-change: transform, opacity; visibility: hidden; }
 .hero.is-flat .hero__plant { display: none; }
-/* the photographs come in together, softly, once the branch's picture has loaded (page.js) */
-.hero.is-3d:not(.has-plant) :is(.hero__cherry, .hero__plant) { opacity: 0 !important; }
-.hero.is-3d:not(.is-settled) :is(.hero__cherry, .hero__plant) { transition: opacity .8s var(--ease); }
+/* the cherry and its branch are one picture: they come in together, softly, once the branch has loaded (page.js) */
+.hero__photos { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.hero.is-3d:not(.has-plant) .hero__photos { opacity: 0; }
+.hero.is-3d:not(.is-settled) .hero__photos { transition: opacity .8s var(--ease); }
 /* without WebGL the opening is a still: the words beside the real cherry */
 .hero.is-flat .hero__cherry { visibility: visible; left: auto; right: calc(var(--gutter) + 6vw); top: 50%; width: min(26vw, 340px); transform: translateY(-50%); filter: drop-shadow(0 30px 28px rgba(58, 33, 22, .22)); }
 @media (max-width: 900px) { .hero.is-flat .hero__cherry { right: auto; left: 50%; top: auto; bottom: 6svh; width: min(52vw, 240px); transform: translateX(-50%); } }
@@ -386,8 +397,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
    with the bar and Safari's strip: --fade is read there) */
 .drinks {
   --fade: 210px; color: var(--milk); padding: var(--section) var(--gutter);
-  background: linear-gradient(var(--paper), #8a6a55 calc(var(--fade) * .45), var(--night) var(--fade), var(--night) calc(100% - var(--fade)), #8a6a55 calc(100% - var(--fade) * .45), var(--paper));
-  background: linear-gradient(in oklab, var(--paper), var(--night) var(--fade), var(--night) calc(100% - var(--fade)), var(--paper));
+  background: linear-gradient(var(--paper), #9c6a4a calc(var(--fade) * .45), var(--night) var(--fade), var(--night) calc(100% - var(--fade)), #9c6a4a calc(100% - var(--fade) * .45), var(--paper));
 }
 .drinks__head { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
 .drinks__head .eyebrow { grid-column: 1 / -1; color: var(--cream); }
@@ -417,7 +427,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* ---------- stands: where to find us, a skyline and a map each ---------- */
 
 .stands { max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto; padding: 0 var(--gutter) var(--section); }
-.stands__inner { padding-top: calc(var(--section) * .7); border-top: 1px solid var(--line); }
+.stands__inner { padding-top: calc(var(--section) * .5); }
 .stands__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
 .stands__head .eyebrow { grid-column: 1 / -1; }
 .stands__head .display { grid-column: 1 / span 6; margin-top: 26px; }
@@ -487,7 +497,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
   position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 30px; background: #E8C6A2;
   box-shadow: 0 1px 0 rgba(255, 250, 242, .5) inset, 0 40px 70px -50px rgba(58, 33, 22, .55);
 }
-.product--gifferstee .product__stage { background: #D8BD9F; }
+.product--gifferstee .product__stage { background: #E2C4A3; }
 /* on wide screens the stage is nearly square: the shot's empty sky above the bottle is cut away */
 @media (min-width: 901px) { .product__stage { aspect-ratio: 1 / 1.03; } .product__shot { object-position: 50% 58%; } }
 /* the two sizes are two shots of the same scene: one fades into the other */
@@ -506,8 +516,8 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .product__price { font: 600 clamp(1.35rem, 1.8vw, 1.75rem)/1 var(--brand); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .product__text { color: var(--ink-2); font-size: 1.0625rem; line-height: 1.55; max-width: 32em; }
 .product__notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -2px; }
-.product__notes li { padding: 7px 13px 6px; border-radius: 999px; background: rgba(180, 89, 42, .1); color: var(--terra-ink); font: 400 .8125rem/1 var(--sans); letter-spacing: .03em; }
-.product__sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.product__notes li { padding: 7px 13px 6px; border-radius: 999px; background: rgba(180, 89, 42, .1); color: #7A3516; font: 400 .8125rem/1 var(--sans); letter-spacing: .03em; }
+.product__sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; padding-top: 6px; }
 .product__size {
   display: grid; gap: 5px; justify-items: start; min-height: 60px; padding: 11px 16px 10px; text-align: left;
   border: 1px solid var(--line); border-radius: 16px; background: none; color: var(--ink); cursor: pointer;
@@ -614,6 +624,11 @@ html.has-menu, html.has-menu body { overflow: hidden; }
   .org__pair::after { top: 58px; }
   .member__role { margin-top: -12px; padding: 6px 9px 5px; font-size: .6875rem; }
   .member__name { font-size: .8125rem; }
+}
+@media (max-width: 380px) {
+  .org .org__team { column-gap: 8px; }
+  .member__name { font-size: .75rem; text-wrap: balance; }
+  .member--deputy .member__role { white-space: nowrap; font-size: .625rem; padding-inline: 7px; }
 }
 .team__social { margin-top: clamp(72px, 8vw, 112px); display: flex; justify-content: center; }
 
@@ -728,18 +743,16 @@ html.has-cart, html.has-cart body { overflow: hidden; }
 .feed__more .socials__dot { fill: currentColor; stroke: none; }
 .feed__more strong { font-weight: 400; }
 .footer__social { margin: 18px 0 0 -11px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 1rem; }
-.footer__social > span { opacity: .9; }
+.footer__social > span { font-weight: 400; }
 /* the page ends in terracotta, reached by a soft fall from the paper */
 .footer {
   --fade: 200px; color: var(--milk); padding: var(--fade) var(--gutter) 32px;
   background: linear-gradient(var(--paper), var(--terra) var(--fade));
-  background: linear-gradient(in oklab, var(--paper), var(--terra) var(--fade));
 }
 .footer--slim { --fade: 0px; padding-top: 8px; background: var(--terra); }
 .footer__top {
   max-width: var(--max); margin: 0 auto;
-  padding-top: clamp(64px, 8vw, 110px);
-  border-top: 1px solid var(--line-light);
+  padding-top: clamp(24px, 3vw, 40px);
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start;
 }
 .footer__brand { grid-column: 1 / span 1; width: 54px; }

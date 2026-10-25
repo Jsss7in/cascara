@@ -3,7 +3,7 @@ import { chromium } from '/Users/justinmeissner/ClaudeC/onyx-site/node_modules/p
 import fs from 'fs';
 const [out, url = 'http://localhost:5191/_build/hero3d/shots.html'] = process.argv.slice(2);
 const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const p = await b.newPage({ viewport: { width: 1000, height: 1250 } });
+const p = await b.newPage({ viewport: { width: 1400, height: 1750 } });
 p.setDefaultTimeout(180000);
 const errs = []; p.on('pageerror', (e) => errs.push(String(e))); p.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
 await p.goto(url + '?' + Date.now(), { waitUntil: 'networkidle' });

@@ -15,9 +15,9 @@ import {
 
 // a 500 ml bottle is the 200 ml one scaled by the cube root of the volumes
 const SIZE = { 200: 1, 500: Math.cbrt(2.5) };
-const W = 1000, H = 1250;
+const W = 1400, H = 1750;
 // each kind's seamless: light at the top, deeper towards the floor
-const TONES = { cascara: ['#F4E0C6', '#ECCBA6', '#DEB08A'], gifferstee: ['#ECDDCA', '#DCC2A5', '#C8A381'] };
+const TONES = { cascara: ['#F4E0C6', '#ECCBA6', '#DEB08A'], gifferstee: ['#F1DFC8', '#E2C2A0', '#CFA27E'] };
 
 // the backdrop: a seamless in the kind's tone, a soft light behind the bottle
 function backdrop([top, mid, low]) {
@@ -58,7 +58,7 @@ export async function setup(canvas) {
   scene.add(new HemisphereLight('#fff6ea', '#9a6a48', .25));
 
   const camera = new PerspectiveCamera(24, W / H, .1, 100);
-  camera.position.set(0, 1.75, 11.9); camera.lookAt(0, 1.3, 0);
+  camera.position.set(0, 1.7, 10.4); camera.lookAt(0, 1.32, 0);
 
   const speckle = skinTexture();
   const photo = await new Promise((ok) => new TextureLoader().load('/assets/cherry/kirsche-textur.jpg', ok, undefined, () => ok(null)));
@@ -72,8 +72,9 @@ export async function setup(canvas) {
     const bottle = new Group(); bottle.scale.setScalar(S); bottle.position.set(.08, 0, 0); stage.add(bottle);
     const glass = new Mesh(lathe(BOTTLE), new MeshPhysicalMaterial({
       color: '#ffffff', roughness: .03, transmission: 1, thickness: .3, ior: 1.5, clearcoat: 1, clearcoatRoughness: .02,
-      attenuationColor: new Color('#e4ebe2'), attenuationDistance: 2.5, transparent: true, side: DoubleSide, depthWrite: false,
+      attenuationColor: new Color('#f4eee4'), attenuationDistance: 4, transparent: true, side: DoubleSide, depthWrite: false,
     }));
+    glass.material.thickness = .14;
     const level = 1.8;   // filled into the neck, as in the opening
     const syrup = new Mesh(lathe(BOTTLE.slice(0, 10), .035), new MeshPhysicalMaterial({
       color: '#ffffff', roughness: .05, transmission: 1, thickness: 1.1, ior: 1.45,

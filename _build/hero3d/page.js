@@ -22,7 +22,8 @@ import { createHero, CHAPTERS } from './hero3d.js';
   const cue = hero.querySelector('[data-hero-cue]');       // «Scroll für mehr», under the cherry
   const name = hero.querySelector('[data-hero-name]');     // the cherry's name, on its first screen
   const plant = hero.querySelector('[data-hero-plant]');   // its branch, with leaves and other cherries
-  const pl = plant && { cx: +plant.dataset.cx, cy: +plant.dataset.cy, rx: +plant.dataset.rx, turn: +plant.dataset.turn };
+  const pl = plant && { cx: +plant.dataset.cx, cy: +plant.dataset.cy, rx: +plant.dataset.rx, turn: +plant.dataset.turn, box: plant.dataset.box.split(',').map(Number) };
+  const copy = hero.querySelector('.hero__copy');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -46,7 +47,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
 
   let three = null;
   try {
-    three = createHero(canvas, { onFrame, photo: pic });
+    three = createHero(canvas, { onFrame, photo: pic, plantBox: pl && pl.box });
   } catch {
     three = null;
   }
@@ -127,11 +128,12 @@ import { createHero, CHAPTERS } from './hero3d.js';
     // the first screen: the cherry is named, and beneath it the invitation to scroll; both go with the first move
     const intro = Math.round((1 - smooth(.012, .05, p)) * 500) / 500;
     if (intro > 0 && (cue || name)) {
-      const b = fruitBox(), w = stage.clientWidth, h = stage.clientHeight, narrow = w < 700;
+      const b = fruitBox(), w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
       if (cue) {
-        // at the foot of the picture, below the cherry
-        cue.style.setProperty('--x', `${b.x.toFixed(1)}px`);
-        cue.style.setProperty('--y', `${(h - (narrow ? 50 : 76)).toFixed(1)}px`);
+        // at the foot of the picture, below the cherry; on narrow screens below the words
+        const copyBottom = copy.getBoundingClientRect().bottom - stage.getBoundingClientRect().top;
+        cue.style.setProperty('--x', `${(narrow ? w / 2 : b.x).toFixed(1)}px`);
+        cue.style.setProperty('--y', `${(narrow ? Math.min(h - 46, copyBottom + 14) : h - 76).toFixed(1)}px`);
       }
       if (name) {
         // beside the cherry where there is room for the words; on a phone above it, under the buttons
@@ -143,10 +145,11 @@ import { createHero, CHAPTERS } from './hero3d.js';
     // The branch: it holds the cherry until the first move, then springs back and away, down to the right, while
     // the cherry stays where it was picked.
     if (pl) {
-      const go = smooth(.006, .07, p), o = Math.round((1 - smooth(.048, .07, p)) * 500) / 500;
+      const w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
+      const go = smooth(.006, narrow ? .055 : .07, p), o = Math.round((1 - smooth(narrow ? .03 : .048, narrow ? .052 : .07, p)) * 500) / 500;
       if (o > 0) {
-        const b = fruitBox(), k = b.rx / pl.rx, w = stage.clientWidth, h = stage.clientHeight;
-        const dx = go * go * w * .6, dy = go * go * h * .75, turn = pl.turn + go * 9;
+        const b = fruitBox(), k = b.rx / pl.rx;
+        const dx = go * go * w * (narrow ? .55 : .6), dy = go * go * h * (narrow ? -.32 : .75), turn = pl.turn + go * (narrow ? -9 : 9);
         plant.style.transform = `translate3d(${(b.x + dx).toFixed(1)}px, ${(b.y + dy).toFixed(1)}px, 0) rotate(${turn.toFixed(2)}deg) scale(${k.toFixed(4)}) translate(${-pl.cx}px, ${-pl.cy}px)`;
       }
       if (o !== plantShown) {
@@ -200,8 +203,20 @@ import { createHero, CHAPTERS } from './hero3d.js';
     }
   }
 
+  // The first picture (the cherry on its branch) is fitted into the room the words leave: beside them on wide
+  // screens, above them on narrow ones, clear of the bar and of the cue to scroll.
+  function frameIt() {
+    const s = stage.getBoundingClientRect(), w = s.width, h = s.height, narrow = w / h <= 1.05;
+    const c = copy.getBoundingClientRect(), navH = (document.querySelector('[data-nav]')?.offsetHeight || 64) - 12;
+    let right = 0;
+    for (const el of copy.children) right = Math.max(right, el.getBoundingClientRect().right - s.left);
+    three.frame = narrow
+      ? { l: 14, t: navH + 4, r: w - 14, b: c.top - s.top - 14 }
+      : { l: right + 48, t: navH + 28, r: w - 32, b: h - 104 };
+  }
   // size and pause: render only while the hero is on screen
-  const size = () => { const r = stage.getBoundingClientRect(); three.resize(Math.round(r.width), Math.round(r.height)); };
+  const size = () => { const r = stage.getBoundingClientRect(); three.resize(Math.round(r.width), Math.round(r.height)); frameIt(); };
+  document.fonts?.ready.then(() => frameIt());
   new ResizeObserver(size).observe(stage);
   size();
   new IntersectionObserver(([e]) => {

@@ -271,11 +271,11 @@ PRODUCTS = [
       notes=['Fruchtig', 'Honig', 'Dörrpflaume'],
       sizes=[(200, 6.95), (500, 12.95)]),
  dict(id='gifferstee', name='Gifferstee', tag='Mit Zimt und Anis',
-      text='Das Original, warm gewürzt. Inspiriert vom Gifferstee aus unserer Region.',
+      text='Unsere Cascara, warm gewürzt. Inspiriert vom Gifferstee aus unserer Region.',
       notes=['Zimt', 'Anis'],
       sizes=[(200, 7.95), (500, 13.95)]),
 ]
-SHOT = (1000, 1250)   # the studio shots' size in pixels (4:5, upright)
+SHOT = (1400, 1750)   # the studio shots' size in pixels (4:5, upright)
 # What a buyer must be able to read before ordering food online (LIV Art. 44); «folgt» until we have it.
 PRODUCT_FACTS = [
  ('Zutaten', None), ('Allergene', None), ('Füllmenge', '200 ml oder 500 ml'),
@@ -382,7 +382,7 @@ def team():
     # as in our summary: an organisation chart – the CEO on top, the deputy and administration beside, three below
     def member(i, extra=''):
         key, name, role, (w, h) = TEAM[i]
-        return (f'          <li class="member{extra}" data-reveal style="--d:{i}">\n'
+        return (f'          <li class="member{extra}">\n'
                 f'            <img class="member__pic" src="assets/team/{key}.webp" alt="{name}" width="{w}" height="{h}" loading="lazy" decoding="async">\n'
                 f'            <p class="member__role">{role}</p>\n'
                 f'            <h3 class="member__name">{name}</h3>\n'
@@ -404,7 +404,8 @@ def team():
         f'          <dl class="team__facts" data-reveal style="--d:2">\n            {V["PROJECT_FACTS"]}\n          </dl>\n'
         '        </div>\n'
         '        <span class="ranke" aria-hidden="true"></span>\n'
-        '        <div class="org" aria-label="Organigramm">\n' + people + '\n        </div>\n'
+        # the chart comes in as one piece, so no line ever shows without the people it joins
+        '        <div class="org" data-reveal aria-label="Organigramm">\n' + people + '\n        </div>\n'
         f'        <div class="team__social">{V["SOCIALS"]}</div>\n'
         f'        {ig_feed()}\n'
         '      </div>\n'
@@ -477,7 +478,8 @@ V['IG_FEED'] = ig_feed()
 # the branch at the opening: where its cherry sits in the baked picture (_build/plant/bake.mjs writes plant.json)
 import pathlib
 _pl = json.loads((pathlib.Path(__file__).parent / 'plant' / 'plant.json').read_text())
-V.update(PLANT_W=_pl['size'][0], PLANT_H=_pl['size'][1], PLANT_CX=_pl['cx'], PLANT_CY=_pl['cy'], PLANT_RX=_pl['rx'], PLANT_TURN=_pl['turn'])
+V.update(PLANT_W=_pl['size'][0], PLANT_H=_pl['size'][1], PLANT_CX=_pl['cx'], PLANT_CY=_pl['cy'], PLANT_RX=_pl['rx'], PLANT_TURN=_pl['turn'],
+         PLANT_BOX=','.join(str(v) for v in _pl['box']))
 V.update({k: str(v) for k, v in V.items() if k.startswith('PLANT_')})
 V['STANDS'] = stands()
 V['SHOP'] = shop()
