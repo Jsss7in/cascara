@@ -269,7 +269,7 @@ SALES_OPEN = False
 # The participation certificates are on sale before the shop: they are paid with TWINT (our QR code, the amount and a
 # code of the buyer's own in the payment's message, so we know whose payment it is). The order reaches us by e-mail
 # through FormSubmit (NOTIFY_ENDPOINT), which also sends the buyer a confirmation.
-PS_OPEN = True
+PS_OPEN = False
 NOTIFY_ENDPOINT = 'https://formsubmit.co/ajax/info@cascarup.ch'
 # The two kinds we start with (Management Summary and pitch: «Original» and «Cozy Spice», inspired by the
 # Gifferstee of our region). Each picture is a photograph of our real bottle in that size with our label on it
