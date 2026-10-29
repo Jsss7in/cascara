@@ -574,5 +574,7 @@
  "Schick uns deine Bestellung stattdessen per E-Mail: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.": "Envoie-nous plutôt ta commande par e-mail : il est déjà rempli, tu n’as plus qu’à l’envoyer.",
  "Bestellung per E-Mail senden": "Envoyer la commande par e-mail",
  "Öffnet sich kein E-Mail-Programm? Schreib uns an": "Aucune messagerie ne s’ouvre ? Écris-nous à",
- "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.": "Important : envoie d’abord l’e-mail avec ta commande, sinon nous ne saurons pas à quoi correspond ton paiement. Nous te confirmerons ensuite la commande par e-mail."
+ "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.": "Important : envoie d’abord l’e-mail avec ta commande, sinon nous ne saurons pas à quoi correspond ton paiement. Nous te confirmerons ensuite la commande par e-mail.",
+ "Solange der Vorrat reicht.": "Dans la limite des stocks disponibles.",
+ "Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.": "Le nombre de bons est limité : disponibles dans la limite des stocks. S’ils sont tous attribués avant que ton paiement nous parvienne, nous te remboursons immédiatement ton montant."
 }

@@ -772,6 +772,7 @@ PS_STEPS = [
 ]
 PS_TERMS = [
  f'Ein Partizipationsschein kostet CHF {PS_PRICE}.–. Online kannst du bis zu {PS_MAX} Scheine auf einmal zeichnen.',
+ 'Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.',
  'Herausgeber ist Cascarup, ein Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Fribourg.',
  'Bezahlt wird mit TWINT, mit deinem persönlichen Code in der Mitteilung. Dein Schein ist gezeichnet, sobald deine Zahlung bei uns ist.',
  'Der Schein gilt für unser Unternehmungsjahr 2026/27.',
@@ -848,6 +849,7 @@ def ps_main():
                 </div>
                 <p class="ps-count__sum"><span data-ps-each>1 × CHF {PS_PRICE}.–</span><strong data-ps-total>CHF {PS_PRICE:.2f}</strong></p>
               </div>
+              <p class="ps-stock">Solange der Vorrat reicht.</p>
             </fieldset>
             <fieldset class="order__group">
               <legend>Deine Angaben</legend>
@@ -925,6 +927,7 @@ def ps_main():
           <a class="button button--solid" href="#zeichnen">{'Schein sichern' if PS_OPEN else 'Bald erhältlich'}</a>
           <a class="hero__more" href="#so-gehts">So funktioniert es</a>
         </div>
+        {'<p class="ps-stock" data-reveal style="--d:5">Solange der Vorrat reicht.</p>' if PS_OPEN else ''}
       </div>
       <div class="ps-hero__cert" data-reveal style="--d:2">
         {certificate()}

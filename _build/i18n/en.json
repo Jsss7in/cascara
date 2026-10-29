@@ -574,5 +574,7 @@
  "Schick uns deine Bestellung stattdessen per E-Mail: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.": "Send us your order by e-mail instead: it’s already filled in, you just need to send it.",
  "Bestellung per E-Mail senden": "Send order by e-mail",
  "Öffnet sich kein E-Mail-Programm? Schreib uns an": "No e-mail app opens? Write to us at",
- "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.": "Important: send the e-mail with your order first, otherwise we won’t know what your payment is for. We’ll then confirm your order by e-mail."
+ "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.": "Important: send the e-mail with your order first, otherwise we won’t know what your payment is for. We’ll then confirm your order by e-mail.",
+ "Solange der Vorrat reicht.": "While stocks last.",
+ "Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.": "The number of certificates is limited: available while stocks last. If they are all taken before your payment arrives, we pay your amount back straight away."
 }
