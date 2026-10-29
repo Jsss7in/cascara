@@ -39,5 +39,12 @@
  "Vorbei",
  "Heute",
  "Als Nächstes",
- "Vier Ziffern, z. B. 1700."
+ "Vier Ziffern, z. B. 1700.",
+ "Verbindlich bestellen",
+ "Danke, dass du Teil von Cascarup wirst! Deine Bestellung: {n} Partizipationsschein(e) für {betrag}. Dein Code: {code}. So bezahlst du: Öffne die TWINT-App, tippe auf «Scannen» und scanne unseren QR-Code ({qr}). Gib genau {betrag} ein und schreib {code} in die Mitteilung. Sobald deine Zahlung bei uns ist, ist dein Schein gezeichnet. Wegen deines Zertifikats melden wir uns bald bei dir. Fragen? info@cascarup.ch",
+ "Bitte gib deine Telefonnummer an, zum Beispiel 079 123 45 67.",
+ "Vorschau: Es wurde nichts gesendet.",
+ "Deine Bestellung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.",
+ "Kopieren",
+ "Kopiert"
 ]

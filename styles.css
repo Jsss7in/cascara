@@ -1169,6 +1169,34 @@ html:has(.is-legal) { background: var(--paper); }
 .pick--way svg { width: 40px; height: 40px; }
 .pick--way strong { display: block; }
 .ps-done { display: grid; justify-items: start; gap: 16px; margin-top: 34px; padding: 34px; border-radius: 28px; background: rgba(255, 250, 242, .55); outline: none; }
+/* paying with TWINT: the amount and the buyer's code (each to copy), our QR code beside the five steps, then what
+   happens next. The QR code stays on white, as TWINT prints it, so every camera reads it */
+.twint-note { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; font-size: .9375rem; line-height: 1.35; }
+.twint-note strong { display: block; font-weight: 500; }
+.twint-note .muted { font-size: .8125rem; }
+.twint-pay { max-width: 640px; }
+.twint-pay .cart__done-text { max-width: 30em; }
+.twint-pay__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; margin: 6px 0 0; }
+.twint-fact { padding: 14px 16px; border-radius: 16px; background: var(--paper); }
+.twint-fact dt { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.twint-fact dd { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin: 6px 0 0; }
+.twint-fact strong { font: 600 1.5rem/1.1 var(--brand); font-variant-numeric: tabular-nums; }
+.twint-fact--code strong { color: var(--terra-ink); letter-spacing: .04em; }
+.twint-fact__copy { min-height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: none; font: 500 .8125rem/1 var(--sans); color: var(--ink); cursor: pointer; }
+.twint-fact__copy:hover { border-color: var(--terra); color: var(--terra-ink); }
+.twint-pay__grid { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; align-items: center; width: 100%; margin-top: 4px; }
+.twint-pay__qr { width: 100%; height: auto; padding: 10px; border-radius: 16px; background: #fff; box-shadow: 0 1px 0 rgba(58, 33, 22, .06), 0 18px 40px -26px rgba(58, 33, 22, .45); }
+.twint-pay__steps { margin: 0; padding: 0; list-style: none; counter-reset: pay; display: grid; gap: 12px; font-size: .9375rem; line-height: 1.4; }
+.twint-pay__steps li { counter-increment: pay; position: relative; min-height: 24px; padding: 2px 0 0 38px; }
+.twint-pay__steps li::before { content: counter(pay); position: absolute; left: 0; top: 0; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--terra); color: var(--paper); font: 600 .75rem/1 var(--sans); }
+.twint-pay__steps strong { white-space: nowrap; }
+.twint-pay__steps strong { font-weight: 600; }
+.twint-pay__hint { max-width: 36em; font-size: .875rem; line-height: 1.5; color: var(--ink-2); }
+.twint-pay__hint strong { font-weight: 600; color: var(--ink); }
+.twint-pay__next { width: 100%; padding-top: 16px; border-top: 1px solid var(--line); }
+.twint-pay__label { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.twint-pay__next ul { margin: 10px 0 0; padding-left: 1.1em; list-style: disc; display: grid; gap: 6px; font-size: .9375rem; color: var(--ink-2); }
+.twint-pay__again { border: 0; background: none; padding: 0; cursor: pointer; font: inherit; }
 .ps-terms { margin-top: clamp(56px, 6vw, 88px); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .ps-terms summary { display: flex; align-items: center; justify-content: space-between; min-height: 64px; cursor: pointer; list-style: none; font-size: 1rem; letter-spacing: .03em; }
 .ps-terms summary::-webkit-details-marker { display: none; }
@@ -1197,6 +1225,10 @@ html:has(.is-legal) { background: var(--paper); }
   .ps-tile svg { grid-row: span 2; }
   .ps-tile h3 { margin-top: 0; }
   .ps-done { padding: 26px 22px; }
+  .twint-pay__facts { grid-template-columns: minmax(0, 1fr); }
+  .twint-pay__grid { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .twint-pay__qr { max-width: 240px; }
+  .twint-pay__steps { justify-self: stretch; }
 }
 
 

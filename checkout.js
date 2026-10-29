@@ -43,5 +43,34 @@ window.CascarupCheckout = (() => {
   };
   const forget = (key) => { try { sessionStorage.removeItem(key); } catch { /* nothing kept */ } };
 
-  return { fmt, number, back, pay, returned, keep, restore, forget };
+  // TWINT (the participation certificates): the buyer pays to our QR code and writes their own code into the
+  // payment's message, so we know whose payment it is. The code is short and has no letters that look alike.
+  const code = (prefix) => {
+    const abc = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    return `${prefix}-${Array.from(crypto.getRandomValues(new Uint32Array(5)), (x) => abc[x % abc.length]).join('')}`;
+  };
+  // an order as an e-mail to us, through FormSubmit; it answers 200 with success "false" when something is off
+  async function send(endpoint, fields) {
+    const res = await fetch(endpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(fields),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);
+  }
+  // the way to pay, filled in: the amount and the code wherever they are named, each with a button to copy it
+  function twint(panel, amount, payCode) {
+    const T = window.cascarupT || ((s) => s);
+    panel.querySelectorAll('[data-pay-amount]').forEach((el) => { el.textContent = fmt(amount); });
+    panel.querySelectorAll('[data-pay-code]').forEach((el) => { el.textContent = payCode; });
+    panel.querySelectorAll('[data-copy]').forEach((b) => {
+      b.textContent = T('Kopieren');
+      b.onclick = async () => {
+        try { await navigator.clipboard.writeText(b.dataset.copy === 'code' ? payCode : amount.toFixed(2)); } catch { return; }
+        b.textContent = T('Kopiert');
+        setTimeout(() => { b.textContent = T('Kopieren'); }, 1800);
+      };
+    });
+  }
+
+  return { fmt, number, back, pay, returned, keep, restore, forget, code, send, twint };
 })();

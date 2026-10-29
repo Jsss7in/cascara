@@ -266,6 +266,10 @@ V['CHECKOUT_URL'] = CHECKOUT_URL
 # Until payment is connected the shop is closed: the bottles and prices show, the button says «Bald erhältlich», and
 # the certificates take a name and an e-mail through FormSubmit, so we can write once they can be bought online.
 SALES_OPEN = False
+# The participation certificates are on sale before the shop: they are paid with TWINT (our QR code, the amount and a
+# code of the buyer's own in the payment's message, so we know whose payment it is). The order reaches us by e-mail
+# through FormSubmit (NOTIFY_ENDPOINT), which also sends the buyer a confirmation.
+PS_OPEN = True
 NOTIFY_ENDPOINT = 'https://formsubmit.co/ajax/info@cascarup.ch'
 # The two kinds we start with (Management Summary and pitch: «Original» and «Cozy Spice», inspired by the
 # Gifferstee of our region). Each picture is a photograph of our real bottle in that size with our label on it
@@ -762,13 +766,14 @@ PS_CHOICE = [
 ]
 PS_STEPS = [
  ('Schein wählen', 'Wie viele Scheine, deine Angaben und was am Ende mit deinem Geld passiert.'),
- ('Bezahlen', 'Online mit TWINT oder Karte, auf der sicheren Bezahlseite.' if SALES_OPEN else 'Bald online mit TWINT oder Karte. Schon jetzt bar oder mit TWINT an unseren Ständen.'),
- ('Bestätigung', 'Du bekommst eine Bestätigung per E-Mail, mit der Nummer deines Scheins.'),
+ ('Bezahlen', 'Mit TWINT: Wir zeigen dir unseren QR-Code, den Betrag und deinen persönlichen Code für die Mitteilung.' if PS_OPEN else 'Bald online mit TWINT. Schon jetzt bar oder mit TWINT an unseren Ständen.'),
+ ('Bestätigung', 'Du bekommst eine Bestätigung per E-Mail. Sobald deine Zahlung da ist, ist dein Schein gezeichnet, und wir melden uns wegen deines Zertifikats.'),
  ('Am Ende des Jahres', 'Geld zurück oder Andenken, so wie du es gewählt hast.'),
 ]
 PS_TERMS = [
  f'Ein Partizipationsschein kostet CHF {PS_PRICE}.–. Online kannst du bis zu {PS_MAX} Scheine auf einmal zeichnen.',
  'Herausgeber ist Cascarup, ein Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Fribourg.',
+ 'Bezahlt wird mit TWINT, mit deinem persönlichen Code in der Mitteilung. Dein Schein ist gezeichnet, sobald deine Zahlung bei uns ist.',
  'Der Schein gilt für unser Unternehmungsjahr 2026/27.',
  'Wählst du «Geld zurück», zahlen wir dir am Ende des Unternehmungsjahres deinen Betrag zurück. Wie und wann genau, schreiben wir dir rechtzeitig per E-Mail.',
  'Wählst du «Behalten», bleibt dein Beitrag bei Cascarup, und der Schein bleibt dir als Andenken.',
@@ -779,6 +784,42 @@ PS_TERMS = [
 
 def icon_svg(svg):
     return '<svg viewBox="0 0 64 64" aria-hidden="true">' + svg.replace('<path ', '<path pathLength="1" ').replace('<circle ', '<circle pathLength="1" ') + '</svg>'
+
+
+def twint_pay():
+    """After ordering: how to pay with TWINT – our QR code, the exact amount, and the buyer's own code for the
+    payment's message, by which we know whose payment it is (ps.js fills in amount and code)."""
+    return '''          <div class="ps-done twint-pay" data-ps-done hidden tabindex="-1">
+            <p class="eyebrow">Fast geschafft</p>
+            <p class="cart__done-title">Jetzt mit TWINT bezahlen.</p>
+            <p class="cart__done-text">Deine Bestellung ist bei uns angekommen. Bezahl sie jetzt mit TWINT, dann ist dein Schein gezeichnet.</p>
+            <dl class="twint-pay__facts">
+              <div class="twint-fact"><dt>Betrag</dt><dd><strong data-pay-amount>CHF 15.00</strong><button type="button" class="twint-fact__copy" data-copy="amount">Kopieren</button></dd></div>
+              <div class="twint-fact twint-fact--code"><dt>Dein Code für die Mitteilung</dt><dd><strong data-pay-code>PS-·····</strong><button type="button" class="twint-fact__copy" data-copy="code">Kopieren</button></dd></div>
+            </dl>
+            <div class="twint-pay__grid">
+              <img class="twint-pay__qr" src="assets/twint/twint-qr.png" width="952" height="1201" alt="TWINT-QR-Code von Cascarup" loading="lazy" decoding="async">
+              <ol class="twint-pay__steps">
+                <li>Öffne die TWINT-App und tippe auf <strong>Scannen</strong>.</li>
+                <li>Scanne diesen QR-Code.</li>
+                <li>Gib den Betrag ein, genau <strong data-pay-amount>CHF 15.00</strong>.</li>
+                <li>Schreib deinen Code <strong data-pay-code>PS-·····</strong> in die Mitteilung.</li>
+                <li>Bestätige die Zahlung.</li>
+              </ol>
+            </div>
+            <p class="twint-pay__hint"><strong>Ohne Code geht es nicht:</strong> Nur so wissen wir, dass die Zahlung von dir ist.</p>
+            <p class="twint-pay__hint"><strong>Du bist am Handy?</strong> Mit dem gleichen Handy kannst du den QR-Code nicht scannen. Öffne unsere Bestätigungs-E-Mail auf einem zweiten Bildschirm, zum Beispiel am Computer, und scanne ihn dort.</p>
+            <div class="twint-pay__next">
+              <p class="twint-pay__label">So geht es weiter</p>
+              <ul>
+                <li>Du bekommst eine Bestätigung per E-Mail, mit Betrag, Code und QR-Code.</li>
+                <li>Sobald deine Zahlung bei uns ist, ist dein Schein gezeichnet.</li>
+                <li>Wegen deines Zertifikats melden wir uns bald bei dir.</li>
+              </ul>
+            </div>
+            <p class="cart__done-note" data-done-note hidden></p>
+            <button type="button" class="hero__more twint-pay__again" data-ps-again>Weitere Scheine zeichnen</button>
+          </div>'''
 
 
 def ps_main():
@@ -796,7 +837,7 @@ def ps_main():
     terms = '\n'.join(f'            <li>{t}</li>' for t in PS_TERMS)
     buy = f'''          <p class="eyebrow">Dein Schein</p>
           <h2 class="display" id="ps-form-title">Jetzt <em>zeichnen.</em></h2>
-          <form class="order ps-order" data-ps data-checkout="{CHECKOUT_URL}" data-price="{PS_PRICE}" data-max="{PS_MAX}" novalidate>
+          <form class="order ps-order" data-ps data-endpoint="{NOTIFY_ENDPOINT}" data-price="{PS_PRICE}" data-max="{PS_MAX}" novalidate>
             <fieldset class="order__group">
               <legend>Anzahl</legend>
               <div class="ps-count">
@@ -812,9 +853,9 @@ def ps_main():
               <legend>Deine Angaben</legend>
               <div class="fields">{field('vorname', 'Vorname', ' autocomplete="given-name"')}{field('nachname', 'Nachname', ' autocomplete="family-name"')}</div>
               {field('email', 'E-Mail', ' type="email" autocomplete="email" inputmode="email"', wide=True)}
+              {field('telefon', 'Telefon', ' type="tel" autocomplete="tel" inputmode="tel"', wide=True)}
               {field('strasse', 'Strasse und Nummer', ' autocomplete="address-line1"', wide=True)}
               <div class="fields fields--plz">{field('plz', 'PLZ', ' autocomplete="postal-code" inputmode="numeric" maxlength="4"')}{field('ort', 'Ort', ' autocomplete="address-level2"')}</div>
-              {field('telefon', 'Telefon', ' type="tel" autocomplete="tel" inputmode="tel"', optional=True, wide=True)}
             </fieldset>
             <fieldset class="order__group">
               <legend>Am Ende des Jahres</legend>
@@ -822,25 +863,18 @@ def ps_main():
               <div class="order__picks">{pick}</div>
             </fieldset>
             <fieldset class="order__group">
-              <legend>Bezahlen mit</legend>
-              <div class="pays">{pay_methods()}</div>
+              <legend>Bezahlen</legend>
+              <p class="twint-note"><span class="pay__mark pay__mark--twint" aria-hidden="true">TWINT</span><span><strong>Mit TWINT</strong><span class="muted">Nach dem Bestellen zeigen wir dir unseren QR-Code, den Betrag und deinen persönlichen Code.</span></span></p>
             </fieldset>
             <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
             <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
-              <span>Ich habe die <a href="#bedingungen">Bedingungen</a> gelesen und bin einverstanden. Wie wir mit meinen Angaben umgehen, steht in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
+              <span>Ich habe die <a href="#bedingungen">Bedingungen</a> gelesen und bin einverstanden. Meine Angaben gehen über den Dienst FormSubmit ins Ausland an Cascarup; mehr dazu in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
             <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
-            <button class="button button--solid order__submit" type="submit" data-pay>Jetzt bezahlen · CHF {PS_PRICE:.2f}</button>
-            <p class="order__pay">Du kommst auf die sichere Bezahlseite und danach wieder hierher zurück.</p>
+            <button class="button button--solid order__submit" type="submit" data-pay>Verbindlich bestellen · CHF {PS_PRICE:.2f}</button>
+            <p class="order__pay">Danach zeigen wir dir, wie du mit TWINT bezahlst.</p>
             <p class="order__status" role="status" aria-live="polite"></p>
           </form>
-          <div class="ps-done" data-ps-done hidden tabindex="-1">
-            <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
-            <p class="eyebrow">Danke!</p>
-            <p class="cart__done-title">Du bist jetzt Teil von Cascarup.</p>
-            <p class="cart__done-text">Nummer <strong data-done-number></strong>. Du bekommst eine Bestätigung per E-Mail.</p>
-            <p class="cart__done-note" data-done-note hidden></p>
-            <a class="button button--solid" href="index.html#shop">Zum Shop</a>
-          </div>
+{twint_pay()}
         </div>
 '''
     # until the certificates can be bought online: a name and an e-mail, so we can write once they can
@@ -881,7 +915,7 @@ def ps_main():
 {why}
         </ul>
         <div class="hero__actions" data-reveal style="--d:4">
-          <a class="button button--solid" href="#zeichnen">{'Schein sichern' if SALES_OPEN else 'Bald erhältlich'}</a>
+          <a class="button button--solid" href="#zeichnen">{'Schein sichern' if PS_OPEN else 'Bald erhältlich'}</a>
           <a class="hero__more" href="#so-gehts">So funktioniert es</a>
         </div>
       </div>
@@ -924,8 +958,8 @@ def ps_main():
     <section class="ps-form" data-tone="paper" id="zeichnen" aria-labelledby="ps-form-title">
       <div class="ps-form__grid">
         <div class="ps-form__main">
-{buy if SALES_OPEN else notify}        <div class="ps-form__aside" aria-hidden="true">
-          {certificate(live=True, full=SALES_OPEN)}
+{buy if PS_OPEN else notify}        <div class="ps-form__aside" aria-hidden="true">
+          {certificate(live=True, full=PS_OPEN)}
         </div>
       </div>
       <details class="ps-terms" id="bedingungen">
