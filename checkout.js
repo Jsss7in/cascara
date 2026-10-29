@@ -53,6 +53,7 @@ window.CascarupCheckout = (() => {
   async function send(endpoint, fields) {
     const res = await fetch(endpoint, {
       method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(fields),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined,     // no answer within ten seconds counts as down
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);

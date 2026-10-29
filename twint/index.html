@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mit TWINT bezahlen · Cascarup</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/fonts.css">
+  <!-- Our TWINT QR code on its own, for whoever ordered on their phone: they open this page on a second screen and
+       scan it there; the amount and their code stay on their phone (partizipation.html) -->
+  <style>
+    :root { --paper: #E6D3B7; --ink: #3A2116; --ink-2: rgba(58, 33, 22, .76); --terra: #B4592A; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 32px 16px; background: var(--paper); color: var(--ink);
+      font: 300 1rem/1.5 Jost, system-ui, sans-serif; text-align: center; }
+    main { width: min(100%, 520px); display: grid; justify-items: center; gap: 18px; }
+    h1 { margin: 0; font: 700 clamp(1.8rem, 6vw, 2.4rem)/1.1 DynaPuff, system-ui, sans-serif; color: var(--ink); }
+    .qr { width: min(100%, 380px); height: auto; padding: 14px; border-radius: 20px; background: #fff; box-shadow: 0 24px 50px -30px rgba(58, 33, 22, .5); }
+    .steps { margin: 0; display: grid; gap: 6px; font-size: 1.0625rem; }
+    .steps strong { font-weight: 600; }
+    .lang { margin: 0; font-size: .875rem; color: var(--ink-2); }
+    a { color: var(--terra); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Mit TWINT bezahlen</h1>
+    <img class="qr" src="../assets/twint/twint-qr.png" width="952" height="1201" alt="TWINT-QR-Code von Cascarup">
+    <div class="steps">
+      <p>Scanne den QR-Code mit der <strong>TWINT-App</strong>.</p>
+      <p>Gib den <strong>Betrag</strong> ein und schreib deinen <strong>Code</strong> in die Mitteilung.<br>Beides steht auf deinem Handy.</p>
+    </div>
+    <p class="lang" lang="fr">Scanne le code QR avec l’app TWINT, saisis le montant et écris ton code dans le message. Les deux sont affichés sur ton téléphone.</p>
+    <p class="lang" lang="en">Scan the QR code with the TWINT app, enter the amount and write your code in the message. Both are shown on your phone.</p>
+    <p class="lang"><a href="../partizipation.html">cascarup.ch</a> · <a href="../impressum.html">Impressum</a></p>
+  </main>
+</body>
+</html>

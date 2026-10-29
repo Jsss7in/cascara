@@ -758,12 +758,14 @@ PS_MONEY = [
  ('Teamkleidung', 'einheitlich und professionell',
   '<path d="M23 8 9 16l5 12 7-3v31h22V25l7 3 5-12-14-8c-1.5 5-5.2 8-9 8s-7.5-3-9-8z"/>'),
 ]
+# «Behalten» first and in the warmer colour: it is the way that helps us most
 PS_CHOICE = [
- ('zurueck', 'Geld zurück', 'Am Ende des Unternehmungsjahres bekommst du dein Geld zurück.',
-  '<circle cx="36" cy="35" r="18"/><circle cx="36" cy="35" r="11.5"/><path d="M11 26a26 26 0 0 1 9-12.5"/><path d="M8.5 16l2.5 10 10-2.5"/>'),
  ('behalten', 'Behalten', 'Dein Schein bleibt dir als Andenken, dein Beitrag bleibt bei Cascarup.',
   '<circle cx="32" cy="26" r="14"/><circle cx="32" cy="26" r="8"/><path d="M24 38l-5 19 13-7 13 7-5-19"/>'),
+ ('zurueck', 'Geld zurück', 'Am Ende des Unternehmungsjahres bekommst du dein Geld zurück.',
+  '<circle cx="36" cy="35" r="18"/><circle cx="36" cy="35" r="11.5"/><path d="M11 26a26 26 0 0 1 9-12.5"/><path d="M8.5 16l2.5 10 10-2.5"/>'),
 ]
+PS_FAV = 'Hilft uns am meisten'
 PS_STEPS = [
  ('Schein wählen', 'Wie viele Scheine, deine Angaben und was am Ende mit deinem Geld passiert.'),
  ('Bezahlen', 'Mit TWINT: Wir zeigen dir unseren QR-Code, den Betrag und deinen persönlichen Code für die Mitteilung.' if PS_OPEN else 'Bald online mit TWINT. Schon jetzt bar oder mit TWINT an unseren Ständen.'),
@@ -798,6 +800,12 @@ def twint_pay():
               <div class="twint-fact"><dt>Betrag</dt><dd><strong data-pay-amount>CHF 15.00</strong><button type="button" class="twint-fact__copy" data-copy="amount">Kopieren</button></dd></div>
               <div class="twint-fact twint-fact--code"><dt>Dein Code für die Mitteilung</dt><dd><strong data-pay-code>PS-·····</strong><button type="button" class="twint-fact__copy" data-copy="code">Kopieren</button></dd></div>
             </dl>
+            <!-- if our order form (FormSubmit) could not be reached: the order as a ready e-mail to us, first of all -->
+            <div class="twint-pay__mail" data-pay-mail hidden>
+              <p><strong>Zuerst: Schick uns deine Bestellung.</strong> Unser Bestellformular ist gerade nicht erreichbar. Die E-Mail ist schon fertig ausgefüllt, du musst sie nur noch abschicken. Sonst wissen wir nicht, von wem die Zahlung ist.</p>
+              <a class="button button--solid" data-pay-mail-link href="mailto:info@cascarup.ch">Bestellung per E-Mail senden</a>
+              <p class="muted">Öffnet sich kein E-Mail-Programm? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
+            </div>
             <div class="twint-pay__grid">
               <img class="twint-pay__qr" src="assets/twint/twint-qr.png" width="952" height="1201" alt="TWINT-QR-Code von Cascarup" loading="lazy" decoding="async">
               <ol class="twint-pay__steps">
@@ -809,11 +817,11 @@ def twint_pay():
               </ol>
             </div>
             <p class="twint-pay__hint"><strong>Ohne Code geht es nicht:</strong> Nur so wissen wir, dass die Zahlung von dir ist.</p>
-            <p class="twint-pay__hint"><strong>Du bist am Handy?</strong> Mit dem gleichen Handy kannst du den QR-Code nicht scannen. Öffne unsere Bestätigungs-E-Mail auf einem zweiten Bildschirm, zum Beispiel am Computer, und scanne ihn dort.</p>
+            <p class="twint-pay__hint"><strong>Du bist am Handy?</strong> Mit dem gleichen Handy kannst du den QR-Code nicht scannen. Öffne <a href="https://cascarup.ch/twint/" target="_blank" rel="noopener">cascarup.ch/twint</a> auf einem zweiten Bildschirm, zum Beispiel am Computer, und scanne ihn dort. Betrag und Code bleiben hier auf deinem Handy.</p>
             <div class="twint-pay__next">
               <p class="twint-pay__label">So geht es weiter</p>
               <ul>
-                <li>Du bekommst eine Bestätigung per E-Mail, mit Betrag, Code und QR-Code.</li>
+                <li>Du bekommst von uns eine Bestätigung per E-Mail.</li>
                 <li>Sobald deine Zahlung bei uns ist, ist dein Schein gezeichnet.</li>
                 <li>Wegen deines Zertifikats melden wir uns bald bei dir.</li>
               </ul>
@@ -827,13 +835,14 @@ def ps_main():
     why = '\n'.join(f'          <li>{icon_svg(svg)}<div><h3>{t}</h3><p>{p}</p></div></li>' for t, p, svg in PS_WHY)
     money = '\n'.join(f'        <li class="ps-tile" data-reveal style="--d:{i}">{icon_svg(svg)}<h3>{t}</h3><p>{p}</p></li>'
                       for i, (t, p, svg) in enumerate(PS_MONEY))
-    choice = '\n'.join(f'        <div class="ps-way" data-reveal style="--d:{i}">{icon_svg(svg)}<h3>{t}</h3><p>{p}</p></div>'
+    fav = lambda k, cls: f'<span class="{cls}">{PS_FAV}</span>' if k == 'behalten' else ''
+    choice = '\n'.join(f'        <div class="ps-way" data-reveal style="--d:{i}">{icon_svg(svg)}{fav(k, "ps-way__tag")}<h3>{t}</h3><p>{p}</p></div>'
                        for i, (k, t, p, svg) in enumerate(PS_CHOICE))
     steps_ = '\n'.join(f'        <li data-reveal style="--d:{i}"><span class="ps-steps__no">{i + 1}</span><h3>{t}</h3><p>{p}</p></li>'
                        for i, (t, p) in enumerate(PS_STEPS))
     pick = ''.join(
-        f'<label class="pick pick--way"><input type="radio" name="ende" value="{k}" required>{icon_svg(svg)}'
-        f'<span><strong>{t}</strong><span class="muted">{p}</span></span></label>'
+        f'<label class="pick pick--way{" pick--fav" if k == "behalten" else ""}"><input type="radio" name="ende" value="{k}" required>{icon_svg(svg)}'
+        f'<span><strong>{t}</strong>{fav(k, "pick__tag")}<span class="muted">{p}</span></span></label>'
         for k, t, p, svg in PS_CHOICE)
     terms = '\n'.join(f'            <li>{t}</li>' for t in PS_TERMS)
     buy = f'''          <p class="eyebrow">Dein Schein</p>
@@ -866,22 +875,16 @@ def ps_main():
             </fieldset>
             <fieldset class="order__group">
               <legend>Bezahlen</legend>
-              <p class="twint-note"><span class="pay__mark pay__mark--twint" aria-hidden="true">TWINT</span><span><strong>Mit TWINT</strong><span class="muted">Nach dem Bestellen zeigen wir dir unseren QR-Code, den Betrag und deinen persönlichen Code.</span></span></p>
+              <label class="pay"><input type="radio" name="zahlung" value="twint" checked><span class="pay__mark pay__mark--twint" aria-hidden="true">TWINT</span><span><strong>TWINT</strong><span class="muted">Gleich nach dem Bestellen siehst du unseren QR-Code, den Betrag und deinen persönlichen Code.</span></span></label>
               <p class="twint-soon">Bald kannst du auch mit Karte bezahlen. Weitere Zahlungsarten folgen.</p>
             </fieldset>
             <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
             <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
               <span>Ich habe die <a href="#bedingungen">Bedingungen</a> gelesen und bin einverstanden. Meine Angaben gehen über den Dienst FormSubmit ins Ausland an Cascarup; mehr dazu in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
             <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
-            <button class="button button--solid order__submit" type="submit" data-pay>Verbindlich bestellen · CHF {PS_PRICE:.2f}</button>
-            <p class="order__pay">Danach zeigen wir dir, wie du mit TWINT bezahlst.</p>
+            <button class="button button--solid order__submit" type="submit" data-pay>Mit TWINT bezahlen · CHF {PS_PRICE:.2f}</button>
+            <p class="order__pay">Mit dem Klick bestellst du verbindlich. Danach siehst du sofort, wie du bezahlst.</p>
             <p class="order__status" role="status" aria-live="polite"></p>
-            <!-- if FormSubmit cannot be reached: the order as a ready e-mail to us, then on to paying (ps.js) -->
-            <div class="order__fallback" data-fallback hidden>
-              <p><strong>Unser Bestellformular ist gerade nicht erreichbar.</strong> Schick uns deine Bestellung stattdessen per E-Mail: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.</p>
-              <a class="button button--solid" data-fallback-mail href="mailto:info@cascarup.ch">Bestellung per E-Mail senden</a>
-              <p class="muted">Öffnet sich kein E-Mail-Programm? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
-            </div>
           </form>
 {twint_pay()}
         </div>

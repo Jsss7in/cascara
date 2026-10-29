@@ -1168,7 +1168,12 @@ html:has(.is-legal) { background: var(--paper); }
 .ps-count__sum strong { font: 600 1.6rem/1 var(--brand); }
 .pick--way { grid-template-columns: 20px 40px minmax(0, 1fr); align-items: center; }
 .pick--way svg { width: 40px; height: 40px; }
-.pick--way strong { display: block; }
+.pick--way strong { display: inline; }
+.pick--way .muted { display: block; }
+.pick--fav { border-color: rgba(180, 89, 42, .45); background: rgba(180, 89, 42, .06); }
+.pick__tag, .ps-way__tag { display: inline-block; margin-left: 8px; padding: 3px 9px; border-radius: 999px; background: var(--terra); color: var(--paper); font: 500 .6875rem/1.2 var(--sans); letter-spacing: .03em; vertical-align: 2px; }
+.ps-way { position: relative; }
+.ps-way__tag { position: absolute; top: 30px; right: 26px; margin: 0; background: var(--cream-light); color: var(--terra-ink); }
 .ps-done { display: grid; justify-items: start; gap: 16px; margin-top: 34px; padding: 34px; border-radius: 28px; background: rgba(255, 250, 242, .55); outline: none; }
 /* paying with TWINT: the amount and the buyer's code (each to copy), our QR code beside the five steps, then what
    happens next. The QR code stays on white, as TWINT prints it, so every camera reads it */
@@ -1176,11 +1181,11 @@ html:has(.is-legal) { background: var(--paper); }
 .twint-note strong { display: block; font-weight: 500; }
 .twint-note .muted { font-size: .8125rem; }
 .twint-soon { margin-top: 10px; padding-left: 2px; font-size: .8125rem; color: var(--ink-3); }
-.order__fallback { display: grid; gap: 12px; justify-items: start; margin-top: 16px; padding: 18px 20px; border-radius: 16px; background: rgba(180, 89, 42, .1); font-size: .9375rem; line-height: 1.5; color: var(--ink); }
-.order__fallback[hidden] { display: none; }
-.order__fallback strong { font-weight: 600; }
-.order__fallback .muted { font-size: .8125rem; }
-.order__fallback .muted a { text-decoration: underline; text-underline-offset: 3px; }
+.twint-pay__mail { display: grid; gap: 12px; justify-items: start; width: 100%; padding: 18px 20px; border-radius: 16px; background: rgba(180, 89, 42, .12); font-size: .9375rem; line-height: 1.5; }
+.twint-pay__mail[hidden] { display: none; }
+.twint-pay__mail strong { font-weight: 600; }
+.twint-pay__mail .muted { font-size: .8125rem; }
+.twint-pay__mail .muted a, .twint-pay__hint a { text-decoration: underline; text-underline-offset: 3px; }
 .twint-pay { max-width: 640px; }
 .twint-pay .cart__done-text { max-width: 30em; }
 .twint-pay__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; margin: 6px 0 0; }

@@ -576,5 +576,17 @@
  "Öffnet sich kein E-Mail-Programm? Schreib uns an": "Aucune messagerie ne s’ouvre ? Écris-nous à",
  "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.": "Important : envoie d’abord l’e-mail avec ta commande, sinon nous ne saurons pas à quoi correspond ton paiement. Nous te confirmerons ensuite la commande par e-mail.",
  "Solange der Vorrat reicht.": "Dans la limite des stocks disponibles.",
- "Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.": "Le nombre de bons est limité : disponibles dans la limite des stocks. S’ils sont tous attribués avant que ton paiement nous parvienne, nous te remboursons immédiatement ton montant."
+ "Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.": "Le nombre de bons est limité : disponibles dans la limite des stocks. S’ils sont tous attribués avant que ton paiement nous parvienne, nous te remboursons immédiatement ton montant.",
+ "TWINT": "TWINT",
+ "Gleich nach dem Bestellen siehst du unseren QR-Code, den Betrag und deinen persönlichen Code.": "Juste après la commande, tu vois notre code QR, le montant et ton code personnel.",
+ "Mit TWINT bezahlen · CHF 15.00": "Payer avec TWINT · CHF 15.00",
+ "Mit TWINT bezahlen": "Payer avec TWINT",
+ "Mit dem Klick bestellst du verbindlich. Danach siehst du sofort, wie du bezahlst.": "En cliquant, tu passes une commande ferme. Ensuite, tu vois tout de suite comment payer.",
+ "Zuerst: Schick uns deine Bestellung.": "D’abord : envoie-nous ta commande.",
+ "Unser Bestellformular ist gerade nicht erreichbar. Die E-Mail ist schon fertig ausgefüllt, du musst sie nur noch abschicken. Sonst wissen wir nicht, von wem die Zahlung ist.": "Notre formulaire de commande est momentanément indisponible. L’e-mail est déjà rempli, tu n’as plus qu’à l’envoyer. Sinon, nous ne saurons pas de qui vient le paiement.",
+ "Mit dem gleichen Handy kannst du den QR-Code nicht scannen. Öffne": "Tu ne peux pas scanner le code QR avec le même téléphone. Ouvre",
+ "auf einem zweiten Bildschirm, zum Beispiel am Computer, und scanne ihn dort. Betrag und Code bleiben hier auf deinem Handy.": "sur un deuxième écran, par exemple sur un ordinateur, et scanne-le là. Le montant et le code restent ici, sur ton téléphone.",
+ "Du bekommst von uns eine Bestätigung per E-Mail.": "Tu reçois de notre part une confirmation par e-mail.",
+ "cascarup.ch/twint": "cascarup.ch/twint",
+ "Hilft uns am meisten": "Ce qui nous aide le plus"
 }

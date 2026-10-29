@@ -576,5 +576,17 @@
  "Öffnet sich kein E-Mail-Programm? Schreib uns an": "No e-mail app opens? Write to us at",
  "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.": "Important: send the e-mail with your order first, otherwise we won’t know what your payment is for. We’ll then confirm your order by e-mail.",
  "Solange der Vorrat reicht.": "While stocks last.",
- "Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.": "The number of certificates is limited: available while stocks last. If they are all taken before your payment arrives, we pay your amount back straight away."
+ "Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.": "The number of certificates is limited: available while stocks last. If they are all taken before your payment arrives, we pay your amount back straight away.",
+ "TWINT": "TWINT",
+ "Gleich nach dem Bestellen siehst du unseren QR-Code, den Betrag und deinen persönlichen Code.": "Right after ordering you see our QR code, the amount and your personal code.",
+ "Mit TWINT bezahlen · CHF 15.00": "Pay with TWINT · CHF 15.00",
+ "Mit TWINT bezahlen": "Pay with TWINT",
+ "Mit dem Klick bestellst du verbindlich. Danach siehst du sofort, wie du bezahlst.": "Clicking places a binding order. Right after, you see how to pay.",
+ "Zuerst: Schick uns deine Bestellung.": "First: send us your order.",
+ "Unser Bestellformular ist gerade nicht erreichbar. Die E-Mail ist schon fertig ausgefüllt, du musst sie nur noch abschicken. Sonst wissen wir nicht, von wem die Zahlung ist.": "Our order form can’t be reached right now. The e-mail is already filled in, you just need to send it. Otherwise we won’t know who the payment is from.",
+ "Mit dem gleichen Handy kannst du den QR-Code nicht scannen. Öffne": "You can’t scan the QR code with the same phone. Open",
+ "auf einem zweiten Bildschirm, zum Beispiel am Computer, und scanne ihn dort. Betrag und Code bleiben hier auf deinem Handy.": "on a second screen, a computer for example, and scan it there. The amount and the code stay here on your phone.",
+ "Du bekommst von uns eine Bestätigung per E-Mail.": "You get a confirmation from us by e-mail.",
+ "cascarup.ch/twint": "cascarup.ch/twint",
+ "Hilft uns am meisten": "Helps us most"
 }

@@ -95,14 +95,14 @@
   const v = (n) => (form.elements[n].value || '').trim();
   const n = () => Math.min(MAX, Math.max(1, Math.round(+qty.value) || 1));
   const OPEN = 'cascarup.schein.offen';      // the order still to be paid, kept for this tab (a reload shows it again)
-  const fallback = form.querySelector('[data-fallback]'), fallbackMail = form.querySelector('[data-fallback-mail]');
+  const mailStep = done.querySelector('[data-pay-mail]'), mailLink = done.querySelector('[data-pay-mail-link]');
 
   // ---- the certificate, as it will read ----------------------------------------------------------------------
   function paint() {
     const k = n();
     each.textContent = `${k} × CHF ${PRICE}.–`;
     sum.textContent = C.fmt(k * PRICE);
-    payBtn.textContent = `${T('Verbindlich bestellen')} · ${C.fmt(k * PRICE)}`;
+    payBtn.textContent = `${T('Mit TWINT bezahlen')} · ${C.fmt(k * PRICE)}`;
     if (!cert) return;
     const name = `${v('vorname')} ${v('nachname')}`.trim();
     const el = cert.querySelector('[data-cert-name]');
@@ -168,22 +168,16 @@
       Vorname: v('vorname'), Name: v('nachname'), email: v('email'), Telefon: v('telefon'),
       Strasse: v('strasse'), PLZ: v('plz'), Ort: v('ort'), Sprache: document.documentElement.lang,
     };
-    fallback.hidden = true;
-    payBtn.disabled = true; status.textContent = T('Wird gesendet …');
+    // the way to pay comes at once; the order goes to us right after (FormSubmit). Should that fail, the order goes
+    // as a ready e-mail instead, as the first step above the QR code – so no order is lost
+    const body = Object.entries(fields).map(([key, x]) => `${key === 'email' ? 'E-Mail' : key}: ${x}`).join('\n');
+    const mail = `mailto:info@cascarup.ch?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    finish(total, payCode);
     try {
       await C.send(form.dataset.endpoint, { _subject: subject, _template: 'table', _autoresponse: confirmation(k, total, payCode), ...fields });
-      status.textContent = '';
-      finish(total, payCode);
     } catch {
-      // FormSubmit cannot be reached (or refused): no order may get lost – it goes as a ready e-mail instead
-      status.textContent = '';
-      const body = Object.entries(fields).map(([key, x]) => `${key === 'email' ? 'E-Mail' : key}: ${x}`).join('\n');
-      fallbackMail.href = `mailto:info@cascarup.ch?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      fallbackMail.onclick = () => setTimeout(() => finish(total, payCode, T('Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.')), 400);
-      fallback.hidden = false;
-      fallback.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    } finally {
-      payBtn.disabled = false;
+      needMail(mail);
+      remember(total, payCode, mail);
     }
   });
 
@@ -192,14 +186,22 @@
     C.twint(done, total, payCode);
     const el = done.querySelector('[data-done-note]');
     el.textContent = note || ''; el.hidden = !note;
+    mailStep.hidden = true;
     if (cert) cert.querySelector('[data-cert-no]').textContent = payCode.slice(3);
     form.hidden = true; done.hidden = false;
-    if (!document.documentElement.dataset.preview) try { sessionStorage.setItem(OPEN, JSON.stringify({ total, code: payCode, note: note || '' })); } catch { /* private mode */ }
+    if (!document.documentElement.dataset.preview) remember(total, payCode, '');
     if (!quiet) { done.scrollIntoView({ block: 'start', behavior: 'smooth' }); done.focus({ preventScroll: true }); }
   }
+  function needMail(mail) {
+    mailLink.href = mail;
+    mailStep.hidden = false;
+  }
+  const remember = (total, payCode, mail) => {
+    try { sessionStorage.setItem(OPEN, JSON.stringify({ total, code: payCode, mail })); } catch { /* private mode */ }
+  };
   done.querySelector('[data-ps-again]').addEventListener('click', () => {
     try { sessionStorage.removeItem(OPEN); } catch { /* nothing kept */ }
-    form.reset(); paint(); form.hidden = false; done.hidden = true; fallback.hidden = true;
+    form.reset(); paint(); form.hidden = false; done.hidden = true; mailStep.hidden = true;
     if (cert) cert.querySelector('[data-cert-no]').textContent = '—';
     form.scrollIntoView({ block: 'start', behavior: 'smooth' });
   });
@@ -212,6 +214,9 @@
   paint();
   try {
     const open = JSON.parse(sessionStorage.getItem(OPEN) || 'null');
-    if (open && /^PS-[A-Z2-9]{5}$/.test(open.code)) finish(+open.total, open.code, open.note || '', true);
+    if (open && /^PS-[A-Z2-9]{5}$/.test(open.code)) {
+      finish(+open.total, open.code, '', true);
+      if (open.mail && open.mail.startsWith('mailto:info@cascarup.ch?')) { needMail(open.mail); remember(+open.total, open.code, open.mail); }
+    }
   } catch { /* nothing kept */ }
 })();
