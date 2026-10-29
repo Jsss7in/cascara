@@ -96,6 +96,7 @@
   const n = () => Math.min(MAX, Math.max(1, Math.round(+qty.value) || 1));
   const OPEN = 'cascarup.schein.offen';      // the order still to be paid, kept for this tab (a reload shows it again)
   const mailStep = done.querySelector('[data-pay-mail]'), mailLink = done.querySelector('[data-pay-mail-link]');
+  const copyOrder = done.querySelector('[data-copy-order]');
 
   // ---- the certificate, as it will read ----------------------------------------------------------------------
   function paint() {
@@ -160,47 +161,93 @@
     if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     if (form.elements._honey.value) return;
     const k = n(), total = k * PRICE, payCode = C.code('PS');
-    if (document.documentElement.dataset.preview) return finish(total, payCode, T('Vorschau: Es wurde nichts gesendet.'));
-    const subject = `Partizipationsschein ${payCode} · ${C.fmt(total)} · ${v('vorname')} ${v('nachname')}`;
-    const fields = {
-      Code: payCode, Betrag: C.fmt(total), Anzahl: k, 'Am Ende': end.value === 'zurueck' ? 'Geld zurück' : 'Behalten',
-      Zahlung: 'TWINT, noch offen: Code in der Mitteilung prüfen',
-      Vorname: v('vorname'), Name: v('nachname'), email: v('email'), Telefon: v('telefon'),
-      Strasse: v('strasse'), PLZ: v('plz'), Ort: v('ort'), Sprache: document.documentElement.lang,
+    const order = {
+      total, code: payCode, k,
+      fields: {
+        Code: payCode, Betrag: C.fmt(total), Anzahl: k, 'Am Ende': end.value === 'zurueck' ? 'Geld zurück' : 'Behalten',
+        Vorname: v('vorname'), Name: v('nachname'), email: v('email'), Telefon: v('telefon'),
+        Strasse: v('strasse'), PLZ: v('plz'), Ort: v('ort'), Sprache: document.documentElement.lang,
+      },
     };
-    // the way to pay comes at once; the order goes to us right after (FormSubmit). Should that fail, the order goes
-    // as a ready e-mail instead, as the first step above the QR code – so no order is lost
-    const body = Object.entries(fields).map(([key, x]) => `${key === 'email' ? 'E-Mail' : key}: ${x}`).join('\n');
-    const mail = `mailto:info@cascarup.ch?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    finish(total, payCode);
-    try {
-      await C.send(form.dataset.endpoint, { _subject: subject, _template: 'table', _autoresponse: confirmation(k, total, payCode), ...fields });
-    } catch {
-      needMail(mail);
-      remember(total, payCode, mail);
-    }
+    if (document.documentElement.dataset.preview) return finish(order, T('Vorschau: Es wurde nichts gesendet.'));
+    // the way to pay comes at once; the order goes to us right after, and once more with «Ich habe bezahlt»
+    finish(order);
+    order.filed = await save(order, 'offen');
+    if (current === order) remember(order);
   });
 
+  // into our order book (data-sheet), else by FormSubmit; true once one of them has it
+  async function save(order, state) {
+    const f = order.fields, paid = state === 'bezahlt';
+    const fields = { ...f, Zahlung: paid ? 'TWINT: laut Käufer bezahlt, in TWINT prüfen' : 'TWINT: noch offen' };
+    try {
+      if (!form.dataset.sheet) throw new Error('no order book');
+      await C.file(form.dataset.sheet, { ...fields, Gemeldet: state });
+      return true;
+    } catch {
+      try {
+        await C.send(form.dataset.endpoint, {
+          _subject: `${paid ? 'Bezahlt gemeldet:' : 'Partizipationsschein'} ${f.Code} · ${f.Betrag} · ${f.Vorname} ${f.Name}`,
+          _template: 'table', ...(paid ? {} : { _autoresponse: confirmation(order.k, order.total, f.Code) }), ...fields,
+        });
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  }
+
   // ---- after ordering: how to pay -------------------------------------------------------------------------------
-  function finish(total, payCode, note, quiet = false) {
-    C.twint(done, total, payCode);
+  let current = null;
+  const body = done.querySelector('[data-pay-body]'), thanksEl = done.querySelector('[data-pay-thanks]');
+  const paidBtn = done.querySelector('[data-paid]'), paidStatus = done.querySelector('[data-paid-status]');
+  function finish(order, note, quiet = false) {
+    current = order;
+    C.twint(done, order.total, order.code);
     const el = done.querySelector('[data-done-note]');
     el.textContent = note || ''; el.hidden = !note;
-    mailStep.hidden = true;
-    if (cert) cert.querySelector('[data-cert-no]').textContent = payCode.slice(3);
+    mailStep.hidden = true; body.hidden = false; thanksEl.hidden = true; paidStatus.textContent = '';
+    if (cert) cert.querySelector('[data-cert-no]').textContent = order.code.slice(3);
     form.hidden = true; done.hidden = false;
-    if (!document.documentElement.dataset.preview) remember(total, payCode, '');
+    if (!document.documentElement.dataset.preview) remember(order);
     if (!quiet) { done.scrollIntoView({ block: 'start', behavior: 'smooth' }); done.focus({ preventScroll: true }); }
   }
-  function needMail(mail) {
-    mailLink.href = mail;
-    mailStep.hidden = false;
+  function thanks() {
+    try { sessionStorage.removeItem(OPEN); } catch { /* nothing kept */ }
+    body.hidden = true; thanksEl.hidden = false;
+    done.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
-  const remember = (total, payCode, mail) => {
-    try { sessionStorage.setItem(OPEN, JSON.stringify({ total, code: payCode, mail })); } catch { /* private mode */ }
+  paidBtn.addEventListener('click', async () => {
+    const order = current;
+    if (!order) return;
+    if (document.documentElement.dataset.preview) return thanks();
+    paidBtn.disabled = true; paidStatus.textContent = T('Wird gespeichert …');
+    const ok = await save(order, 'bezahlt');
+    paidBtn.disabled = false; paidStatus.textContent = '';
+    if (ok || order.filed) return thanks();
+    needMail(order);   // nothing reached us: the order as a ready e-mail, then it is done
+  });
+  function needMail(order) {
+    const f = { ...order.fields, Zahlung: 'TWINT: laut Käufer bezahlt, in TWINT prüfen' };
+    const subject = `Partizipationsschein ${f.Code} · ${f.Betrag} · ${f.Vorname} ${f.Name}`;
+    const text = `${subject}\n\n${Object.entries(f).map(([key, x]) => `${key === 'email' ? 'E-Mail' : key}: ${x}`).join('\n')}`;
+    mailLink.href = `mailto:info@cascarup.ch?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+    mailLink.onclick = () => setTimeout(thanks, 600);
+    copyOrder.textContent = T('Bestellung kopieren');
+    copyOrder.onclick = async () => {
+      try { await navigator.clipboard.writeText(text); } catch { return; }
+      copyOrder.textContent = T('Kopiert');
+      setTimeout(() => { copyOrder.textContent = T('Bestellung kopieren'); }, 1800);
+    };
+    mailStep.hidden = false;
+    mailStep.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+  const remember = (order) => {
+    try { sessionStorage.setItem(OPEN, JSON.stringify(order)); } catch { /* private mode */ }
   };
   done.querySelector('[data-ps-again]').addEventListener('click', () => {
     try { sessionStorage.removeItem(OPEN); } catch { /* nothing kept */ }
+    current = null;
     form.reset(); paint(); form.hidden = false; done.hidden = true; mailStep.hidden = true;
     if (cert) cert.querySelector('[data-cert-no]').textContent = '—';
     form.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -214,9 +261,6 @@
   paint();
   try {
     const open = JSON.parse(sessionStorage.getItem(OPEN) || 'null');
-    if (open && /^PS-[A-Z2-9]{5}$/.test(open.code)) {
-      finish(+open.total, open.code, '', true);
-      if (open.mail && open.mail.startsWith('mailto:info@cascarup.ch?')) { needMail(open.mail); remember(+open.total, open.code, open.mail); }
-    }
+    if (open && /^PS-[A-Z2-9]{5}$/.test(open.code) && open.fields) finish(open, '', true);
   } catch { /* nothing kept */ }
 })();

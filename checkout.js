@@ -58,6 +58,16 @@ window.CascarupCheckout = (() => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);
   }
+  // an order into our order book (a Google Apps Script web app, _build/bestellbuch): sent as plain text, so the
+  // browser asks no permission first; it answers {ok: true} once the order is filed
+  async function file(url, fields) {
+    const res = await fetch(url, {
+      method: 'POST', body: JSON.stringify(fields),
+      signal: AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok !== true) throw new Error(data.error || `HTTP ${res.status}`);
+  }
   // the way to pay, filled in: the amount and the code wherever they are named, each with a button to copy it
   function twint(panel, amount, payCode) {
     const T = window.cascarupT || ((s) => s);
@@ -73,5 +83,5 @@ window.CascarupCheckout = (() => {
     });
   }
 
-  return { fmt, number, back, pay, returned, keep, restore, forget, code, send, twint };
+  return { fmt, number, back, pay, returned, keep, restore, forget, code, send, file, twint };
 })();

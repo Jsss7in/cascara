@@ -48,5 +48,8 @@
  "Kopieren",
  "Kopiert",
  "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.",
- "Mit TWINT bezahlen"
+ "Mit TWINT bezahlen",
+ "Bestellung kopieren",
+ "Zur Sicherheit: Schreib in die TWINT-Mitteilung deinen Code und deine E-Mail-Adresse, also «{code} {email}».",
+ "Wird gespeichert …"
 ]

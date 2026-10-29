@@ -269,7 +269,10 @@ SALES_OPEN = False
 # The participation certificates are on sale before the shop: they are paid with TWINT (our QR code, the amount and a
 # code of the buyer's own in the payment's message, so we know whose payment it is). The order reaches us by e-mail
 # through FormSubmit (NOTIFY_ENDPOINT), which also sends the buyer a confirmation.
-PS_OPEN = False
+PS_OPEN = True
+# The order book (_build/bestellbuch/Code.gs, a Google Sheet): its web-app address. Once set, every order is filed
+# there first; FormSubmit only if that fails, and the ready e-mail only if both fail.
+PS_SHEET = ''
 NOTIFY_ENDPOINT = 'https://formsubmit.co/ajax/info@cascarup.ch'
 # The two kinds we start with (Management Summary and pitch: «Original» and «Cozy Spice», inspired by the
 # Gifferstee of our region). Each picture is a photograph of our real bottle in that size with our label on it
@@ -790,44 +793,50 @@ def icon_svg(svg):
 
 
 def twint_pay():
-    """After ordering: how to pay with TWINT – our QR code, the exact amount, and the buyer's own code for the
-    payment's message, by which we know whose payment it is (ps.js fills in amount and code)."""
+    """After ordering: how to pay with TWINT – our QR code, the exact amount and the buyer's own code for the payment's
+    message – and the button «Ich habe bezahlt», which files the order once more as paid (ps.js)."""
     return '''          <div class="ps-done twint-pay" data-ps-done hidden tabindex="-1">
-            <p class="eyebrow">Fast geschafft</p>
-            <p class="cart__done-title">Jetzt mit TWINT bezahlen.</p>
-            <p class="cart__done-text">Deine Bestellung ist bei uns angekommen. Bezahl sie jetzt mit TWINT, dann ist dein Schein gezeichnet.</p>
-            <dl class="twint-pay__facts">
-              <div class="twint-fact"><dt>Betrag</dt><dd><strong data-pay-amount>CHF 15.00</strong><button type="button" class="twint-fact__copy" data-copy="amount">Kopieren</button></dd></div>
-              <div class="twint-fact twint-fact--code"><dt>Dein Code für die Mitteilung</dt><dd><strong data-pay-code>PS-·····</strong><button type="button" class="twint-fact__copy" data-copy="code">Kopieren</button></dd></div>
-            </dl>
-            <!-- if our order form (FormSubmit) could not be reached: the order as a ready e-mail to us, first of all -->
-            <div class="twint-pay__mail" data-pay-mail hidden>
-              <p><strong>Zuerst: Schick uns deine Bestellung.</strong> Unser Bestellformular ist gerade nicht erreichbar. Die E-Mail ist schon fertig ausgefüllt, du musst sie nur noch abschicken. Sonst wissen wir nicht, von wem die Zahlung ist.</p>
-              <a class="button button--solid" data-pay-mail-link href="mailto:info@cascarup.ch">Bestellung per E-Mail senden</a>
-              <p class="muted">Öffnet sich kein E-Mail-Programm? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
+            <div class="twint-pay__body" data-pay-body>
+              <p class="eyebrow">Fast geschafft</p>
+              <p class="cart__done-title">Jetzt mit TWINT bezahlen.</p>
+              <p class="cart__done-text">Deine Bestellung ist aufgenommen. Bezahl sie jetzt mit TWINT und tippe danach auf «Ich habe bezahlt».</p>
+              <dl class="twint-pay__facts">
+                <div class="twint-fact"><dt>Betrag</dt><dd><strong data-pay-amount>CHF 15.00</strong><button type="button" class="twint-fact__copy" data-copy="amount">Kopieren</button></dd></div>
+                <div class="twint-fact twint-fact--code"><dt>Dein Code für die Mitteilung</dt><dd><strong data-pay-code>PS-·····</strong><button type="button" class="twint-fact__copy" data-copy="code">Kopieren</button></dd></div>
+              </dl>
+              <div class="twint-pay__grid">
+                <img class="twint-pay__qr" src="assets/twint/twint-qr.png" width="952" height="1201" alt="TWINT-QR-Code von Cascarup" loading="lazy" decoding="async">
+                <ol class="twint-pay__steps">
+                  <li>Öffne die TWINT-App und tippe auf <strong>Scannen</strong>.</li>
+                  <li>Scanne diesen QR-Code.</li>
+                  <li>Gib den Betrag ein, genau <strong data-pay-amount>CHF 15.00</strong>.</li>
+                  <li>Schreib deinen Code <strong data-pay-code>PS-·····</strong> in die Mitteilung.</li>
+                  <li>Bestätige die Zahlung.</li>
+                </ol>
+              </div>
+              <p class="twint-pay__hint"><strong>Tipp:</strong> Mit dem Code in der Mitteilung finden wir deine Zahlung am schnellsten.</p>
+              <p class="twint-pay__hint"><strong>Du bist am Handy?</strong> Mit dem gleichen Handy kannst du den QR-Code nicht scannen. Öffne <a href="https://cascarup.ch/twint/" target="_blank" rel="noopener">cascarup.ch/twint</a> auf einem zweiten Bildschirm, zum Beispiel am Computer, und scanne ihn dort. Betrag und Code bleiben hier auf deinem Handy.</p>
+              <!-- if the order reached us neither in the order book nor by FormSubmit: the order as a ready e-mail -->
+              <div class="twint-pay__mail" data-pay-mail hidden>
+                <p><strong>Fast fertig: Schick uns noch deine Bestellung.</strong> Unser Bestellsystem ist gerade nicht erreichbar. Die E-Mail ist schon fertig ausgefüllt, du musst sie nur noch abschicken.</p>
+                <div class="twint-pay__mail-actions">
+                  <a class="button button--solid" data-pay-mail-link href="mailto:info@cascarup.ch">Bestellung per E-Mail senden</a>
+                  <button type="button" class="twint-fact__copy" data-copy-order>Bestellung kopieren</button>
+                </div>
+                <p class="muted">Öffnet sich kein E-Mail-Programm? Kopier die Bestellung und schick sie an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
+              </div>
+              <button type="button" class="button button--solid twint-pay__paid" data-paid>Ich habe bezahlt</button>
+              <p class="order__status" data-paid-status role="status" aria-live="polite"></p>
+              <p class="cart__done-note" data-done-note hidden></p>
+              <button type="button" class="hero__more twint-pay__again" data-ps-again>Weitere Scheine zeichnen</button>
             </div>
-            <div class="twint-pay__grid">
-              <img class="twint-pay__qr" src="assets/twint/twint-qr.png" width="952" height="1201" alt="TWINT-QR-Code von Cascarup" loading="lazy" decoding="async">
-              <ol class="twint-pay__steps">
-                <li>Öffne die TWINT-App und tippe auf <strong>Scannen</strong>.</li>
-                <li>Scanne diesen QR-Code.</li>
-                <li>Gib den Betrag ein, genau <strong data-pay-amount>CHF 15.00</strong>.</li>
-                <li>Schreib deinen Code <strong data-pay-code>PS-·····</strong> in die Mitteilung.</li>
-                <li>Bestätige die Zahlung.</li>
-              </ol>
+            <div class="twint-pay__thanks" data-pay-thanks hidden>
+              <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
+              <p class="eyebrow">Danke!</p>
+              <p class="cart__done-title">Du bist dabei.</p>
+              <p class="cart__done-text">Wir prüfen deine Zahlung in TWINT. Wegen deines Zertifikats melden wir uns bald bei dir.</p>
+              <a class="button button--solid" href="index.html">Zur Startseite</a>
             </div>
-            <p class="twint-pay__hint"><strong>Ohne Code geht es nicht:</strong> Nur so wissen wir, dass die Zahlung von dir ist.</p>
-            <p class="twint-pay__hint"><strong>Du bist am Handy?</strong> Mit dem gleichen Handy kannst du den QR-Code nicht scannen. Öffne <a href="https://cascarup.ch/twint/" target="_blank" rel="noopener">cascarup.ch/twint</a> auf einem zweiten Bildschirm, zum Beispiel am Computer, und scanne ihn dort. Betrag und Code bleiben hier auf deinem Handy.</p>
-            <div class="twint-pay__next">
-              <p class="twint-pay__label">So geht es weiter</p>
-              <ul>
-                <li>Du bekommst von uns eine Bestätigung per E-Mail.</li>
-                <li>Sobald deine Zahlung bei uns ist, ist dein Schein gezeichnet.</li>
-                <li>Wegen deines Zertifikats melden wir uns bald bei dir.</li>
-              </ul>
-            </div>
-            <p class="cart__done-note" data-done-note hidden></p>
-            <button type="button" class="hero__more twint-pay__again" data-ps-again>Weitere Scheine zeichnen</button>
           </div>'''
 
 
@@ -847,7 +856,7 @@ def ps_main():
     terms = '\n'.join(f'            <li>{t}</li>' for t in PS_TERMS)
     buy = f'''          <p class="eyebrow">Dein Schein</p>
           <h2 class="display" id="ps-form-title">Jetzt <em>zeichnen.</em></h2>
-          <form class="order ps-order" data-ps data-endpoint="{NOTIFY_ENDPOINT}" data-price="{PS_PRICE}" data-max="{PS_MAX}" novalidate>
+          <form class="order ps-order" data-ps data-endpoint="{NOTIFY_ENDPOINT}" data-sheet="{PS_SHEET}" data-price="{PS_PRICE}" data-max="{PS_MAX}" novalidate>
             <fieldset class="order__group">
               <legend>Anzahl</legend>
               <div class="ps-count">

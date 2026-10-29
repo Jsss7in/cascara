@@ -589,5 +589,18 @@
  "Du bekommst von uns eine Bestätigung per E-Mail.": "Tu reçois de notre part une confirmation par e-mail.",
  "cascarup.ch/twint": "cascarup.ch/twint",
  "Hilft uns am meisten": "Ce qui nous aide le plus",
- "Bald online mit TWINT. Schon jetzt bar oder mit TWINT an unseren Ständen.": "Bientôt en ligne avec TWINT. Dès maintenant en espèces ou avec TWINT à nos stands."
+ "Bald online mit TWINT. Schon jetzt bar oder mit TWINT an unseren Ständen.": "Bientôt en ligne avec TWINT. Dès maintenant en espèces ou avec TWINT à nos stands.",
+ "Bestellung kopieren": "Copier la commande",
+ "Öffnet sich kein E-Mail-Programm? Kopier die Bestellung und schick sie an": "Aucune messagerie ne s’ouvre ? Copie la commande et envoie-la à",
+ "Zur Sicherheit: Schreib in die TWINT-Mitteilung deinen Code und deine E-Mail-Adresse, also «{code} {email}».": "Par sécurité : écris dans le message TWINT ton code et ton adresse e-mail, donc « {code} {email} ».",
+ "Deine Bestellung ist aufgenommen. Bezahl sie jetzt mit TWINT und tippe danach auf «Ich habe bezahlt».": "Ta commande est enregistrée. Paie-la maintenant avec TWINT, puis touche « J’ai payé ».",
+ "Tipp:": "Astuce :",
+ "Mit dem Code in der Mitteilung finden wir deine Zahlung am schnellsten.": "avec le code dans le message, nous trouvons ton paiement le plus vite.",
+ "Fast fertig: Schick uns noch deine Bestellung.": "Presque fini : envoie-nous encore ta commande.",
+ "Unser Bestellsystem ist gerade nicht erreichbar. Die E-Mail ist schon fertig ausgefüllt, du musst sie nur noch abschicken.": "Notre système de commande est momentanément indisponible. L’e-mail est déjà rempli, tu n’as plus qu’à l’envoyer.",
+ "Ich habe bezahlt": "J’ai payé",
+ "Du bist dabei.": "Tu fais partie de l’aventure.",
+ "Wir prüfen deine Zahlung in TWINT. Wegen deines Zertifikats melden wir uns bald bei dir.": "Nous vérifions ton paiement dans TWINT. Nous te contacterons bientôt au sujet de ton certificat.",
+ "Zur Startseite": "Vers l’accueil",
+ "Wird gespeichert …": "Enregistrement…"
 }

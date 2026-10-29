@@ -589,5 +589,18 @@
  "Du bekommst von uns eine Bestätigung per E-Mail.": "You get a confirmation from us by e-mail.",
  "cascarup.ch/twint": "cascarup.ch/twint",
  "Hilft uns am meisten": "Helps us most",
- "Bald online mit TWINT. Schon jetzt bar oder mit TWINT an unseren Ständen.": "Soon online with TWINT. Already now in cash or with TWINT at our stands."
+ "Bald online mit TWINT. Schon jetzt bar oder mit TWINT an unseren Ständen.": "Soon online with TWINT. Already now in cash or with TWINT at our stands.",
+ "Bestellung kopieren": "Copy order",
+ "Öffnet sich kein E-Mail-Programm? Kopier die Bestellung und schick sie an": "No e-mail app opens? Copy the order and send it to",
+ "Zur Sicherheit: Schreib in die TWINT-Mitteilung deinen Code und deine E-Mail-Adresse, also «{code} {email}».": "To be safe: write your code and your e-mail address in the TWINT message, so “{code} {email}”.",
+ "Deine Bestellung ist aufgenommen. Bezahl sie jetzt mit TWINT und tippe danach auf «Ich habe bezahlt».": "Your order is in. Pay for it now with TWINT, then tap “I have paid”.",
+ "Tipp:": "Tip:",
+ "Mit dem Code in der Mitteilung finden wir deine Zahlung am schnellsten.": "with the code in the message we find your payment fastest.",
+ "Fast fertig: Schick uns noch deine Bestellung.": "Almost done: send us your order.",
+ "Unser Bestellsystem ist gerade nicht erreichbar. Die E-Mail ist schon fertig ausgefüllt, du musst sie nur noch abschicken.": "Our order system can’t be reached right now. The e-mail is already filled in, you just need to send it.",
+ "Ich habe bezahlt": "I have paid",
+ "Du bist dabei.": "You’re in.",
+ "Wir prüfen deine Zahlung in TWINT. Wegen deines Zertifikats melden wir uns bald bei dir.": "We’ll check your payment in TWINT. We’ll be in touch soon about your certificate document.",
+ "Zur Startseite": "To the home page",
+ "Wird gespeichert …": "Saving …"
 }
