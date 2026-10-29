@@ -52,8 +52,8 @@
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>
-  <link rel="stylesheet" href="assets/fonts.css?v=20261029161645">
-  <link rel="stylesheet" href="styles.css?v=20261029161645">
+  <link rel="stylesheet" href="assets/fonts.css?v=20261029162003">
+  <link rel="stylesheet" href="styles.css?v=20261029162003">
 </head>
 <body class="is-ps">
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -224,6 +224,12 @@
             <button class="button button--solid order__submit" type="submit" data-pay>Verbindlich bestellen · CHF 15.00</button>
             <p class="order__pay">Danach zeigen wir dir, wie du mit TWINT bezahlst.</p>
             <p class="order__status" role="status" aria-live="polite"></p>
+            <!-- if FormSubmit cannot be reached: the order as a ready e-mail to us, then on to paying (ps.js) -->
+            <div class="order__fallback" data-fallback hidden>
+              <p><strong>Unser Bestellformular ist gerade nicht erreichbar.</strong> Schick uns deine Bestellung stattdessen per E-Mail: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.</p>
+              <a class="button button--solid" data-fallback-mail href="mailto:info@cascarup.ch">Bestellung per E-Mail senden</a>
+              <p class="muted">Öffnet sich kein E-Mail-Programm? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
+            </div>
           </form>
           <div class="ps-done twint-pay" data-ps-done hidden tabindex="-1">
             <p class="eyebrow">Fast geschafft</p>
@@ -321,8 +327,8 @@
 
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden><img class="menu-btn__bottle" src="assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async"><span>Menü</span><i aria-hidden="true"></i></button>
 
-  <script src="main.js?v=20261029161645" defer></script>
-  <script src="checkout.js?v=20261029161645" defer></script>
-  <script src="ps.js?v=20261029161645" defer></script>
+  <script src="main.js?v=20261029162003" defer></script>
+  <script src="checkout.js?v=20261029162003" defer></script>
+  <script src="ps.js?v=20261029162003" defer></script>
 </body>
 </html>

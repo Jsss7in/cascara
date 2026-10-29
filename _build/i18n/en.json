@@ -569,5 +569,10 @@
  "Vorschau: Es wurde nichts gesendet.": "Preview: nothing was sent.",
  "Deine Bestellung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.": "Your order didn’t reach us. Please try again in a moment or write to us at info@cascarup.ch.",
  "Gib den Betrag ein, genau": "Enter the amount, exactly",
- "Bald kannst du auch mit Karte bezahlen. Weitere Zahlungsarten folgen.": "Soon you’ll also be able to pay by card. More ways to pay are on their way."
+ "Bald kannst du auch mit Karte bezahlen. Weitere Zahlungsarten folgen.": "Soon you’ll also be able to pay by card. More ways to pay are on their way.",
+ "Unser Bestellformular ist gerade nicht erreichbar.": "Our order form can’t be reached right now.",
+ "Schick uns deine Bestellung stattdessen per E-Mail: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.": "Send us your order by e-mail instead: it’s already filled in, you just need to send it.",
+ "Bestellung per E-Mail senden": "Send order by e-mail",
+ "Öffnet sich kein E-Mail-Programm? Schreib uns an": "No e-mail app opens? Write to us at",
+ "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail.": "Important: send the e-mail with your order first, otherwise we won’t know what your payment is for. We’ll then confirm your order by e-mail."
 }

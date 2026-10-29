@@ -1175,6 +1175,11 @@ html:has(.is-legal) { background: var(--paper); }
 .twint-note strong { display: block; font-weight: 500; }
 .twint-note .muted { font-size: .8125rem; }
 .twint-soon { margin-top: 10px; padding-left: 2px; font-size: .8125rem; color: var(--ink-3); }
+.order__fallback { display: grid; gap: 12px; justify-items: start; margin-top: 16px; padding: 18px 20px; border-radius: 16px; background: rgba(180, 89, 42, .1); font-size: .9375rem; line-height: 1.5; color: var(--ink); }
+.order__fallback[hidden] { display: none; }
+.order__fallback strong { font-weight: 600; }
+.order__fallback .muted { font-size: .8125rem; }
+.order__fallback .muted a { text-decoration: underline; text-underline-offset: 3px; }
 .twint-pay { max-width: 640px; }
 .twint-pay .cart__done-text { max-width: 30em; }
 .twint-pay__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; margin: 6px 0 0; }

@@ -874,6 +874,12 @@ def ps_main():
             <button class="button button--solid order__submit" type="submit" data-pay>Verbindlich bestellen · CHF {PS_PRICE:.2f}</button>
             <p class="order__pay">Danach zeigen wir dir, wie du mit TWINT bezahlst.</p>
             <p class="order__status" role="status" aria-live="polite"></p>
+            <!-- if FormSubmit cannot be reached: the order as a ready e-mail to us, then on to paying (ps.js) -->
+            <div class="order__fallback" data-fallback hidden>
+              <p><strong>Unser Bestellformular ist gerade nicht erreichbar.</strong> Schick uns deine Bestellung stattdessen per E-Mail: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.</p>
+              <a class="button button--solid" data-fallback-mail href="mailto:info@cascarup.ch">Bestellung per E-Mail senden</a>
+              <p class="muted">Öffnet sich kein E-Mail-Programm? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
+            </div>
           </form>
 {twint_pay()}
         </div>

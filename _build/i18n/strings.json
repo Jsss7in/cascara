@@ -342,6 +342,10 @@
  "gelesen und bin einverstanden. Meine Angaben gehen über den Dienst FormSubmit ins Ausland an Cascarup; mehr dazu in der",
  "Verbindlich bestellen · CHF 15.00",
  "Danach zeigen wir dir, wie du mit TWINT bezahlst.",
+ "Unser Bestellformular ist gerade nicht erreichbar.",
+ "Schick uns deine Bestellung stattdessen per E-Mail: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.",
+ "Bestellung per E-Mail senden",
+ "Öffnet sich kein E-Mail-Programm? Schreib uns an",
  "Fast geschafft",
  "Jetzt mit TWINT bezahlen.",
  "Deine Bestellung ist bei uns angekommen. Bezahl sie jetzt mit TWINT, dann ist dein Schein gezeichnet.",
@@ -547,5 +551,6 @@
  "Bitte gib deine Telefonnummer an, zum Beispiel 079 123 45 67.",
  "Vorschau: Es wurde nichts gesendet.",
  "Deine Bestellung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.",
- "Kopiert"
+ "Kopiert",
+ "Wichtig: Schick zuerst die E-Mail mit deiner Bestellung ab, sonst wissen wir nicht, wofür deine Zahlung ist. Wir bestätigen dir die Bestellung dann per E-Mail."
 ]
