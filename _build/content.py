@@ -865,6 +865,7 @@ def ps_main():
             <fieldset class="order__group">
               <legend>Bezahlen</legend>
               <p class="twint-note"><span class="pay__mark pay__mark--twint" aria-hidden="true">TWINT</span><span><strong>Mit TWINT</strong><span class="muted">Nach dem Bestellen zeigen wir dir unseren QR-Code, den Betrag und deinen persönlichen Code.</span></span></p>
+              <p class="twint-soon">Bald kannst du auch mit Karte bezahlen. Weitere Zahlungsarten folgen.</p>
             </fieldset>
             <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
             <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
