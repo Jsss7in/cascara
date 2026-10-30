@@ -6,7 +6,7 @@ import {
   WebGLRenderer, Scene, PerspectiveCamera, PMREMGenerator, Group, Mesh, Color, Vector3,
   SphereGeometry, LatheGeometry, PlaneGeometry, CircleGeometry, TorusGeometry, BoxGeometry, BufferGeometry,
   BufferAttribute, CylinderGeometry, MeshPhysicalMaterial, MeshStandardMaterial, MeshBasicMaterial, DoubleSide,
-  BackSide, DirectionalLight, HemisphereLight, CanvasTexture, SRGBColorSpace, NeutralToneMapping, Plane, Vector2,
+  BackSide, FrontSide, DirectionalLight, HemisphereLight, CanvasTexture, SRGBColorSpace, NeutralToneMapping, Plane, Vector2,
   Object3D, RepeatWrapping, TextureLoader, ShaderChunk, ExtrudeGeometry, Shape, Sprite, SpriteMaterial,
 } from 'three';
 
@@ -90,7 +90,8 @@ export function skinTexture() {
 
 export function skinHalf(side) {
   // half an ellipsoid shell, cut along the plane in which the two beans face each other
-  const g = new SphereGeometry(1, 160, 120, side > 0 ? Math.PI / 2 : -Math.PI / 2, Math.PI);
+  // 96 × 80 over the half: a hair finer than the screen at its largest, a third of what it was
+  const g = new SphereGeometry(1, 96, 80, side > 0 ? Math.PI / 2 : -Math.PI / 2, Math.PI);
   const pos = g.attributes.position, nor = g.attributes.normal, uv = g.attributes.uv, n = pos.count;
   const unit = new Float32Array(pos.array);
   const dry = new Float32Array(n * 3), col = new Float32Array(n * 3), colDry = new Float32Array(n * 3);
@@ -280,8 +281,8 @@ float steep(vec3 p) {
   float wisp = exp(-d * d / .03) * (.55 + .45 * n) * smoothstep(0., .04, uBloom);
   return max(cloud, wisp);
 }`;
-function infusing(mat) {
-  const u = { uBloom: { value: 0 }, uTime: { value: 0 }, uTop: { value: 0 }, uSrc0: { value: new Vector3(0, 9, 0) },
+function infusing(mat, shared = null) {
+  const u = shared || { uBloom: { value: 0 }, uTime: { value: 0 }, uTop: { value: 0 }, uSrc0: { value: new Vector3(0, 9, 0) },
     uSrc1: { value: new Vector3(0, 9, 0) } };
   mat.userData.infuse = u;
   mat.onBeforeCompile = (sh) => {
@@ -292,14 +293,15 @@ function infusing(mat) {
   {
     vec3 rd = normalize( vWorldPosition - cameraPosition );
     float dens = 0.0;
-    for ( int i = 0; i < 5; i ++ ) dens += steep( vWorldPosition + rd * ( .07 + float( i ) * .16 ) );
-    dens /= 5.0;
+    // three looks along the line of sight (each two noises): five were the pot's heaviest cost, three look the same
+    for ( int i = 0; i < 3; i ++ ) dens += steep( vWorldPosition + rd * ( .09 + float( i ) * .26 ) );
+    dens /= 3.0;
     // clear water absorbs nothing; where the cascara has steeped, the same amber absorbs ever more
     material.attenuationColor = attenuationColor;
     material.attenuationDistance = attenuationDistance / max( dens, .002 );   // absorption grows with the density
   }`));
   };
-  mat.customProgramCacheKey = () => 'cascarup-infuse-6';
+  mat.customProgramCacheKey = () => 'cascarup-infuse-7';
   return mat;
 }
 
@@ -444,6 +446,20 @@ function steamTexture(seed) {
 // ---------------------------------------------------------------------------------------------------------------
 // The timeline, in scroll progress 0–1. CHAPTERS are where the page comes to rest (page.js glides between them).
 export const CHAPTERS = [0, .28, .45, .6, .765, .862, 1];
+// How long each chapter plays when the page glides through it (seconds): the opening, the bean, the drying, the
+// pot, the syrup into the bottles, the still life. The scroll is shared out in the same proportion (STOPS), so every
+// chapter goes at about the same pace, scrolled or glided – before, the syrup filling the bottles had the least
+// scroll of all and rushed past.
+const PLAY = [2.1, 1.9, 1.8, 2.1, 2.5, 2.2];
+export const PLAY_MS = PLAY.reduce((a, b) => a + b) * 1000;
+export const STOPS = PLAY.reduce((a, d) => [...a, a[a.length - 1] + d], [0]).map((t, _, all) => t / all[all.length - 1]);
+// the scroll (0–1, in STOPS) to the story's own time (0–1, in CHAPTERS): straight lines between the stops
+export function story(s) {
+  let i = 1;
+  while (i < STOPS.length - 1 && s > STOPS[i]) i++;
+  const a = STOPS[i - 1], b = STOPS[i];
+  return CHAPTERS[i - 1] + (CHAPTERS[i] - CHAPTERS[i - 1]) * Math.min(1, Math.max(0, (s - a) / (b - a)));
+}
 
 export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } = {}) {
   // the model takes the photograph's proportions, so the photo and the model are one fruit
@@ -453,8 +469,9 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   // with fewer (tune() measures it before the page shows, frame() watches on) – softer by a little, never jerky
   let ratio = Math.min(window.devicePixelRatio || 1, 2), cost = 0;
   renderer.setPixelRatio(ratio);
-  // what shows through the pulp and the glass is soft anyway: drawn at half size, a quarter of the pixels
-  renderer.transmissionResolutionScale = .5;
+  // what shows through the pulp, the water and the glass is soft anyway: drawn at under a third of the size (side by
+  // side with half size, no difference to be seen; the opened fruit runs at full frame rate instead of 45)
+  renderer.transmissionResolutionScale = .3;
   renderer.toneMapping = NeutralToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.localClippingEnabled = true;
@@ -538,6 +555,9 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
 
   // the pot, its water (which takes the colour where the cascara steeps), the steam over it
   const pot = new Group(); world.add(pot);
+  // glass only from the front: drawing its far wall as well takes three.js a second pass for everything see-through,
+  // which halved the frame rate of the pot and of the ending; behind the water and the syrup it hardly shows
+  glassMat.side = FrontSide;
   const potGlassMat = glassMat.clone();
   const potGlass = new Mesh(lathe(POT, 0, 128), potGlassMat);
   const ear = new TorusGeometry(.14, .034, 12, 32, Math.PI);
@@ -548,6 +568,10 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     attenuationColor: new Color('#8f3612'), attenuationDistance: .14, clearcoat: 1, clippingPlanes: [potFill],
   }));
   const infuse = potMat.userData.infuse;
+  // the same water as a transparent material, for while it fades: a material of its own (sharing the colour's
+  // uniforms) rather than the first one switched over – switching made three.js build its shader anew each time
+  const potMatFade = infusing(potMat.clone(), infuse);
+  potMatFade.transparent = true; potMatFade.clippingPlanes = [potFill];   // (a clone gets copies of the planes, not the one that moves)
   const potLiquid = new Mesh(lathe([[0, .055], [.97, .055], [1.02, .1], [1.02, 1]], .01, 128), potMat);
   // the liquid's top: no mirror of the studio (Safari's brighter reflections turned it into a pale lid), only a
   // soft sheen towards the back, as a dark syrup seen from a little above shows
@@ -775,8 +799,8 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     pot.rotation.z = .12 * potOut;
     // the liquid becomes see-through only while it fades (it renders differently as a transparent material)
     const potFade = 1 - smooth(.77, .788, p), fading = potFade < .999;
-    if (potMat.transparent !== fading) { potMat.transparent = fading; potMat.needsUpdate = true; }
-    potGlassMat.opacity = potFade; potMat.opacity = potFade;
+    potLiquid.material = fading ? potMatFade : potMat;
+    potGlassMat.opacity = potFade; potMat.opacity = potMatFade.opacity = potFade;
     const level = lerp(POT_W0, POT_W1, reduce), potTop = pot.position.y + level;
     potFill.constant = potTop;                                    // clip the liquid at its level (world space)
     potSurface.position.y = potLine.position.y = level;
@@ -786,8 +810,8 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     // As water the liquid barely bends the light (a thick lens would blow the pieces up); as syrup it is deep and,
     // simmered down, deeper in colour. Thickness and absorption grow together, so the colour per depth holds.
     const deep = smooth(.7, .76, p);
-    potMat.thickness = lerp(.16, .9, deep); potMat.ior = lerp(1.33, 1.45, deep);
-    potMat.attenuationDistance = lerp(.14, lerp(.75, .48, reduce), deep);
+    potMat.thickness = potMatFade.thickness = lerp(.16, .9, deep); potMat.ior = potMatFade.ior = lerp(1.33, 1.45, deep);
+    potMat.attenuationDistance = potMatFade.attenuationDistance = lerp(.14, lerp(.75, .48, reduce), deep);
     // the top: a faint cool sheen while it is water, the syrup's own dark top once it has steeped
     const syrupTop = smooth(.7, .77, p);
     potSurface.material.color.copy(WATER_TOP).lerp(SYRUP_TOP, syrupTop);
@@ -977,11 +1001,11 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     lastTarget = target;
     if (Math.abs(target - progress) < 1e-4) progress = target;
     try {
-      apply(progress, dt);
+      apply(story(progress), dt);
       // under the page's own first picture there is nothing to draw – but a picture now and then keeps the drawing
       // warm, or the first frame of the first scroll comes late
       if (!covered || now - drawn > 400) { renderer.render(scene, camera); drawn = now; }
-      onFrame?.(progress, labels, fruitBox);
+      onFrame?.(story(progress), labels, fruitBox);
     } catch (err) { lastError = String(err && err.stack || err).slice(0, 300); }
     requestAnimationFrame(frame);
   }
@@ -991,9 +1015,9 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     set background(css) { scene.background.set(css); },
     set progress(p) { target = clamp(p); },
     set cover(v) { covered = !!v; if (!covered) renderer.render(scene, camera); },
-    set frame(f) { frame0 = f; fitFirst(); if (!running) { apply(progress, 0); renderer.render(scene, camera); } },
+    set frame(f) { frame0 = f; fitFirst(); if (!running) { apply(story(progress), 0); renderer.render(scene, camera); } },
     get progress() { return progress; },
-    jump(p) { target = progress = clamp(p); apply(progress, 0); renderer.render(scene, camera); onFrame?.(progress, labels, fruitBox); },
+    jump(p) { target = progress = clamp(p); apply(story(progress), 0); renderer.render(scene, camera); onFrame?.(story(progress), labels, fruitBox); },
     start() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); } },
     stop() { running = false; },
     begin() { last = performance.now(); requestAnimationFrame(frame); },
@@ -1003,20 +1027,20 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
       const t0 = performance.now();
       while (pending.size && performance.now() - t0 < 6000) await new Promise((r) => setTimeout(r, 60));
       const keep = progress;
-      for (const p of [.12, .3, .45, .58, .66, .74, .79, .83, .88, .95, 1]) {
+      for (const p of [.12, .3, .45, .58, .66, .74, .776, .79, .83, .88, .95, 1]) {
         // only while the loading screen covers it (on a very slow phone it may lift first: then stop at once)
         if (!document.documentElement.classList.contains('is-loading')) break;
         apply(p, 0); renderer.render(scene, camera);
         await new Promise((r) => requestAnimationFrame(r));
       }
-      apply(keep, 0); renderer.render(scene, camera);
+      apply(story(keep), 0); renderer.render(scene, camera);
     },
     // How sharp this device can draw the story in time: the heaviest moments (the pulp, the pot, the bottles), drawn
     // and waited for, once the page has nothing else to do behind the loading screen. Over the budget, fewer pixels –
-    // down to one and a half per point here (softer by a little); frame() goes further only if it still can't keep up.
+    // down to one and a quarter per point here (softer by a little); frame() goes further only if it still can't keep up.
     tune() {
       if (!document.documentElement.classList.contains('is-loading')) return;
-      const keep = progress, floor = Math.min(ratio, 1.5);
+      const keep = progress, floor = Math.min(ratio, 1.25);
       const gl = renderer.getContext(), px = new Uint8Array(4), BUDGET = 8;   // ms of the frame; the rest is the page's
       const measure = (p) => { apply(p, 0); const t = performance.now(); renderer.render(scene, camera); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); return performance.now() - t; };
       for (let round = 0; round < 3; round++) {
@@ -1025,7 +1049,7 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
         if (cost <= BUDGET || ratio <= floor) break;
         sharpness(Math.max(floor, ratio * Math.sqrt(BUDGET / cost)));     // the cost goes with the pixels, the pixels with the square
       }
-      apply(keep, 0); renderer.render(scene, camera);
+      apply(story(keep), 0); renderer.render(scene, camera);
     },
     labels, fruitBox,
     get photoReady() { return hasPhoto; },

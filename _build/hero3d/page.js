@@ -2,7 +2,7 @@
 // brings its words in and out; the anatomy labels follow the layers they name. At the start a photograph of a
 // real cherry lies exactly over the model; it hands over as the fruit opens. Between the chapters of the story
 // the page glides on by itself, so a little scroll draws the reader into the next one.
-import { createHero, CHAPTERS } from './hero3d.js';
+import { createHero, STOPS, PLAY_MS } from './hero3d.js';
 import { createDiorama } from './diorama.js';
 
 (() => {
@@ -94,14 +94,29 @@ import { createDiorama } from './diorama.js';
   // ?debug&at=0.765: the page opens at that moment of the story (for checking a frame on a phone)
   const at = /[?&]debug\b/.test(location.search) ? parseFloat(new URLSearchParams(location.search).get('at')) : NaN;
 
-  // the stage ends a little before the hero, so it leaves as ordinary content (styles.css: --release)
-  const release = () => parseFloat(getComputedStyle(hero).getPropertyValue('--release')) || 0;
-  let pinTop = 0;
-  const run = () => hero.offsetHeight - pinTop - stage.offsetHeight - release();
-  const heroTop = () => hero.getBoundingClientRect().top + window.scrollY;
-  function progress() {
+  // Where the hero lies and how tall it and its stage are: measured once, and again only when something changes
+  // size. Reading them (and the computed styles) on every scroll made the browser work out the styles of the whole
+  // opening again, scroll after scroll. The stage ends a little before the hero, so it leaves as ordinary content
+  // (styles.css: --release); pinTop is where it is pinned (read while it is pinned, the release moves it).
+  let pinTop = 0, G = null;
+  const geo = () => {
+    if (!G) {
+      if (!hero.classList.contains('is-released')) pinTop = parseFloat(getComputedStyle(stage).top) || 0;
+      G = { top: hero.getBoundingClientRect().top + window.scrollY, h: hero.offsetHeight, stage: stage.offsetHeight,
+        release: parseFloat(getComputedStyle(hero).getPropertyValue('--release')) || 0 };
+    }
+    return G;
+  };
+  const anew = () => { G = null; };
+  window.addEventListener('resize', anew);
+  if ('ResizeObserver' in window) { const ro = new ResizeObserver(anew); ro.observe(hero); ro.observe(stage); ro.observe(document.body); }
+  document.fonts?.ready.then(anew);
+  window.addEventListener('load', anew);
+  const run = () => { const g = geo(); return g.h - pinTop - g.stage - g.release; };
+  const heroTop = () => geo().top;
+  function progress(y = window.scrollY) {
     const r = run();
-    return r > 0 ? clamp((window.scrollY - heroTop()) / r) : 0;
+    return r > 0 ? clamp((y - heroTop()) / r) : 0;
   }
 
   // ---- the glide between chapters ------------------------------------------------------------------------
@@ -119,7 +134,7 @@ import { createDiorama } from './diorama.js';
     moved = false;
     const from = window.scrollY, dist = y - from;
     if (Math.abs(dist) < 2) return;
-    const ms = ms0 || clamp(Math.abs(dist) / Math.max(1, run()) * 5200, 700, 1700);   // a chapter takes about a second
+    const ms = ms0 || clamp(Math.abs(dist) / Math.max(1, run()) * PLAY_MS, 500, 2600);   // each chapter at its own playing time
     const t0 = performance.now();
     root.style.scrollBehavior = 'auto';        // the page's smooth scrolling would fight it
     // a glide that starts as the finger lets go (the opening): on touch screens the swing of the finger would run on
@@ -146,11 +161,11 @@ import { createDiorama } from './diorama.js';
     const r = run(), top = heroTop(), y = window.scrollY;
     if (r <= 0 || y < top - 1 || y > top + r + 1) return;           // outside the story: the page is the reader's
     const p = clamp((y - top) / r);
-    if (CHAPTERS.some((c) => Math.abs(c - p) < .006)) return;      // already resting on a chapter
+    if (STOPS.some((c) => Math.abs(c - p) < .006)) return;         // already resting on a chapter
     let to;
-    if (dir > 0) to = CHAPTERS.find((c) => c > p);
-    else if (dir < 0) to = [...CHAPTERS].reverse().find((c) => c < p);
-    if (to === undefined) to = CHAPTERS.reduce((a, c) => (Math.abs(c - p) < Math.abs(a - p) ? c : a));
+    if (dir > 0) to = STOPS.find((c) => c > p);
+    else if (dir < 0) to = [...STOPS].reverse().find((c) => c < p);
+    if (to === undefined) to = STOPS.reduce((a, c) => (Math.abs(c - p) < Math.abs(a - p) ? c : a));
     glideTo(top + to * r);
   }
   // a hand on the page stops a glide – except a wheel turning on the way the opening glide already goes
@@ -174,25 +189,26 @@ import { createDiorama } from './diorama.js';
   addEventListener('touchcancel', () => { touching = false; }, { passive: true });
   // the first scroll down from the start: the landscape flies, the cherries whirl in, and the page carries on by
   // itself to the opened fruit (the first chapter), however little was scrolled, with no stop on the way
-  function openingMove() {
+  function openingMove(y = window.scrollY) {
     if (reduce || noGlide || glide || touching || performance.now() < jumping) return;
     // only the reader's own scroll starts it – not the page settling, Safari's bars or a restored position
     if (performance.now() - gesture > 900 || document.documentElement.classList.contains('is-loading')) return;
-    const r = run(), top = heroTop(), y = window.scrollY;
+    const r = run(), top = heroTop();
     if (r <= 0) return;
     const p = (y - top) / r;
-    if (dir > 0 && p > .003 && p < CHAPTERS[1] - .01) { opening = true; glideTo(top + CHAPTERS[1] * r, 2100, true); }
+    if (dir > 0 && p > .003 && p < STOPS[1] - .01) { opening = true; glideTo(top + STOPS[1] * r, (STOPS[1] - p) * PLAY_MS, true); }
   }
 
   function onScroll() {
-    if (!hero.classList.contains('is-released')) pinTop = parseFloat(getComputedStyle(stage).top) || 0;
-    hero.classList.toggle('is-released', !reduce && hero.getBoundingClientRect().bottom <= pinTop + stage.offsetHeight + release() + .5);
-    three.progress = reduce ? 0 : progress();
-    const y = window.scrollY;
+    // everything read first, then written: a read after the class changes would make the browser work out the
+    // opening's styles there and then
+    const y = window.scrollY, g = geo(), released = !reduce && g.top + g.h - y <= pinTop + g.stage + g.release + .5;
+    if (released !== hero.classList.contains('is-released')) hero.classList.toggle('is-released', released);
+    three.progress = reduce ? 0 : progress(y);
     if (!glide && y !== lastY) dir = Math.sign(y - lastY);
     lastY = y;
     clearTimeout(idle);
-    if (!glide) { openingMove(); if (!glide) idle = setTimeout(settle, 150); }
+    if (!glide) { openingMove(y); if (!glide) idle = setTimeout(settle, 150); }
   }
 
   // Words follow the 3D scene's own (softly following) progress, so they never run ahead of the picture.
@@ -249,6 +265,9 @@ import { createDiorama } from './diorama.js';
     if (intro !== introShown) {
       introShown = intro;
       for (const el of [cue, name]) if (el) { el.style.opacity = intro; el.style.visibility = intro > 0 ? 'visible' : 'hidden'; }
+      // gone, the cue's little animations stop too: its wave and drop are drawn, and running on unseen they had the
+      // whole page painted again in every frame, all the way down
+      if (cue) cue.classList.toggle('is-off', intro === 0);
     }
     for (const b of beats) {
       const [a, bb, c, d] = b.win;
@@ -334,10 +353,11 @@ import { createDiorama } from './diorama.js';
   requestAnimationFrame(() => hero.classList.add('is-ready'));
   // The page is ready once the branch is painted, the scene has been drawn through once (three.warm) and a few
   // frames in a row have come smoothly – only then does the loading screen lift.
+  // half a second of frames in a row each in time for the screen (under 20 ms), or at most 5 s of waiting
   const smoothFrames = () => new Promise((res) => {
     let ok = 0, last = performance.now(); const t0 = last;
-    const tick = (now) => { ok = now - last < 34 ? ok + 1 : 0; last = now;
-      if (ok >= 12 || now - t0 > 2500) res(); else requestAnimationFrame(tick); };
+    const tick = (now) => { ok = now - last < 20 ? ok + 1 : 0; last = now;
+      if (ok >= 30 || now - t0 > 5000) res(); else requestAnimationFrame(tick); };
     requestAnimationFrame(tick);
   });
   let arrived = false;

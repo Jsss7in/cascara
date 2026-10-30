@@ -305,6 +305,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* the cue to scroll: a button in the outline of one of our bottles, lying down; inside, a little syrup sways and a
    drop keeps falling, the way the page goes */
 .hero__scroll { position: absolute; z-index: 4; left: 0; top: 0; width: 200px; height: 50px; margin: 0; pointer-events: none; transform: translate3d(var(--x, 50vw), var(--y, 80svh), 0) translateX(-50%); opacity: 0; visibility: hidden; will-change: transform, opacity; }
+.hero__scroll.is-off, .hero__scroll.is-off * { animation-play-state: paused; }
 .cue { position: absolute; inset: 0; filter: drop-shadow(0 10px 14px rgba(43, 24, 16, .22)); animation: cue-bob 3.4s var(--ease-io) infinite alternate; }
 .cue__bottle { display: block; width: 100%; height: 100%; overflow: visible; }
 .cue__glass { fill: var(--cream-light); }

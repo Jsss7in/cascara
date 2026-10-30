@@ -8,7 +8,7 @@
     </defs>
   </svg>
 
-<!-- the loading screen: it lifts once the type, the pictures and the 3D opening are there and run smoothly (at least 2.6 s, never later than 10 s) -->
+<!-- the loading screen: it lifts once the type, the pictures and the 3D opening are there and run smoothly (at least 2.6 s, never later than 15 s) -->
   <div class="loader" data-loader aria-hidden="true">
     <div class="loader__inner">
       <svg class="loader__mark" viewBox="{{LOGO_VB}}">
@@ -16,7 +16,7 @@
         <use class="loader__ink" href="#lg-line" mask="url(#ld-mask)"/>
       </svg>
       <p class="loader__word">{{LOADER_WORD}}</p>
-      <span class="loader__bar"><i></i></span>
+      <span class="loader__shelf"><span class="loader__bar"><i></i></span><span class="loader__bottle"><img src="assets/loader/cozy-turn.webp" alt="" width="1500" height="62" decoding="async" fetchpriority="high"></span></span>
     </div>
   </div>
   <script>
@@ -38,7 +38,7 @@
         .then(() => { el.classList.add('has-font'); step(); }, step);
       addEventListener('load', step, { once: true });
       document.addEventListener('cascarup:ready', step, { once: true });
-      setTimeout(finish, 10000);
+      setTimeout(finish, 15000);
     })();
   </script>
 

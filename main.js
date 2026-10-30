@@ -140,6 +140,22 @@
   if (hero) hero.addEventListener('tone', () => { if (nav) paintNav(); if (toned.length) paintCanvas(); });
   update();
 
+  // Once the page is shown and has a quiet moment, the pictures further down are fetched and decoded one by one, so
+  // none is decoded only as it scrolls into view (that cost a stutter on reaching the shop and the team).
+  const warmPictures = () => {
+    const imgs = [...document.querySelectorAll('img[loading="lazy"]')];
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 200));
+    const next = () => {
+      const img = imgs.shift();
+      if (!img) return;
+      img.loading = 'eager';
+      (img.decode ? img.decode() : Promise.resolve()).catch(() => {}).then(() => idle(next, { timeout: 1500 }));
+    };
+    idle(next, { timeout: 2000 });
+  };
+  if (hero) document.addEventListener('cascarup:shown', () => setTimeout(warmPictures, 2500), { once: true });
+  else window.addEventListener('load', () => setTimeout(warmPictures, 1000), { once: true });
+
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
   const start = () => {
     if (root.classList.contains('is-loaded')) return;
@@ -185,7 +201,7 @@
     // (On a page without the opening: once its top has scrolled away.)
     const pill = document.querySelector('.menu-btn');
     if (pill) {
-      const past = () => (hero ? hero.getBoundingClientRect().bottom <= window.innerHeight * .5 : window.scrollY > window.innerHeight * .6);
+      const past = () => (hero ? spot(hero).bottom <= window.innerHeight * .5 : window.scrollY > window.innerHeight * .6);
       const place = () => { const off = !touch.matches || !past(); if (pill.hidden !== off) pill.hidden = off; };
       window.addEventListener('scroll', place, { passive: true });
       window.addEventListener('resize', place);
