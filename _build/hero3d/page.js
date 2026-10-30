@@ -125,7 +125,8 @@ import { createDiorama } from './diorama.js';
   let lastY = window.scrollY, dir = 0, idle = 0, glide = 0, opening = false, touching = false, moved = false;
   const root = document.documentElement;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
-  const loose = () => { root.style.scrollBehavior = ''; root.style.overflow = ''; opening = false; };
+  let unhold = 0;
+  const loose = () => { root.style.scrollBehavior = ''; root.style.overflow = ''; clearTimeout(unhold); opening = false; };
   const stopGlide = () => {
     if (!glide) return;
     cancelAnimationFrame(glide); glide = 0; loose();
@@ -139,9 +140,9 @@ import { createDiorama } from './diorama.js';
     const t0 = performance.now();
     root.style.scrollBehavior = 'auto';        // the page's smooth scrolling would fight it
     // a glide that starts as the finger lets go (the opening): on touch screens the swing of the finger would run on
-    // under it and tug against it (the jolt, and the page drifting past the chapter afterwards), so the page is held
-    // while it glides; a touch frees it at once
-    if (hold && coarse) root.style.overflow = 'hidden';
+    // under it and tug against it (the jolt, and the page drifting past the chapter afterwards), so the page is held –
+    // but only for the moment the swing lasts: held longer, Safari swallowed the reader's next swipe
+    if (hold && coarse) { root.style.overflow = 'hidden'; clearTimeout(unhold); unhold = setTimeout(() => { root.style.overflow = ''; }, 380); }
     const step = (now) => {
       const t = clamp((now - t0) / ms), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       window.scrollTo(0, from + dist * e);

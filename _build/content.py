@@ -308,9 +308,29 @@ PERKS = [
 ]
 
 
+def shop_overlay(size, cls):
+    """What moves over the shop's picture (rendered by _build/shopscene, overlay-<w>.json): its clouds drifting and
+    the farmer walking along her row, placed in shares of the picture so they sit where they were drawn."""
+    import pathlib
+    o = json.loads((pathlib.Path(__file__).parent / 'shopscene' / f'overlay-{size}.json').read_text())
+    W, H = o['W'], o['H']
+    pc = lambda v, of: f'{100 * v / of:.3f}%'
+    out = [f'          <div class="shop__over {cls}" aria-hidden="true">']
+    for i, c in enumerate(o['clouds']):
+        out.append(f'            <span class="shop__cloud" style="left:{pc(c["x"], W)};top:{pc(c["y"], H)};width:{pc(c["w"], W)};'
+                   f'--dur:{44 + i * 9}s;--drift:{c["dir"] * (14 + i * 4)}%">{c["svg"]}</span>')
+    f = o['farmer']
+    out.append(f'            <span class="shop__farmer" style="left:{pc(f["from"], W)};top:{pc(f["y"], H)};width:{pc(f["w"], W)};--walk:{100 * (f["to"] - f["from"]) / f["w"]:.1f}%">'
+               f'<svg viewBox="0 0 {f["w"]:.1f} {f["h"]:.1f}"><g class="dio__farmer-body">{f["svg"]}</g></svg></span>')
+    out.append('          </div>')
+    return '\n'.join(out), (H - o['base']) / H
+
+
 def shop():
-    # Above, one picture: our table on the coffee field at dusk, and on it both kinds side by side – the Original on
-    # the left, Cozy Spice on the right, each in the size chosen in its card below.
+    # The shop stands in the plantation: the evening sky runs on over its title, the picture goes from edge to edge –
+    # our table on the coffee field, clouds drifting, the farmer walking her row – and on the table both kinds side by
+    # side, the Original on the left, Cozy Spice on the right, each in the size chosen in its card. The soil runs on
+    # beneath the picture, behind the two cards, and fades into the paper.
     cards, stand = [], []
     for n, pr in enumerate(PRODUCTS):
         data = json.dumps({'id': pr['id'], 'name': pr['name'],
@@ -348,6 +368,8 @@ def shop():
             f'            <div class="product__sizes" role="group" aria-label="Grösse">{sizes}</div>\n'
             + (buy if SALES_OPEN else soon) +
             '        </article>')
+    wide, foot = shop_overlay(1360, 'shop__over--wide')
+    narrow, _ = shop_overlay(390, 'shop__over--narrow')
     facts = '\n'.join(
         f'            <div><dt>{k}</dt><dd>{v if v else chr(60) + "span class=" + chr(34) + "muted" + chr(34) + ">folgt</span>"}</dd></div>'
         for k, v in PRODUCT_FACTS)
@@ -358,7 +380,7 @@ def shop():
     return (
         '    <!-- The shop: two kinds, two sizes; paid online, sent by post -->\n'
         '    <section class="shop" data-tone="paper" id="shop" aria-labelledby="shop-title">\n'
-        '      <div class="shop__inner">\n'
+        '      <div class="shop__inner shop__top">\n'
         '        <header class="shop__head">\n'
         '          <p class="eyebrow" data-reveal>Shop</p>\n'
         '          <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>\n'
@@ -366,11 +388,15 @@ def shop():
         'und als grosse Flasche mit 500 ml. ' + ('Bezahl online mit TWINT oder Karte, wir schicken dir deine Flaschen per Post.' if SALES_OPEN
         else 'Bald kannst du sie hier bestellen, und wir schicken sie dir per Post in die ganze Schweiz.') + '</p>\n'
         '        </header>\n'
-        '        <div class="shop__stage" data-reveal data-shop-stage>\n'
-        '          <picture><source media="(max-width: 700px)" srcset="assets/shop/feld-390.webp" width="390" height="340">'
-        '<img class="shop__field" src="assets/shop/feld-1360.webp" width="1360" height="560" alt="Ein Holztisch auf der Kaffeeplantage in der Abendsonne, darauf ein Haufen Cascara" loading="lazy" decoding="async"></picture>\n'
-        + '\n'.join(stand) + '\n        </div>\n'
+        '      </div>\n'
+        f'      <div class="shop__stage" data-shop-stage data-pause-away style="--foot:{100 * foot:.2f}%">\n'
+        '        <picture><source media="(max-width: 700px)" srcset="assets/shop/feld-390.webp" width="390" height="394">'
+        '<img class="shop__field" src="assets/shop/feld-1360.webp" width="1360" height="650" alt="Ein Holztisch auf der Kaffeeplantage in der Abendsonne" loading="lazy" decoding="async"></picture>\n'
+        + wide + '\n' + narrow + '\n' + '\n'.join(stand) + '\n      </div>\n'
+        '      <div class="shop__ground">\n'
         '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
+        '      </div>\n'
+        '      <div class="shop__inner">\n'
         '        <ul class="shop__perks">\n' + perks + '\n        </ul>\n'
         '        <details class="shop__facts">\n'
         '          <summary>Zutaten und Hinweise</summary>\n'

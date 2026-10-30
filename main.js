@@ -351,6 +351,12 @@
     }, { rootMargin: '200px 0px' }).observe(pour);
   }
 
+  // What runs on by itself (the shop's clouds and farmer, the team) runs only while it is near the screen.
+  if ('IntersectionObserver' in window) {
+    const runs = new IntersectionObserver((seen) => { for (const e of seen) e.target.classList.toggle('is-near', e.isIntersecting); }, { rootMargin: '100px 0px' });
+    document.querySelectorAll('[data-pause-away]').forEach((el) => runs.observe(el));
+  } else document.querySelectorAll('[data-pause-away]').forEach((el) => el.classList.add('is-near'));
+
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
   const start = () => {
     if (root.classList.contains('is-loaded')) return;
