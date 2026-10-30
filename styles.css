@@ -615,6 +615,8 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .shop { position: relative; isolation: isolate; padding: calc(var(--section) * .7) 0 calc(var(--section) * .45); }
 .shop__inner { max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto; padding: 0 var(--gutter); }
 .shop__top { position: relative; z-index: 1; }
+/* nothing of the plantation reaches past the screen's sides (a drifting cloud made the phone page scroll sideways) */
+.shop { overflow-x: clip; }
 .shop__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
 .shop__head .eyebrow { grid-column: 1 / -1; }
 .shop__head .display { grid-column: 1 / span 6; margin-top: 26px; }
