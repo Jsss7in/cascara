@@ -61,10 +61,11 @@ import { createDiorama } from './diorama.js';
   }, 400);
   hero.classList.add('is-3d');
   // the diorama: its layers rise as the loading screen lifts, and lean with the pointer on screens that have one
-  const dio = dioEl ? createDiorama(dioEl) : null;
+  const dio = dioEl ? createDiorama(dioEl, hero.querySelector('[data-hero-swirl]')) : null;
   if (dio) {
     const up = () => dioEl.classList.add('is-up');
     document.addEventListener('cascarup:shown', up, { once: true });
+    if (/[?&]debug\b/.test(location.search)) window.__dio = dio;    // test shots can play the diorama on its own
     setTimeout(up, 12000);
     if (matchMedia('(pointer: fine)').matches && !reduce) {
       addEventListener('pointermove', (e) => dio.lean(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1), { passive: true });
@@ -86,24 +87,24 @@ import { createDiorama } from './diorama.js';
   }
 
   // ---- the glide between chapters ------------------------------------------------------------------------
-  let lastY = window.scrollY, dir = 0, idle = 0, glide = 0;
+  let lastY = window.scrollY, dir = 0, idle = 0, glide = 0, opening = false, touching = false;
   const stopGlide = () => {
     if (!glide) return;
-    cancelAnimationFrame(glide); glide = 0;
+    cancelAnimationFrame(glide); glide = 0; opening = false;
     document.documentElement.style.scrollBehavior = '';
   };
-  function glideTo(y) {
+  function glideTo(y, ms0 = 0) {
     stopGlide();
     const from = window.scrollY, dist = y - from;
     if (Math.abs(dist) < 2) return;
-    const ms = clamp(Math.abs(dist) / Math.max(1, run()) * 5200, 700, 1700);   // a chapter takes about a second
+    const ms = ms0 || clamp(Math.abs(dist) / Math.max(1, run()) * 5200, 700, 1700);   // a chapter takes about a second
     const t0 = performance.now();
     document.documentElement.style.scrollBehavior = 'auto';        // the page's smooth scrolling would fight it
     const step = (now) => {
       const t = clamp((now - t0) / ms), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       window.scrollTo(0, from + dist * e);
       glide = t < 1 ? requestAnimationFrame(step) : 0;
-      if (!glide) document.documentElement.style.scrollBehavior = '';
+      if (!glide) { document.documentElement.style.scrollBehavior = ''; opening = false; }
     };
     glide = requestAnimationFrame(step);
   }
@@ -124,7 +125,21 @@ import { createDiorama } from './diorama.js';
     if (to === undefined) to = CHAPTERS.reduce((a, c) => (Math.abs(c - p) < Math.abs(a - p) ? c : a));
     glideTo(top + to * r);
   }
-  for (const ev of ['wheel', 'touchstart', 'keydown', 'pointerdown']) window.addEventListener(ev, stopGlide, { passive: true });
+  // a hand on the page stops a glide – except a wheel turning on the way the opening glide already goes
+  for (const ev of ['touchstart', 'keydown', 'pointerdown']) window.addEventListener(ev, stopGlide, { passive: true });
+  addEventListener('wheel', (e) => { if (!(opening && e.deltaY > 0)) stopGlide(); }, { passive: true });
+  addEventListener('touchstart', () => { touching = true; }, { passive: true });
+  addEventListener('touchend', () => { touching = false; openingMove(); }, { passive: true });
+  addEventListener('touchcancel', () => { touching = false; }, { passive: true });
+  // the first scroll down from the start: the landscape flies, the cherries whirl in, and the page carries on by
+  // itself to the opened fruit (the first chapter), however little was scrolled, with no stop on the way
+  function openingMove() {
+    if (reduce || noGlide || glide || touching || performance.now() < jumping) return;
+    const r = run(), top = heroTop(), y = window.scrollY;
+    if (r <= 0) return;
+    const p = (y - top) / r;
+    if (dir > 0 && p > .002 && p < CHAPTERS[1] - .01) { opening = true; glideTo(top + CHAPTERS[1] * r, 2100); }
+  }
 
   function onScroll() {
     if (!hero.classList.contains('is-released')) pinTop = parseFloat(getComputedStyle(stage).top) || 0;
@@ -134,7 +149,7 @@ import { createDiorama } from './diorama.js';
     if (!glide && y !== lastY) dir = Math.sign(y - lastY);
     lastY = y;
     clearTimeout(idle);
-    if (!glide) idle = setTimeout(settle, 150);
+    if (!glide) { openingMove(); if (!glide) idle = setTimeout(settle, 150); }
   }
 
   // Words follow the 3D scene's own (softly following) progress, so they never run ahead of the picture.
@@ -231,13 +246,17 @@ import { createDiorama } from './diorama.js';
 
   // The first picture (the cherry on its branch) is fitted into the room the words leave: beside them on wide
   // screens, above them on narrow ones, clear of the bar and of the cue to scroll.
+  const shrink = (f, k) => {
+    const mx = (f.l + f.r) / 2, my = (f.t + f.b) / 2, hw = (f.r - f.l) / 2 * k, hh = (f.b - f.t) / 2 * k;
+    return { l: mx - hw, t: my - hh, r: mx + hw, b: my + hh };
+  };
   function frameIt() {
     const s = stage.getBoundingClientRect(), w = s.width, h = s.height, narrow = w / h <= 1.05;
     const c = copy.getBoundingClientRect(), navH = (document.querySelector('[data-nav]')?.offsetHeight || 64) - 12;
     let right = 0;
     for (const el of copy.children) right = Math.max(right, el.getBoundingClientRect().right - s.left);
     three.frame = narrow
-      ? { l: 14, t: c.bottom - s.top + 8, r: w - 14, b: h - 86 }
+      ? shrink({ l: 14, t: c.bottom - s.top + 8, r: w - 14, b: h - 86 }, .9)
       : { l: right + 48, t: navH + 28, r: w - 32, b: h - 104 };
     // where the words are: the diorama keeps its land clear of them
     copyBox = { left: c.left - s.left, right, top: c.top - s.top, bottom: c.bottom - s.top };

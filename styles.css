@@ -394,6 +394,12 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 @keyframes dio-sway { from { transform: rotate(calc(var(--deg, 2deg) * -1)); } to { transform: rotate(var(--deg, 2deg)); } }
 .hero__dio.is-gone * { animation-play-state: paused; }
 .hero.is-flat .hero__dio { display: none; }
+/* the whirl of thrown-away cherries on the way to the cherry alone (diorama.js): no stacking context of its own, so
+   each cherry passes behind the real one (z 1, before the photographs) or in front of it (z 3) */
+.hero__swirl { position: absolute; inset: 0; pointer-events: none; visibility: hidden; }
+.swirl__c { position: absolute; left: 0; top: 0; border-radius: 50% 50% 47% 47%; opacity: 0;
+  background: radial-gradient(circle at 34% 30%, #F2866A 0 10%, #CF3A2E 34%, #9C2219 72%, #6A1711 100%); box-shadow: 0 3px 5px -1px rgba(58, 33, 22, .35); }
+.hero.is-flat .hero__swirl { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .dio__rise { transition: none; }
   .dio__cloud, .dio__mist, .dio__wing, .dio__halo, .dio__sway { animation: none; }
@@ -1015,7 +1021,7 @@ html:has(.is-legal) { background: var(--paper); }
    into the flat colour Safari shows above it, which the hero keeps equal to what that edge shows (--top). */
 .hero { --top: 230, 211, 183; }
 @media (pointer: coarse) {
-  /* at its foot the stage stops short of the screen's edge (see below): the branch fades into the paper there
+  /* at its foot the stage stops short of the screen's edge (see below): the land fades into the paper there
      instead of ending on a cut line */
   .hero__stage::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 56px; z-index: 3; pointer-events: none;

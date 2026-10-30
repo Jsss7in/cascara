@@ -167,6 +167,9 @@ function cloud(x, y, w) {
     + disc(x - w * .18, y - h - w * .03, w * .13) + disc(x + w * .06, y - h - w * .07, w * .17) + disc(x + w * .27, y - h - w * .01, w * .1);
 }
 
+// at rest the cherry is this much smaller than in the story (page: data-box); the camera grows it as the story starts
+const FRUIT_AT_REST = .74;
+
 // the layers, back to front: depth (lean with the pointer), and where each flies on the first scroll (share of the
 // width, of the height, growth) – on phones the camera flies into the scene instead (flyNarrow)
 const LAYERS = [
@@ -179,7 +182,10 @@ const LAYERS = [
   { id: 'close', depth: 1, fly: [.8, .15, .7], flyNarrow: [.8, .15, .7] },
 ];
 
-export function createDiorama(root) {
+// The way from the first picture to the cherry alone: the thrown-away cherries lift off their heaps and whirl round
+// the real one in a tilted ring – in front of it and behind it – and are drawn into it, as if we were about to need
+// them (we are: their skins become the syrup). It follows the scroll, so it plays backwards too.
+export function createDiorama(root, swirlRoot = null) {
   root.innerHTML = '';
   const layers = LAYERS.map((L, i) => {
     const wrap = document.createElement('div');
@@ -198,6 +204,7 @@ export function createDiorama(root) {
   });
   const byId = Object.fromEntries(layers.map((L) => [L.id, L]));
   let key = '', px = 0, py = 0, tpx = 0, tpy = 0;
+  let heaps = [], swirl = [], centre = null, swirlShown = false;
 
   // a small drawing that moves on its own: an SVG in its own element (CSS animates the element, never the drawing)
   const piece = (layer, cls, x, y, w, h, inner, style = '', behind = false) => {
@@ -215,7 +222,9 @@ export function createDiorama(root) {
     if (k === key || !W || !H || !box.rx) return;
     key = k;
     for (const L of layers) { L.fx.innerHTML = ''; L.back.innerHTML = ''; }
-    const { x: cx, y: cy } = box, r = box.rx, ry = box.ry || box.rx * 1.27;
+    heaps = [];
+    // the fruit (fr, fry) is smaller at rest than in the story; the scene is drawn at the story's size of it (r, ry)
+    const { x: cx, y: cy } = box, fr = box.rx, fry = box.ry || box.rx * 1.27, r = fr / FRUIT_AT_REST, ry = fry / FRUIT_AT_REST;
     const rnd = seeded(1712);
     const shadow = (id, dy, blur, o) => `<filter id="${id}" x="-10%" y="-30%" width="120%" height="170%"><feDropShadow dx="0" dy="${dy}" stdDeviation="${blur}" flood-color="rgb(${C.ink})" flood-opacity="${o}"/></filter>`;
     const svgs = {};
@@ -324,6 +333,7 @@ export function createDiorama(root) {
         const hy = crestAt(c3, hx) + ry * .12;
         if (!free(hx - hw / 2, hy - hw * .4)) continue;
         const hp = heap(hx, hy, hw, rnd);
+        heaps.push([hx, hy, hw]);
         inner += `<path filter="url(#dheap)" fill="#7A2418" d="${hp.mound}"/>${hp.cherries}`;
       }
       svgs.mid = `<defs>${shadows([2, 3])}${shadow('dheap', 3, 3, .3)}<radialGradient id="wglow"><stop offset="0" stop-color="${C.window}" stop-opacity=".45"/><stop offset="1" stop-color="${C.window}" stop-opacity="0"/></radialGradient>${narrow ? '' : freeClip('free3')}</defs>${inner}`;
@@ -350,6 +360,7 @@ export function createDiorama(root) {
         const hy = crestAt(R6[4].crest, hx) + ry * .2;
         if (free(hx - hw / 2, hy - hw * .4)) {
           const hp = heap(hx, hy, hw, rnd);
+          heaps.push([hx, hy, hw]);
           svgs.near += `<defs>${shadow('dheap2', 4, 4, .32)}</defs><path filter="url(#dheap2)" fill="#7A2418" d="${hp.mound}"/>${hp.cherries}`;
         }
       }
@@ -368,7 +379,7 @@ export function createDiorama(root) {
       const top = H - Math.max(narrow ? 30 : 40, H * (narrow ? .05 : .075));
       const crest = [];
       for (let j = 0; j <= 48; j++) { const x = -60 + (W + 120) * j / 48; crest.push([x, top - Math.sin(x * .006 + 1) * ry * .09 - Math.sin(x * .019) * ry * .04]); }
-      let d = `${curve(crest)}L${f1(W + 60)} ${f1(floor + 30)}L-60 ${f1(floor + 30)}Z`;
+      let d = `${curve(crest)}L${f1(W + 60)} ${f1(H + 50)}L-60 ${f1(H + 50)}Z`;
       const tufts = narrow ? [.12, .45, .7, .93] : [.5, .6, .71, .83, .95];
       tufts.forEach((t, i) => {
         const x = W * t + (rnd() - .5) * r * .4, y = crestAt(crest, x) + 3, sz = r * (narrow ? .42 : .38) * (.8 + rnd() * .4);
@@ -384,7 +395,7 @@ export function createDiorama(root) {
     // and on to a young tip; large leaves in pairs, a crown of them behind the fruit; and the cherries as they grow,
     // a cluster at the node – the real one, and beside it three of paper ripening from green to orange
     {
-      const pts = [[W + r * .7, cy - ry * (narrow ? .05 : .2)], [cx + r * 1.9, cy + ry * 1.1], [cx + r * .05, cy + ry * .97],
+      const pts = [[W + r * .7, cy - ry * (narrow ? .05 : .2)], [cx + r * 1.7, cy + ry * .95], [cx + fr * .05, cy + fry * .97],
         [cx - r * .75, cy + ry * .86], [cx - r * 1.2, cy + ry * .64]];
       // the twig as a smooth line, sampled evenly so leaves can sit at given shares of its length
       const dense = [];
@@ -432,15 +443,15 @@ export function createDiorama(root) {
       const L = [], Rt = [];
       for (let i = 0; i <= 40; i++) {
         const t = i / 40, [x, y] = along(t), [x2, y2] = along(Math.min(1, t + .01)), [x0, y0] = along(Math.max(0, t - .01));
-        const nx = -(y2 - y0), ny = x2 - x0, nl = Math.hypot(nx, ny) || 1, wv = r * (.1 - .06 * t);
+        const nx = -(y2 - y0), ny = x2 - x0, nl = Math.hypot(nx, ny) || 1, wv = r * (.14 - .075 * t);
         L.push([x + nx / nl * wv, y + ny / nl * wv]); Rt.push([x - nx / nl * wv, y - ny / nl * wv]);
       }
       const twig = curve([...L, ...Rt.reverse()], true);
       // the cluster at the node: three paper cherries round the real one, nearly its size, on short stalks
       const [nx0, ny0] = along(node);
       for (const [dx, dy, c, rr] of [[-.66, .02, '#8FA041', .4], [.7, -.06, '#D8A23C', .44], [.36, .3, '#D2652F', .46]]) {
-        const fx = nx0 + dx * r, fy = ny0 + dy * r, a = rr * r, b = rr * r * 1.16;
-        fruit += `<path fill="none" stroke="${C.twig}" stroke-width="${f1(r * .05)}" stroke-linecap="round" d="M${f1(nx0)} ${f1(ny0)}L${f1(fx)} ${f1(fy - b * .8)}"/>`
+        const fx = nx0 + dx * fr, fy = ny0 + dy * fr, a = rr * fr, b = rr * fr * 1.16;
+        fruit += `<path fill="none" stroke="${C.twig}" stroke-width="${f1(fr * .05)}" stroke-linecap="round" d="M${f1(nx0)} ${f1(ny0)}L${f1(fx)} ${f1(fy - b * .8)}"/>`
           + `<ellipse fill="${c}" cx="${f1(fx)}" cy="${f1(fy)}" rx="${f1(a)}" ry="${f1(b)}"/>`
           + `<ellipse fill="#FFF6E6" fill-opacity=".16" cx="${f1(fx - a * .32)}" cy="${f1(fy - b * .34)}" rx="${f1(a * .28)}" ry="${f1(b * .2)}" transform="rotate(-30 ${f1(fx - a * .32)} ${f1(fy - b * .34)})"/>`
           + `<circle fill="${C.twig}" fill-opacity=".5" cx="${f1(fx)}" cy="${f1(fy + b * .78)}" r="${f1(a * .13)}"/>`;
@@ -455,6 +466,25 @@ export function createDiorama(root) {
       let d = '';
       spots.forEach(([x, y, len, wid, a], i) => { d += `<path fill="${C.close[i % 2]}" d="${leaf(x, y, len * r, wid * r, a, rr).shape}"/>`; });
       svgs.close = d ? `<defs><filter id="dclose" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${f1(Math.max(2, r * .025))}"/><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgb(${C.ink})" flood-opacity=".35"/></filter></defs><g filter="url(#dclose)">${d}</g>` : '';
+    }
+    // the whirl: cherries that start on the heaps, each with its own way round the real cherry
+    centre = { x: cx, y: cy, r, ry };
+    swirl = [];
+    if (swirlRoot) {
+      swirlRoot.innerHTML = '';
+      const sr = seeded(4242), per = narrow ? 10 : 14;
+      for (const [hx, hy, hw] of heaps) for (let i = 0; i < per; i++) {
+        const t = sr() * 2 - 1, up = sr() * Math.pow(Math.max(0, 1 - t * t), .7) * .85;
+        const x0 = hx + t * hw * .42, y0 = hy - hw * .42 * up - hw * .03;
+        const size = r * (narrow ? .34 : .26) * (.8 + sr() * .4);
+        const el = document.createElement('i');
+        el.className = 'swirl__c';
+        el.style.width = `${f1(size)}px`; el.style.height = `${f1(size * 1.12)}px`;
+        el.style.marginLeft = `${f1(-size / 2)}px`; el.style.marginTop = `${f1(-size * .56)}px`;
+        swirlRoot.append(el);
+        swirl.push({ el, x0, y0, a0: Math.atan2(y0 - cy, x0 - cx), d0: Math.hypot(x0 - cx, y0 - cy),
+          ring: r * (1.25 + sr() * .45), turns: 1 + sr() * .55, delay: sr() * .22, spin: (sr() - .5) * 720, z: -1, lift: size * (1.5 + sr()) });
+      }
     }
     for (const L of layers) {
       L.wrap.style.transformOrigin = narrow ? `${f1(cx)}px ${f1(cy)}px` : '';
@@ -478,7 +508,34 @@ export function createDiorama(root) {
     }
     root.style.opacity = opacity.toFixed(3);
     root.style.visibility = opacity > 0 ? 'visible' : 'hidden';
+    whirl(e);
     root.classList.toggle('is-gone', opacity <= 0);    // nothing moves where nothing is seen
+  }
+  // each cherry: lifts off its heap, swings out onto a tilted ring round the fruit (in front of it on the near half,
+  // behind it on the far one), turns once or twice and is drawn in; only transforms, opacity and its layer change
+  const sm = (a, b, v) => { const u = Math.min(1, Math.max(0, (v - a) / (b - a))); return u * u * (3 - 2 * u); };
+  function whirl(e) {
+    if (!swirl.length || !centre) return;
+    const on = e > 0 && e < 1;
+    if (!on && !swirlShown) return;
+    swirlShown = on;
+    swirlRoot.style.visibility = on ? 'visible' : 'hidden';
+    for (const c of swirl) {
+      const t = Math.min(1, Math.max(0, (e - c.delay) / (1 - c.delay)));
+      const alpha = on ? sm(0, .08, t) * (1 - sm(.84, 1, t)) : 0;
+      if (alpha <= 0) { if (c.el.style.opacity !== '0') c.el.style.opacity = '0'; continue; }
+      const u = sm(.08, .92, t), lift = sm(0, .14, t) * (1 - u) * c.lift;
+      const a = c.a0 - c.turns * Math.PI * 2 * u;                   // round, anticlockwise
+      const d = (c.d0 + (c.ring - c.d0) * sm(0, .55, u)) * (1 - .78 * sm(.72, 1, t));
+      const squash = 1 + (.42 - 1) * sm(0, .4, u);                   // the ring tilts away from the eye
+      const x = centre.x + Math.cos(a) * d, y = centre.y + Math.sin(a) * d * squash - lift;
+      const near = Math.sin(a) > 0;                                  // the lower half of the ring is the near one
+      const s = (1 + .22 * Math.sin(a) * sm(0, .4, u)) * (1 - .55 * sm(.78, 1, t));
+      c.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(c.spin * u).toFixed(0)}deg) scale(${s.toFixed(3)})`;
+      c.el.style.opacity = alpha.toFixed(3);
+      const z = near ? 3 : 1;
+      if (z !== c.z) { c.z = z; c.el.style.zIndex = z; }
+    }
   }
   const lean = (x, y) => { tpx = x; tpy = y; };
   return { layout, update, lean, layers, ready: () => key !== '' };
