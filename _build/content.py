@@ -32,12 +32,6 @@ V = {
             'seit dem 16. Jahrhundert belegt. In Bolivien trinkt man Sultana, in Äthiopien Hashara. '
             'In einer Verkostungsstudie beschrieben die Prüfpersonen Cascara-Aufgüsse als süsslich, fruchtig '
             'und kräuterig, mit Noten von Honig, Dörrpflaume und Schwarztee.',
- 'FACTS': facts([
-     ('Was', 'Haut und Fruchtfleisch der Kaffeekirsche, getrocknet'),
-     ('Name', 'von spanisch <em>cáscara</em>, Schale'),
-     ('Geschmack', 'süsslich, fruchtig, Honig, Dörrpflaume, Schwarztee'),
-     ('Koffein', 'natürlich enthalten; wie viel, hängt von Rohstoff und Zubereitung ab'),
- ]),
 
  'PLAN_LEAD': 'Unser Sirup bringt den Geschmack von Cascara ins Glas: mit Wasser verdünnt, im Kaffee oder in '
               'Drinks. Zum Start gibt es zwei Sorten, das Original und Cozy Spice mit Zimt und Sternanis. Weitere Sorten sind geplant.',
@@ -554,6 +548,34 @@ V.update({k: str(v) for k, v in V.items() if k.startswith('PLANT_')})
 V['STANDS'] = stands()
 V['SHOP'] = shop()
 V['CART'] = cart()
+# ---------------------------------------------------------------------------
+# Cascara in four facts, poured: a pot of our syrup with cinnamon and star anise tips as it comes up the page, its
+# syrup runs down the left and each fact comes in as the syrup reaches it. The pot is 36 frames rendered from the
+# opening's own 3D pot (_build/pour/render.mjs → assets/pour/pot.webp, 6 to a row); meta.json: where its lip is.
+CASCARA_FACTS = [
+    ('Was', 'Haut und Fruchtfleisch der Kaffeekirsche, getrocknet'),
+    ('Name', 'von spanisch <em>cáscara</em>, Schale'),
+    ('Geschmack', 'süsslich, fruchtig, Honig, Dörrpflaume, Schwarztee'),
+    ('Koffein', 'natürlich enthalten; wie viel, hängt von Rohstoff und Zubereitung ab'),
+]
+
+
+def pour():
+    import json, pathlib
+    m = json.loads((pathlib.Path(__file__).parent / 'pour' / 'meta.json').read_text())
+    lips = ' '.join(f'{x:.4f},{y:.4f}' for x, y, _ in m['lips'])
+    rows = '\n'.join(f'          <div class="pour__fact"><span class="pour__bead" aria-hidden="true"></span><dt>{a}</dt><dd>{b}</dd></div>'
+                     for a, b in CASCARA_FACTS)
+    return (f'<div class="pour" data-pour data-frames="{m["n"]}" data-cols="{m["cols"]}" data-pour-at="{m["pour"]}" data-lips="{lips}" '
+            f'style="--pot-w:{m["w"]}px;--pot-h:{m["h"]}px">\n'
+            '          <div class="pour__pot" aria-hidden="true"><img src="assets/pour/pot.webp" alt="" '
+            f'width="{m["w"] * m["cols"]}" height="{m["h"] * -(-m["n"] // m["cols"])}" loading="lazy" decoding="async"></div>\n'
+            '          <svg class="pour__flow" aria-hidden="true"><path class="pour__syrup"/><path class="pour__shine"/></svg>\n'
+            '          <dl class="pour__facts">\n' + rows + '\n          </dl>\n        </div>')
+
+
+V['POUR'] = pour()
+
 V['TEAM'] = team()
 
 # ---------------------------------------------------------------------------

@@ -156,6 +156,74 @@
   if (hero) document.addEventListener('cascarup:shown', () => setTimeout(warmPictures, 2500), { once: true });
   else window.addEventListener('load', () => setTimeout(warmPictures, 1000), { once: true });
 
+  // Cascara, poured (the section on dried cascara): as the pot comes up the page it tips – one frame of the sheet
+  // at a time, moved on the GPU – and once it pours, its syrup runs down the left from its lip; each fact comes in as
+  // the syrup reaches it. Everything follows the scroll, both ways, and is worked out only while it is on screen.
+  const pour = document.querySelector('[data-pour]');
+  if (pour) {
+    const pot = pour.querySelector('.pour__pot'), sheet = pot.querySelector('img'), svg = pour.querySelector('.pour__flow');
+    const syrup = pour.querySelector('.pour__syrup'), shine = pour.querySelector('.pour__shine');
+    const facts = [...pour.querySelectorAll('.pour__fact')];
+    const N = +pour.dataset.frames, COLS = +pour.dataset.cols, FROM = +pour.dataset.pourAt;
+    const lips = pour.dataset.lips.split(' ').map((p) => p.split(',').map(Number));
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const clamp = (v) => Math.min(1, Math.max(0, v));
+    let G = null, frame = -1, shownLen = -1, lit = -1, pending = 0;
+    const measure = () => {
+      const r = pour.getBoundingClientRect(), rail = parseFloat(getComputedStyle(pour).getPropertyValue('--rail')) || 22;
+      const beads = facts.map((f) => { const b = f.firstElementChild; return f.offsetTop + b.offsetTop + b.offsetHeight / 2; });
+      G = { top: r.top + window.scrollY, w: pot.offsetWidth, h: pot.offsetHeight, x: pot.offsetLeft, y: pot.offsetTop, rail, beads, end: beads[beads.length - 1] };
+      svg.setAttribute('viewBox', `0 0 ${Math.round(r.width)} ${Math.round(pour.offsetHeight)}`);
+      frame = -1; shownLen = -1;
+    };
+    // the syrup leaves the lip, bends out a little and falls straight down the rail to the last fact's drop
+    let curve = 0, lipY = 0;
+    const shape = (f) => {
+      const [lx0, ly0] = lips[f], lx = G.x + lx0 * G.w, ly = G.y + ly0 * G.h, R = G.rail;
+      lipY = ly; curve = Math.hypot(lx - R, 52) * 1.04;
+      const d = `M${lx.toFixed(1)} ${ly.toFixed(1)}C${(lx - 2).toFixed(1)} ${(ly + 14).toFixed(1)} ${R} ${(ly + 28).toFixed(1)} ${R} ${(ly + 52).toFixed(1)}V${G.end.toFixed(1)}`;
+      syrup.setAttribute('d', d);
+      shine.setAttribute('d', d); shine.setAttribute('transform', 'translate(-2.2 0)');
+    };
+    const draw = () => {
+      pending = 0;
+      if (!G) measure();
+      // the reading line, a little below the middle of the screen, in the block's own coordinates
+      const rel = still ? 1e5 : window.scrollY + window.innerHeight * .62 - G.top;
+      const tilt = clamp((rel + G.h * .6) / (G.h * 1.5)), f = Math.round(tilt * (N - 1));
+      if (f !== frame) {
+        frame = f;
+        sheet.style.transform = `translate3d(${-(f % COLS) * G.w}px, ${-Math.floor(f / COLS) * G.h}px, 0)`;
+        if (f >= FROM) shape(f);
+      }
+      // the syrup's front: from the lip as soon as the pot pours, a little faster than the page scrolls
+      const pourRel = -G.h * .6 + (FROM / (N - 1)) * G.h * 1.5;
+      const front = f >= FROM ? Math.min(G.end, lipY + Math.max(0, rel - pourRel) * 1.5) : 0;
+      const run = front - lipY, len = f < FROM || run < 1 ? 0 : run <= 52 ? curve * run / 52 : curve + run - 52;
+      const L = Math.round(len);
+      if (L !== shownLen) {
+        shownLen = L;
+        const vis = L > 0 ? 'visible' : 'hidden';
+        syrup.style.visibility = shine.style.visibility = vis;
+        if (L > 0) { syrup.style.strokeDasharray = `${L} 100000`; shine.style.strokeDasharray = `${Math.max(0, L - 6)} 100000`; }
+      }
+      const n = f < FROM ? 0 : G.beads.filter((y) => y <= front + 2).length;
+      if (n !== lit) { lit = n; facts.forEach((el, i) => el.classList.toggle('is-on', i < n)); }
+    };
+    const ask = () => { if (!pending) pending = requestAnimationFrame(draw); };
+    pour.classList.add('is-live');
+    const anew = () => { G = null; ask(); };
+    window.addEventListener('resize', anew);
+    if ('ResizeObserver' in window) new ResizeObserver(anew).observe(document.body);
+    // only while it is near the screen
+    let near = false;
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting === near) return;
+      near = e.isIntersecting;
+      if (near) { window.addEventListener('scroll', ask, { passive: true }); ask(); } else window.removeEventListener('scroll', ask);
+    }, { rootMargin: '200px 0px' }).observe(pour);
+  }
+
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
   const start = () => {
     if (root.classList.contains('is-loaded')) return;
