@@ -429,20 +429,20 @@ V['TEAM_P2'] = ('Im Company Programme von Young Enterprise Switzerland gründen 
 
 
 def team():
-    # a band that runs on by itself, slowly, round and round: the portrait on a disc, the name, the role and what each
-    # of us does. The six are there twice, one after the other, so the band closes on itself; the copy is hidden from
-    # screen readers.
+    # a carousel: twelve cards stand round a ring that turns slowly on its own – the six of us, twice, so there are
+    # always faces in front and to the sides (the copies are hidden from screen readers). Each card: the portrait on a
+    # disc, the name, the role and what each of us does.
     def member(n, person, copy=False):
         key, name, role, (w, h), what = person
-        return (f'          <li class="member"{" aria-hidden=" + chr(34) + "true" + chr(34) if copy else ""}>\n'
+        return (f'          <li class="member" style="--i:{n + (6 if copy else 0)}"{" aria-hidden=" + chr(34) + "true" + chr(34) if copy else ""}>\n'
                 f'            <span class="member__disc"><img class="member__pic" src="assets/team/{key}.webp" alt="{"" if copy else name}" width="{w}" height="{h}" loading="lazy" decoding="async"></span>\n'
                 f'            <h3 class="member__name">{name}</h3>\n'
                 f'            <p class="member__role">{role}</p>\n'
                 f'            <p class="member__what">{what}</p>\n'
                 '          </li>')
-    people = ('        <div class="team__loop" data-reveal>\n          <ul class="team__people">\n'
+    people = ('        <div class="team__loop" data-reveal data-pause-away>\n          <div class="team__ring">\n          <ul class="team__people">\n'
               + '\n'.join(member(n, t) for n, t in enumerate(TEAM)) + '\n'
-              + '\n'.join(member(n, t, True) for n, t in enumerate(TEAM)) + '\n          </ul>\n        </div>')
+              + '\n'.join(member(n, t, True) for n, t in enumerate(TEAM)) + '\n          </ul>\n          </div>\n        </div>')
     return (
         '    <!-- The team: six students, one company -->\n'
         '    <section class="team" data-tone="paper" id="team" aria-labelledby="team-title">\n'

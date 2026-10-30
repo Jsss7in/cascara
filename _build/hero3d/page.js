@@ -198,7 +198,7 @@ import { createDiorama } from './diorama.js';
     const r = run(), top = heroTop();
     if (r <= 0) return;
     const p = (y - top) / r;
-    if (dir > 0 && p > .003 && p < STOPS[1] - .01) { opening = true; glideTo(top + STOPS[1] * r, (STOPS[1] - p) * PLAY_MS, true); }
+    if (dir > 0 && p > .0012 && p < STOPS[1] - .01) { opening = true; glideTo(top + STOPS[1] * r, (STOPS[1] - p) * PLAY_MS, true); }
   }
 
   function onScroll() {
