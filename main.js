@@ -157,28 +157,59 @@
   else window.addEventListener('load', () => setTimeout(warmPictures, 1000), { once: true });
 
   // Cascara, poured (the section on dried cascara): as the pot comes up the page it tips – one frame of the sheet
-  // at a time, moved on the GPU – and once it pours, its syrup runs over the rim and falls into the first word, which
-  // fills; from the word's first letter it drips on into the next, and so down to the last. Each word's line comes in
-  // as the word fills. Everything follows the scroll, both ways, and is worked out only while it is on screen.
+  // at a time, moved on the GPU – and once it pours, its syrup runs over the rim, falls, and where it lands it writes
+  // the first word in a single line of syrup; from that word it drips on and writes the next, and so down to the last.
+  // Each word's line comes in once the word is written. Everything follows the scroll, both ways, and is worked out
+  // only while it is on screen.
   const pour = document.querySelector('[data-pour]');
   if (pour) {
+    const NSV = 'http://www.w3.org/2000/svg';
     const pot = pour.querySelector('.pour__pot'), sheet = pot.querySelector('img'), svg = pour.querySelector('.pour__flow');
-    const syrup = pour.querySelector('.pour__syrup'), shine = pour.querySelector('.pour__shine');
+    const [shadowP, syrupP, coreP, shineP] = ['.pour__shadow', '.pour__syrup', '.pour__core', '.pour__shine'].map((q) => pour.querySelector(q));
     const facts = [...pour.querySelectorAll('.pour__fact')];
     const N = +pour.dataset.frames, COLS = +pour.dataset.cols, FROM = +pour.dataset.pourAt;
     const lips = pour.dataset.lips.split(' ').map((p) => p.split(',').map(Number));
+    const SCRIPT = JSON.parse(pour.dataset.script);
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-    const WORD = 70;                     // how much scroll a word takes to fill before the syrup drips on
-    let G = null, frame = -1, shownFront = -1, full = -1, pending = 0;
-    // where a word's first letter is: the syrup lands in it and drips on from it
-    const letter = (f) => {
-      const node = f.querySelector('.pour__word').firstChild, range = document.createRange();
-      range.setStart(node, 0); range.setEnd(node, 1);
-      const r = range.getBoundingClientRect(), fs = parseFloat(getComputedStyle(f.querySelector('dt')).fontSize);
-      return { x: r.left + r.width * .5, top: r.top + fs * .2, bottom: r.bottom - fs * .2 };
+    const WRITE = 2.6;                   // pixels of letter written for each pixel the syrup's front moves on
+    const f1 = (v) => v.toFixed(1);
+    const bez = (p0, p1, p2, p3, t) => { const u = 1 - t; return [u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]]; };
+    const bump = (t, at, w) => Math.exp(-((t - at) * (t - at)) / (2 * w * w));
+    // a glyph's strokes (M, L, C in the font's units, y up) as lines of points
+    const strokes = (d) => {
+      const t = d.trim().split(/[\s,]+/), out = [];
+      let cur = null, cmd = '', i = 0;
+      while (i < t.length) {
+        if (/^[MLCZ]$/i.test(t[i])) { cmd = t[i++].toUpperCase(); if (cmd === 'Z') { if (cur) cur.push(cur[0]); continue; } }
+        if (cmd === 'M') { cur = [[+t[i], +t[i + 1]]]; out.push(cur); i += 2; cmd = 'L'; }
+        else if (cmd === 'L') { cur.push([+t[i], +t[i + 1]]); i += 2; }
+        else if (cmd === 'C') { const p0 = cur[cur.length - 1], a = [+t[i], +t[i + 1]], b = [+t[i + 2], +t[i + 3]], e = [+t[i + 4], +t[i + 5]]; for (let k = 1; k <= 6; k++) cur.push(bez(p0, a, b, e, k / 6)); i += 6; }
+        else i++;
+      }
+      return out;
     };
-    // a line of syrup, sampled every few pixels: its centre (x, y), its width, and how far along it is
+    const glyphs = Object.fromEntries(Object.entries(SCRIPT.g).map(([c, [adv, d]]) => [c, { adv, lines: strokes(d) }]));
+    // a word in the script, laid where its label stands: its path, where it begins and the lowest point of its
+    // first letter (the syrup arrives at the one and drips on from the other)
+    const word = (f, ox, oy) => {
+      const dt = f.querySelector('dt'), fs = parseFloat(getComputedStyle(dt).fontSize), k = fs * 1.08 / SCRIPT.em;
+      const r = dt.getBoundingClientRect(), x0 = r.left - ox + fs * .12, base = r.top - oy + fs * .98;
+      let pen = 0, d = '', start = null, low = null;
+      [...f.querySelector('.pour__label').textContent.trim()].forEach((c, n) => {
+        const g = glyphs[c];
+        if (!g) { pen += SCRIPT.em * .3; return; }
+        for (const ln of g.lines) {
+          const pts = ln.map(([x, y]) => [x0 + (pen + x) * k, base - y * k]);
+          d += `M${pts.map(([x, y]) => `${f1(x)} ${f1(y)}`).join('L')}`;
+          if (!start) start = pts[0];
+          if (n === 0) for (const q of pts) if (!low || q[1] > low[1]) low = q;
+        }
+        pen += g.adv;
+      });
+      return { d, start, low, w: Math.max(3.4, fs * .118) };
+    };
+    // a line of syrup, sampled every few pixels: its centre, its width, how far along it is
     const run = (pts, widths) => {
       const out = []; let len = 0;
       for (let i = 0; i < pts.length; i++) {
@@ -187,98 +218,123 @@
       }
       return { pts: out, len };
     };
-    const bez = (p0, p1, p2, p3, t) => { const u = 1 - t; return [u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]]; };
-    const bump = (t, at, w) => Math.exp(-((t - at) * (t - at)) / (2 * w * w));
+    let G = null, frame = -1, shownFront = NaN, written = -1, pending = 0, inks = [];
     const measure = () => {
-      const r = pour.getBoundingClientRect(), ox = r.left, oy = r.top;
-      const L = facts.map((f) => { const l = letter(f); return { x: l.x - ox, top: l.top - oy, bottom: l.bottom - oy }; });
-      G = { top: r.top + window.scrollY, w: pot.offsetWidth, h: pot.offsetHeight, x: pot.offsetLeft, y: pot.offsetTop, L, segs: [] };
+      const r = pour.getBoundingClientRect();
+      for (const g of inks) g.el.remove();
+      inks = [];
+      G = { top: r.top + window.scrollY, w: pot.offsetWidth, h: pot.offsetHeight, x: pot.offsetLeft, y: pot.offsetTop, segs: [] };
       svg.setAttribute('viewBox', `0 0 ${Math.round(r.width)} ${Math.round(pour.offsetHeight)}`);
-      // the drips between the words: a thin thread, a little uneven, with beads of syrup along it and a neck where it
-      // leaves the letter; each is its own, so none looks like the other
-      let at = 0;
-      G.segs.push({ kind: 'stream', start: 0, len: 0 });
-      L.forEach((l, i) => {
-        G.segs.push({ kind: 'word', i, start: 0, len: WORD });
-        if (i < L.length - 1) {
-          const n = L[i + 1], k = i + 1, n0 = 8 + Math.round((n.top - l.bottom) / 3), pts = [];
+      const W = facts.map((f) => word(f, r.left, r.top));
+      G.W = W;
+      G.segs.push({ kind: 'stream', len: 0 });
+      W.forEach((wd, i) => {
+        // the word, as a stroke of syrup in four layers: its shadow on the paper, the body, a warm core, the gleam
+        const el = document.createElementNS(NSV, 'g'), layers = {};
+        for (const [name, width, dx, dy] of [['shadow', wd.w + 1, .7, 1.7], ['body', wd.w, 0, 0], ['core', wd.w * .46, -.35, -.45], ['gloss', wd.w * .17, -wd.w * .2, -wd.w * .24]]) {
+          const pth = document.createElementNS(NSV, 'path');
+          pth.setAttribute('class', `pour__ink pour__ink--${name}`); pth.setAttribute('d', wd.d);
+          pth.setAttribute('stroke-width', f1(width)); if (dx || dy) pth.setAttribute('transform', `translate(${dx.toFixed(2)} ${dy.toFixed(2)})`);
+          el.append(pth); layers[name] = pth;
+        }
+        svg.append(el);
+        const len = layers.body.getTotalLength();
+        inks.push({ el, layers, len, shown: -1 });
+        G.segs.push({ kind: 'word', i, len: len / WRITE });
+        if (i < W.length - 1) {
+          // the drip to the next word: a thin, uneven thread with round beads of syrup hanging on it, a neck where it
+          // leaves the letter and a swelling where it runs into the next
+          const a = wd.low, b = W[i + 1].start, k = i + 1, n0 = 8 + Math.round(Math.abs(b[1] - a[1]) / 3), pts = [];
           for (let j = 0; j <= n0; j++) {
             const t = j / n0;
-            pts.push([l.x + (n.x - l.x) * t * t * (3 - 2 * t) + Math.sin(t * 9 + k) * 1.2 * Math.sin(t * Math.PI), l.bottom - 2 + (n.top + 3 - l.bottom) * t]);
+            pts.push([a[0] + (b[0] - a[0]) * t * t * (3 - 2 * t) + Math.sin(t * 9 + k) * 1.2 * Math.sin(t * Math.PI), a[1] - 1 + (b[1] + 1 - a[1]) * t]);
           }
-          const seg = run(pts, (t) => 2 + 4 * bump(t, 0, .06) + .45 * Math.sin(t * 23 + k));
-          // round beads of syrup hanging on the thread, a little longer than wide, each its own size
-          seg.beads = [.24 + .07 * Math.sin(k * 2.1), .52 + .08 * Math.cos(k * 1.3), .8 + .05 * Math.sin(k * 3.7)]
-            .map((t, b) => ({ ...seg.pts[Math.round(t * (seg.pts.length - 1))], r: 3.1 + ((k * 7 + b * 5) % 4) * .45 }));
-          G.segs.push({ kind: 'drip', i, start: 0, ...seg });
+          const seg = run(pts, (t) => 2 + (wd.w - 1.4) * bump(t, 0, .07) + (W[i + 1].w - 2.2) * bump(t, 1, .06) + .45 * Math.sin(t * 23 + k));
+          seg.beads = [.26 + .07 * Math.sin(k * 2.1), .55 + .08 * Math.cos(k * 1.3), .8 + .04 * Math.sin(k * 3.7)]
+            .map((t, n) => ({ ...seg.pts[Math.round(t * (seg.pts.length - 1))], r: 3 + ((k * 7 + n * 5) % 4) * .45 }));
+          G.segs.push({ kind: 'drip', i, ...seg });
         }
       });
-      frame = -1; shownFront = NaN; full = -1;
+      frame = -1; shownFront = NaN; written = -1;
     };
-    // the stream from the lip of the current frame: over the rim, out a little, falling and thinning into the first word
+    // the stream from the lip of the current frame: over the rim, out a little, falling and thinning into the first
+    // stroke of the first word, as wide there as that stroke
     const stream = (f) => {
-      const [lx0, ly0] = lips[f], lx = G.x + lx0 * G.w, ly = G.y + ly0 * G.h, T = G.L[0];
-      const p0 = [lx + 7, ly - 4], p1 = [lx - 6, ly - 4.5], p2 = [lx - 10, ly + 14], p3 = [T.x, T.top + 4];
-      const c0 = [lx - 9, ly + 6], c1 = [T.x - 2, (ly + T.top) / 2];
+      const [lx0, ly0] = lips[f], lx = G.x + lx0 * G.w, ly = G.y + ly0 * G.h, T = G.W[0], end = T.start, wEnd = T.w;
+      const p0 = [lx + 7, ly - 4], p1 = [lx - 6, ly - 4.5], p2 = [lx - 10, ly + 14], m = [lx - 9, ly + 6];
+      const c0 = [lx - 9, ly + 18], c1 = [end[0] - 6, end[1] - (end[1] - ly) * .3];
       const pts = [];
-      for (let j = 0; j <= 10; j++) pts.push(bez(p0, p1, p2, [lx - 9, ly + 6], j / 10));
-      for (let j = 1; j <= 24; j++) { const t = j / 24; const q = bez([lx - 9, ly + 6], c0, c1, p3, t); pts.push([q[0] + Math.sin(t * 7) * .8 * t, q[1]]); }
-      return run(pts, (t) => (t < .2 ? 9.5 - 6 * (t / .2) * (t / .2) * .4 : 7.1 - 3.2 * Math.pow((t - .2) / .8, .6)) + .35 * Math.sin(t * 31));
+      for (let j = 0; j <= 10; j++) pts.push(bez(p0, p1, p2, m, j / 10));
+      for (let j = 1; j <= 26; j++) { const t = j / 26, q = bez(m, c0, c1, end, t); pts.push([q[0] + Math.sin(t * 7) * .7 * t * (1 - t), q[1]]); }
+      return run(pts, (t) => (t < .22 ? 9.6 - 2.4 * (t / .22) : wEnd + (7.2 - wEnd) * Math.pow(1 - (t - .22) / .78, 1.4)) + .3 * Math.sin(t * 31));
     };
-    // the outline of a line of syrup up to a length, and its gleam; at its tip, while it runs, a drop
+    // the outline of a line of syrup up to a length – its shadow, body, core and gleam; a drop at its tip while it runs
     const shape = (line, upto, tip) => {
       const P = line.pts.filter((q) => q.at <= upto);
-      if (P.length < 2) return ['', ''];
-      const left = [], right = [];
-      for (let i = 0; i < P.length; i++) {
-        const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)];
-        let nx = -(b.y - a.y), ny = b.x - a.x; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
-        left.push(`${(P[i].x + nx * P[i].w / 2).toFixed(1)} ${(P[i].y + ny * P[i].w / 2).toFixed(1)}`);
-        right.push(`${(P[i].x - nx * P[i].w / 2).toFixed(1)} ${(P[i].y - ny * P[i].w / 2).toFixed(1)}`);
-      }
-      let d = `M${left.join('L')}L${right.reverse().join('L')}Z`;
+      if (P.length < 2) return ['', '', '', ''];
+      const outline = (scale, dx, dy) => {
+        const L = [], R = [];
+        for (let i = 0; i < P.length; i++) {
+          const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)];
+          let nx = -(b.y - a.y), ny = b.x - a.x; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+          const h = P[i].w * scale / 2;
+          L.push(`${f1(P[i].x + nx * h + dx)} ${f1(P[i].y + ny * h + dy)}`); R.push(`${f1(P[i].x - nx * h + dx)} ${f1(P[i].y - ny * h + dy)}`);
+        }
+        return `M${L.join('L')}L${R.reverse().join('L')}Z`;
+      };
+      const drop = (x, y, r, ry) => `M${f1(x - r)} ${f1(y)}a${f1(r)} ${f1(ry)} 0 1 0 ${f1(2 * r)} 0a${f1(r)} ${f1(ry)} 0 1 0 ${f1(-2 * r)} 0Z`;
+      let body = outline(1, 0, 0), core = outline(.46, -.35, -.45), shade = outline(1.08, .7, 1.7), gloss = '';
+      const g = P.filter((q) => q.w > 2.6).map((q) => `${f1(q.x - q.w * .2)} ${f1(q.y - .3)}`);
+      if (g.length > 1) gloss = `M${g.join('L')}`;
+      const beads = (line.beads || []).filter((b) => b.at <= upto);
       const e = P[P.length - 1];
-      if (tip) { const r = Math.max(3.2, e.w * .62); d += `M${(e.x - r).toFixed(1)} ${(e.y + r * .2).toFixed(1)}a${r.toFixed(1)} ${(r * 1.12).toFixed(1)} 0 1 0 ${(2 * r).toFixed(1)} 0a${r.toFixed(1)} ${(r * 1.12).toFixed(1)} 0 1 0 ${(-2 * r).toFixed(1)} 0Z`; }
-      const g = P.filter((q) => q.w > 3).map((q) => `${(q.x - q.w * .22).toFixed(1)} ${q.y.toFixed(1)}`);
-      let gl = g.length > 1 ? `M${g.join('L')}` : '';
-      for (const b of line.beads || []) {
-        if (b.at > upto) break;
-        const r = b.r, ry = r * 1.22;
-        d += `M${(b.x - r).toFixed(1)} ${b.y.toFixed(1)}a${r.toFixed(1)} ${ry.toFixed(1)} 0 1 0 ${(2 * r).toFixed(1)} 0a${r.toFixed(1)} ${ry.toFixed(1)} 0 1 0 ${(-2 * r).toFixed(1)} 0Z`;
-        gl += `M${(b.x - r * .5).toFixed(1)} ${(b.y - ry * .35).toFixed(1)}a${(r * .55).toFixed(1)} ${(ry * .55).toFixed(1)} 0 0 1 ${(r * .42).toFixed(1)} ${(-ry * .38).toFixed(1)}`;
+      if (tip) beads.push({ x: e.x, y: e.y + 1, r: Math.max(3, e.w * .62) });
+      for (const b of beads) {
+        const ry = b.r * 1.2;
+        body += drop(b.x, b.y, b.r, ry); shade += drop(b.x + .7, b.y + 1.7, b.r, ry); core += drop(b.x - .4, b.y - .3, b.r * .5, ry * .5);
+        gloss += `M${f1(b.x - b.r * .52)} ${f1(b.y - ry * .3)}a${f1(b.r * .55)} ${f1(ry * .55)} 0 0 1 ${f1(b.r * .42)} ${f1(-ry * .4)}`;
       }
-      return [d, gl];
+      return [shade, body, core, gloss];
     };
     let line = null;
     const draw = () => {
       pending = 0;
       if (!G) measure();
       // the reading line, a little below the middle of the screen, in the block's own coordinates
-      const rel = still ? 1e5 : window.scrollY + window.innerHeight * .62 - G.top;
+      const rel = still ? 1e6 : window.scrollY + window.innerHeight * .62 - G.top;
       const tilt = clamp((rel + G.h * .6) / (G.h * 1.5)), f = Math.round(tilt * (N - 1));
       if (f !== frame) {
         frame = f;
         sheet.style.transform = `translate3d(${-(f % COLS) * G.w}px, ${-Math.floor(f / COLS) * G.h}px, 0)`;
         line = f >= FROM ? stream(f) : null;
-        if (line) { G.segs[0].len = line.len; let at = 0; for (const s of G.segs) { s.start = at; at += s.len; } }
+        if (line) { G.segs[0].len = line.len; let at = 0; for (const sg of G.segs) { sg.start = at; at += sg.len; } }
         shownFront = NaN;              // drawn anew, whatever the syrup's reach
       }
-      // how far the syrup has come along its way: from the lip as soon as the pot pours, a little faster than the page
+      // how far the syrup has come: from the lip as soon as the pot pours, a little faster than the page scrolls
       const pourRel = -G.h * .6 + (FROM / (N - 1)) * G.h * 1.5;
       const front = !line ? -1 : Math.round(Math.max(0, rel - pourRel) * 1.5);
-      if (front !== shownFront) {
-        shownFront = front;
-        let d = '', g = '', n = 0;
-        if (line) for (const s of G.segs) {
-          const upto = front - s.start;
-          if (upto <= 0) break;
-          if (s.kind === 'word') { n = s.i + 1; continue; }
-          const [sd, sg] = shape(s.kind === 'stream' ? line : s, upto, upto < s.len);
-          d += sd; g += sg;
+      if (front === shownFront) return;
+      shownFront = front;
+      const parts = ['', '', '', ''];
+      let n = 0;
+      for (const sg of G.segs) {
+        const upto = line ? front - sg.start : -1;
+        if (sg.kind === 'word') {
+          const ink = inks[sg.i], L = Math.max(0, Math.min(ink.len, upto * WRITE)), Lr = Math.round(L);
+          if (Lr !== ink.shown) {
+            ink.shown = Lr;
+            ink.el.style.visibility = Lr > 0 ? 'visible' : 'hidden';
+            for (const [name, pth] of Object.entries(ink.layers)) pth.style.strokeDasharray = `${Math.max(0, Lr - (name === 'gloss' ? 4 : 0))} 100000`;
+          }
+          if (L >= ink.len - .5) n = sg.i + 1;
+          continue;
         }
-        syrup.setAttribute('d', d); shine.setAttribute('d', g);
-        if (n !== full) { full = n; facts.forEach((el, i) => el.classList.toggle('is-full', i < n)); }
+        if (upto <= 0) continue;
+        const sh = shape(sg.kind === 'stream' ? line : sg, upto, upto < sg.len);
+        for (let j = 0; j < 4; j++) parts[j] += sh[j];
       }
+      shadowP.setAttribute('d', parts[0]); syrupP.setAttribute('d', parts[1]); coreP.setAttribute('d', parts[2]); shineP.setAttribute('d', parts[3]);
+      if (n !== written) { written = n; facts.forEach((el, i) => el.classList.toggle('is-full', i < n)); }
     };
     const ask = () => { if (!pending) pending = requestAnimationFrame(draw); };
     pour.classList.add('is-live');

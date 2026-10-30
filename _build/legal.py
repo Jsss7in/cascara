@@ -96,7 +96,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <p>Bei uns liegen die Bestellungen im E-Mail-Postfach {MAIL} bei Microsoft 365 (Microsoft Corporation). Dabei können Daten auch in den USA bearbeitet werden; Microsoft ist nach dem Swiss-U.S. Data Privacy Framework zertifiziert. Wir löschen deine Angaben, sobald das Unternehmungsjahr abgeschlossen und, wenn du das gewählt hast, zurückbezahlt ist; Belege bewahren wir so lange auf, wie das Gesetz es verlangt. Deine Einwilligung kannst du jederzeit per E-Mail an {MAIL} widerrufen; was wir für die Zuordnung deiner Scheine und die Rückzahlung brauchen, bewahren wir bis dahin auf.</p>
 
     <h2>Schriften</h2>
-    <p>Die Schriften «Newsreader», «Jost» und «DynaPuff» liegen auf dieser Website selbst. Für ihre Anzeige werden keine Daten an Dritte übermittelt.</p>
+    <p>Die Schriften «Newsreader», «Jost» und «DynaPuff» liegen auf dieser Website selbst, ebenso die Schreibschrift «EMS Allure» (SIL Open Font License), in der unser Sirup die Wörter schreibt. Für ihre Anzeige werden keine Daten an Dritte übermittelt.</p>
 
     <h2>Karten</h2>
     <p>Die Karten bei unseren Ständen liegen als Bilder auf dieser Website selbst; beim Anschauen wird nichts an einen Kartendienst übermittelt. Erst ein Klick auf «Route» oder auf eine Karte öffnet Google Maps, und dort gilt die Datenschutzerklärung von Google.</p>

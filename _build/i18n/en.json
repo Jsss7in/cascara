@@ -435,7 +435,6 @@
  "Partizipationsscheine": "Participation certificates",
  "Wenn du einen Partizipationsschein zeichnest, erhalten wir deinen Namen, deine E-Mail-Adresse, deine Adresse, falls du sie angibst deine Telefonnummer, die Anzahl Scheine und deine Wahl, ob du dein Geld am Ende zurück möchtest. Wir brauchen diese Angaben, um dir deine Scheine zuzuordnen, dich am Ende des Unternehmungsjahres zu erreichen und dir das Geld zurückzuzahlen, wenn du das gewählt hast. Bezahlt wird wie im Shop über Stripe. Wir löschen deine Angaben, sobald das Unternehmungsjahr abgeschlossen und zurückbezahlt ist; Belege bewahren wir so lange auf, wie das Gesetz es verlangt.": "When you sign up for a participation certificate, we receive your name, your email address, your address, your phone number if you give it, the number of certificates and your choice of whether you want your money back at the end. We need these details to match the certificates to you, to reach you at the end of the company year and to pay your money back if that is what you chose. As in the shop, payment is handled by Stripe. We delete your details once the company year has ended and all money has been repaid; we keep records for as long as the law requires.",
  "Schriften": "Fonts",
- "Die Schriften «Newsreader», «Jost» und «DynaPuff» liegen auf dieser Website selbst. Für ihre Anzeige werden keine Daten an Dritte übermittelt.": "The fonts “Newsreader”, “Jost” and “DynaPuff” are hosted on this website itself. No data is sent to third parties to display them.",
  "Karten": "Maps",
  "Die Karten bei unseren Ständen liegen als Bilder auf dieser Website selbst; beim Anschauen wird nichts an einen Kartendienst übermittelt. Erst ein Klick auf «Route» oder auf eine Karte öffnet Google Maps, und dort gilt die Datenschutzerklärung von Google.": "The maps for our stalls are images hosted on this website itself; viewing them sends nothing to a map service. Only a click on “Directions” or on a map opens Google Maps, where Google’s privacy policy applies.",
  "Soziale Medien": "Social media",
@@ -649,5 +648,6 @@
  "Kaffeekirschen am Strauch:": "Coffee cherries on the bush:",
  "«Coffee cherries on bush at Fairview Estate, Kiambu, KE». Foto: Daniel Case,": "“Coffee cherries on bush at Fairview Estate, Kiambu, KE”. Photo: Daniel Case,",
  "Ein Holztisch auf der Kaffeeplantage in der Abendsonne, darauf ein Haufen Cascara": "A wooden table on the coffee plantation in the evening sun, with a heap of cascara on it",
- "Scroll weiter": "Keep scrolling"
+ "Scroll weiter": "Keep scrolling",
+ "Die Schriften «Newsreader», «Jost» und «DynaPuff» liegen auf dieser Website selbst, ebenso die Schreibschrift «EMS Allure» (SIL Open Font License), in der unser Sirup die Wörter schreibt. Für ihre Anzeige werden keine Daten an Dritte übermittelt.": "The typefaces “Newsreader”, “Jost” and “DynaPuff” are hosted on this website itself, as is the script “EMS Allure” (SIL Open Font License) in which our syrup writes the words. Displaying them sends no data to third parties."
 }
