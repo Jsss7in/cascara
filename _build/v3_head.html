@@ -35,14 +35,7 @@
     .loader__word span { display: inline-block; opacity: 0; transform: translateY(16px);
       animation: ld-rise .65s cubic-bezier(.22, .61, .36, 1) forwards; animation-delay: calc(.6s + var(--i) * .06s); }
     .loader:not(.has-font) .loader__word span { animation-play-state: paused; }
-    /* the bar is a shelf: at its end stands our Cozy Spice and turns (a turntable drawn by the page's own 3D,
-       60 frames in one strip, stepped through on the GPU) */
-    .loader__shelf { display: flex; align-items: flex-end; gap: 9px; margin-top: 6px; }
-    .loader__bar { display: block; width: 124px; height: 3px; margin-bottom: 4px; border-radius: 3px; background: rgba(58, 33, 22, .12); overflow: hidden; }
-    .loader__bottle { position: relative; width: 25px; height: 62px; overflow: hidden; opacity: 0; animation: ld-in .6s cubic-bezier(.22, .61, .36, 1) .35s forwards; }
-    .loader__bottle img { position: absolute; left: 0; top: 0; width: 1500px; max-width: none; height: 62px; animation: ld-turn 2.6s steps(60) infinite; will-change: transform; }
-    @keyframes ld-turn { to { transform: translateX(-1500px); } }
-    @keyframes ld-in { to { opacity: 1; } }
+    .loader__bar { display: block; width: 124px; height: 3px; margin-top: 8px; border-radius: 3px; background: rgba(58, 33, 22, .12); overflow: hidden; }
     .loader__bar i { display: block; height: 100%; border-radius: 3px; background: #B4592A; transform-origin: 0 50%; transform: scaleX(.08);
       transition: transform .7s cubic-bezier(.22, .61, .36, 1); }
     @keyframes ld-draw { to { stroke-dashoffset: 0; } }
@@ -51,8 +44,6 @@
     @media (prefers-reduced-motion: reduce) {
       .loader__ink { animation: none; stroke-dashoffset: 0; }
       .loader__word span { animation: none; opacity: 1; transform: none; }
-      .loader__bottle { animation: none; opacity: 1; }
-      .loader__bottle img { animation: none; }
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>

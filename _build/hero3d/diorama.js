@@ -215,8 +215,11 @@ function grainOn(ctx, w, h) {
   }
   ctx.save(); ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = ctx.createPattern(grainTile, 'repeat'); ctx.fillRect(0, 0, w, h); ctx.restore();
 }
-// how sharp each layer is painted (device pixels per CSS pixel, at most): the far, soft ones need less
+// how sharp each layer is painted (device pixels per CSS pixel, at most): the far, soft ones need less. On phones
+// (three device pixels to the point) every layer twice over: at once the paper's grain was blown up into dots and the
+// shapes went soft; the grain is drawn in the canvas's own pixels, so it stays fine only if those are small.
 const SHARP = { sky: 1, far: 1, mid: 1.5, near: 1.5, soil: 1.5, branch: 2, close: 1 };
+const sharp = (id, dpr) => Math.min(dpr, dpr > 2 ? 2 : SHARP[id] || 1);
 
 // Every layer is drawn once as a picture (the SVG painted onto a canvas, while the loading screen still shows), so
 // what moves afterwards are finished pictures: nothing is drawn again while the page runs, only moved and faded.
@@ -545,7 +548,7 @@ export function createDiorama(root) {
   async function paintAll(svgs, W, H, g) {
     const dpr = window.devicePixelRatio || 1;
     await Promise.all(layers.map(async (L) => {
-      const inner = svgs[L.id] || '', c = L.paint, k = Math.min(dpr, SHARP[L.id] || 1);
+      const inner = svgs[L.id] || '', c = L.paint, k = sharp(L.id, dpr);
       if (!inner) { c.width = c.height = 0; return; }
       const doc = `<svg xmlns="${NS}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${inner}</svg>`;
       const url = URL.createObjectURL(new Blob([doc], { type: 'image/svg+xml' }));
