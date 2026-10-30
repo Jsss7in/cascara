@@ -21,6 +21,7 @@ import { createDiorama } from './diorama.js';
   const canvas = hero.querySelector('[data-hero-canvas]');
   const photo = hero.querySelector('[data-hero-cherry]');
   const cue = hero.querySelector('[data-hero-cue]');       // «Scroll für mehr», under the cherry
+  const cueEnd = hero.querySelector('[data-hero-cue-end]'); // «Scroll weiter», at the end of the story
   const name = hero.querySelector('[data-hero-name]');     // the cherry's name, on its first screen
   const plant = hero.querySelector('[data-hero-plant]');   // its branch, with leaves and other cherries
   const dioEl = hero.querySelector('[data-hero-dio]');     // or, instead, the paper diorama round it
@@ -277,6 +278,7 @@ import { createDiorama } from './diorama.js';
       b.el.style.opacity = o;
       b.el.style.visibility = o === 0 ? 'hidden' : 'visible';
       b.el.style.setProperty('--in', o);
+      b.el.classList.toggle('is-on', o > 0);
     }
     const show = span(.17, .22, .287, .305, p);    // full at the rest (.28), gone before the beans leave
     if (show > .002) {
@@ -330,13 +332,18 @@ import { createDiorama } from './diorama.js';
     copyBox = { left: c.left - s.left, right, top: c.top - s.top, bottom: c.bottom - s.top };
   }
   // size and pause: render only while the hero is on screen
-  const size = () => { const r = stage.getBoundingClientRect(); stageW = Math.round(r.width); stageH = Math.round(r.height); three.resize(stageW, stageH); frameIt(); };
+  const size = () => {
+    const r = stage.getBoundingClientRect(); stageW = Math.round(r.width); stageH = Math.round(r.height); three.resize(stageW, stageH); frameIt();
+    // the cue at the end stands where the one at the start stood
+    if (cueEnd) { cueEnd.style.setProperty('--x', `${(stageW / 2).toFixed(1)}px`); cueEnd.style.setProperty('--y', `${(stageW / stageH <= 1.05 ? stageH - 72 : stageH - 82).toFixed(1)}px`); }
+  };
   document.fonts?.ready.then(() => frameIt());
   new ResizeObserver(size).observe(stage);
   size();
   new IntersectionObserver(([e]) => {
     if (reduce) return;                               // still picture: nothing runs
     if (e.isIntersecting) three.start(); else three.stop();
+    hero.classList.toggle('is-away', !e.isIntersecting);
   }, { rootMargin: '120px 0px' }).observe(hero);
 
   window.addEventListener('scroll', onScroll, { passive: true });

@@ -306,6 +306,8 @@ html.has-menu, html.has-menu body { overflow: hidden; }
    drop keeps falling, the way the page goes */
 .hero__scroll { position: absolute; z-index: 4; left: 0; top: 0; width: 200px; height: 50px; margin: 0; pointer-events: none; transform: translate3d(var(--x, 50vw), var(--y, 80svh), 0) translateX(-50%); opacity: 0; visibility: hidden; will-change: transform, opacity; }
 .hero__scroll.is-off, .hero__scroll.is-off * { animation-play-state: paused; }
+/* the cue at the end runs only while it shows and the opening is on screen (drawn animations would repaint the page) */
+.hero__scroll--end:not(.is-on), .hero__scroll--end:not(.is-on) *, .hero.is-away .hero__scroll, .hero.is-away .hero__scroll * { animation-play-state: paused; }
 .cue { position: absolute; inset: 0; filter: drop-shadow(0 10px 14px rgba(43, 24, 16, .22)); animation: cue-bob 3.4s var(--ease-io) infinite alternate; }
 .cue__bottle { display: block; width: 100%; height: 100%; overflow: visible; }
 .cue__glass { fill: var(--cream-light); }
@@ -427,10 +429,10 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .intro {
   max-width: calc(1080px + 2 * var(--gutter));
   margin: 0 auto;
-  padding: var(--section) var(--gutter) calc(var(--section) * .8);
+  padding: calc(var(--section) * .55) var(--gutter) calc(var(--section) * .8);
   text-align: center;
 }
-.intro .display { margin-top: 28px; }
+.intro .display { margin-top: 0; }
 .intro__cols {
   margin-top: 56px;
   display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 4vw, 64px);
@@ -602,7 +604,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 
 /* ---------- shop: right after the opening, on the paper; each kind on its own warm stage ---------- */
 
-.shop { padding: calc(var(--section) * .7) var(--gutter) var(--section); }
+.shop { padding: calc(var(--section) * .7) var(--gutter) calc(var(--section) * .45); }
 .shop__inner { max-width: var(--max); margin: 0 auto; }
 .shop__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
 .shop__head .eyebrow { grid-column: 1 / -1; }
