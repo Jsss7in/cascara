@@ -1,8 +1,9 @@
 <!doctype html>
 <!-- The shop's picture: close on a coffee field at dusk, in the opening's paper style (the same palette, shapes and
      grain as hero3d/diorama.js, but its own scene): rows of shrubs, a farmhouse with its drying beds, the farmer
-     among the rows, and in front a wooden table with a heap of cascara – the bottle stands on it on the page.
-     render.mjs turns it into assets/shop/feld-<w>.webp (?w=…&h=…&k=device pixels). -->
+     and a second worker among the rows (both laid over the picture by the page, so they can walk), and in front a
+     wooden table with a little heap of cascara on the left and cinnamon and star anise on the right – the bottles
+     stand between them on the page. render.mjs turns it into assets/shop/feld-<w>.webp (?w=…&h=…&k=device pixels). -->
 <html lang="de-CH">
 <head>
   <meta charset="utf-8">
@@ -96,6 +97,34 @@
       ${band(n1, C.ridge[5])}<path fill="${C.row[1]}" d="${r1.d}"/><path fill="${C.berry}" d="${r1.b}"/>
       ${cascaraHeap(hA, crestAt(n1, hA) + H * .03, H * .24, H * .085, 110, H * .014)}</g>`;
 
+    // a second worker, on the left of the field: a man with a sack of cherries on his shoulder, a cream shirt and an
+    // olive cap – cut like the farmer (diorama.js farmer(): legs and the free arm are their own shapes, so they swing
+    // as he walks; the other arm holds the sack, hidden behind him). He is drawn facing left: he rests at the near end
+    // of his stretch, so without motion he still stands in the picture, and sets off to the left from there.
+    const worker = (s) => {
+      const w = s * 1.1, h = s * 2.05, cx = w / 2;
+      const leg = (dx, cls) => `<path class="${cls}" fill="#4B4127" d="M${f1(cx + dx - s * .07)} ${f1(h * .6)}h${f1(s * .14)}l${f1(s * .02)} ${f1(h * .38)}h${f1(-s * .18)}z"/>`;
+      const svg = leg(-s * .09, 'dio__leg dio__leg--b')
+        + `<path fill="#E2CBA2" d="M${f1(cx - s * .2)} ${f1(h * .28)}h${f1(s * .4)}l${f1(s * .03)} ${f1(h * .34)}h${f1(-s * .46)}z"/>`
+        + leg(s * .09, 'dio__leg dio__leg--f')
+        // the sack lies over his back shoulder, long, its tied end hanging down behind him
+        + `<g transform="rotate(-42 ${f1(cx - s * .24)} ${f1(s * .75)})">`
+        + `<rect fill="#B98E5A" x="${f1(cx - s * .62)}" y="${f1(s * .54)}" width="${f1(s * .76)}" height="${f1(s * .42)}" rx="${f1(s * .2)}"/>`
+        + `<path fill="none" stroke="#8C6A3E" stroke-width="${f1(s * .035)}" stroke-linecap="round" d="M${f1(cx - s * .45)} ${f1(s * .58)}V${f1(s * .92)}"/>`
+        + `<path fill="#B98E5A" d="M${f1(cx - s * .58)} ${f1(s * .72)}l${f1(-s * .15)} ${f1(-s * .07)}v${f1(s * .2)}z"/></g>`
+        + `<circle fill="#7E5236" cx="${f1(cx + s * .02)}" cy="${f1(h * .2)}" r="${f1(s * .14)}"/>`
+        + `<path fill="#6A5C3A" d="M${f1(cx - s * .13)} ${f1(h * .19)}C${f1(cx - s * .13)} ${f1(h * .08)} ${f1(cx + s * .17)} ${f1(h * .08)} ${f1(cx + s * .17)} ${f1(h * .19)}Z"/>`
+        + `<path fill="#55492B" d="M${f1(cx + s * .1)} ${f1(h * .185)}h${f1(s * .24)}q${f1(s * .02)} ${f1(s * .05)} ${f1(-s * .04)} ${f1(s * .05)}h${f1(-s * .2)}z"/>`
+        + `<path class="dio__arm dio__arm--f" fill="#CDB089" d="M${f1(cx + s * .11)} ${f1(h * .3)}h${f1(s * .1)}l${f1(s * .02)} ${f1(h * .27)}h${f1(-s * .13)}z"/>`;
+      return { w, h, svg: `<g transform="matrix(-1 0 0 1 ${f1(w)} 0)">${svg}</g>` };
+    };
+    const wk = worker(H * .09);
+    // his stretch (centres): on wide screens between the farm and the Original; on a phone, where the farm stands
+    // close to the bottle, from just outside the picture's left edge up to the farm, and back out
+    const farmL = fx - fs * 1.05, farmR = fx + fs * 1.05, bottleL = W * (.5 - (tall ? .14 : .075)) - HT * .347 * 212 / 469 / 2;
+    const stretch = tall ? [-wk.w * .75, farmL - wk.w * .5 - H * .012] : [farmR + wk.w * .5 + H * .04, bottleL - wk.w * .5 - H * .035];
+    const wy = crestAt(n0, (stretch[0] + stretch[1]) / 2) + H * .012;
+
     // in front: the dark soil, and big shrubs at the edges, close to the eye
     const s0 = ground(H * .835, H * .008, 5.2);
     let front = '';
@@ -135,7 +164,54 @@
       }
     }
     t += `<path d="M${f1(fr[0])} ${f1(y1)}H${f1(fr[1])}" stroke="#d29a68" stroke-width="${f1(H * .004)}" opacity=".8"/>`;
-    L.table = `<defs><filter id="soft" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="${f1(H * .012)}"/></filter>${shadow('s5', H * .006, H * .01, .35)}</defs><g filter="url(#s5)">${t}</g>`;
+
+    // ---- on the table, either side of the two bottles: what goes into them --------------------------------------
+    // The page stands the bottles at 50% ∓ 7.5% (on phones ∓ 14%), their feet at H * .835; the props keep clear of
+    // them and of their shadows, and stay small so the bottles are still what one sees: a little heap of cascara on
+    // the left, beside the Original; cinnamon sticks and star anise on the right, beside Cozy Spice. Lying on the
+    // table they are squashed a little, as its top is, and each casts its own soft shadow onto the wood.
+    const apart = tall ? .14 : .075, half = HT * .347 * 212 / 469 / 2;   // half the wider (200 ml) bottle
+    const tv = (v) => y0 + (y1 - y0) * v;                                  // the table's depth v as a height
+    const cL = (at(0, .5)[0] + W * (.5 - apart) - half) / 2, cR = (W * (.5 + apart) + half + at(1, .55)[0]) / 2;
+    const contact = (x, y, rx, ry, o = .3) => `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="#2b1206" opacity="${o}"/>`;
+    // cascara: a low heap of the dried husks, a few strays beside it
+    const hw = H * (tall ? .17 : .18), hh = H * .052;
+    t += cascaraHeap(cL, tv(.56), hw, hh, 60, H * .0115);
+    for (const [dx, dv, a] of [[-.64, .8, 40], [.58, .88, 200]]) {
+      const x = cL + dx * hw, y = tv(dv);
+      t += contact(x, y + H * .003, H * .012, H * .0035, .25) + husk(x, y, H * .0115, a, browns[(Math.abs(a) / 40 | 0) % browns.length], '#7a2c14');
+    }
+    // cinnamon: quills of rolled bark, lit along the top, the seam where the bark closes on itself, one end showing its curl
+    const quill = (x, y, len, th, a, end = 1) => {
+      const l = len / 2, r = th / 2, ex = end * l;
+      return contact(x, y + r * .9, l * 1.02, r * .55)
+        + `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})">`
+        + `<rect x="${f1(-l)}" y="${f1(-r)}" width="${f1(len)}" height="${f1(th)}" rx="${f1(r * .35)}" fill="#8F4E26"/>`
+        + `<rect x="${f1(-l)}" y="${f1(-r)}" width="${f1(len)}" height="${f1(r * .75)}" rx="${f1(r * .3)}" fill="#AE6A3B"/>`
+        + `<rect x="${f1(-l)}" y="${f1(r * .45)}" width="${f1(len)}" height="${f1(r * .55)}" rx="${f1(r * .3)}" fill="#74401F"/>`
+        + `<path fill="none" stroke="#5A2C14" stroke-width="${f1(th * .09)}" stroke-linecap="round" d="M${f1(-l * .9)} ${f1(-r * .12)}Q${f1(-l * .3)} ${f1(-r * .3)} ${f1(l * .2)} ${f1(-r * .1)}T${f1(l * .9)} ${f1(-r * .14)}"/>`
+        + `<ellipse cx="${f1(ex)}" cy="0" rx="${f1(r * .42)}" ry="${f1(r * .96)}" fill="#6A3519"/>`
+        + `<path fill="none" stroke="#C17D47" stroke-width="${f1(th * .1)}" stroke-linecap="round" d="M${f1(ex + end * r * .05)} ${f1(-r * .62)}A${f1(r * .28)} ${f1(r * .56)} 0 1 ${end > 0 ? 0 : 1} ${f1(ex + end * r * .12)} ${f1(r * .4)}"/>`
+        + `</g>`;
+    };
+    // star anise: eight boat-shaped pods round a small centre, dark reddish brown, each split along its back and some
+    // showing their glossy seed
+    const anise = (x, y, R, rot, squash = .62) => {
+      let p = '';
+      for (let i = 0; i < 8; i++) {
+        const a = rot + i * 45 + ((i * 7) % 5 - 2) * 2.5, k = R * (.9 + ((i * 37) % 10) / 90);
+        p += `<g transform="rotate(${f1(a)})"><path fill="#65291A" d="M0 0C${f1(k * .2)} ${f1(-k * .3)} ${f1(k * .68)} ${f1(-k * .24)} ${f1(k)} 0C${f1(k * .68)} ${f1(k * .24)} ${f1(k * .2)} ${f1(k * .3)} 0 0Z"/>`
+          + `<path fill="none" stroke="#3B150B" stroke-width="${f1(R * .08)}" stroke-linecap="round" d="M${f1(k * .24)} 0Q${f1(k * .55)} ${f1(-k * .04)} ${f1(k * .86)} 0"/>`
+          + (i % 2 ? '' : `<ellipse cx="${f1(k * .5)}" cy="0" rx="${f1(k * .15)}" ry="${f1(k * .085)}" fill="#C48E58"/>`) + '</g>';
+      }
+      return contact(x, y + R * squash * .5, R * 1.02, R * squash * .45, .28)
+        + `<g transform="translate(${f1(x)} ${f1(y)}) scale(1 ${squash})">${p}<circle r="${f1(R * .17)}" fill="#7A3820"/></g>`;
+    };
+    const ql = H * .14, qt = H * .017, ar = H * .025;
+    t += quill(cR - ql * .06, tv(.4), ql, qt, -3, 1) + quill(cR + ql * .1, tv(.52), ql * .9, qt * .95, 2.5, -1)
+      + quill(cR + ql * .02, tv(.44) - qt * .75, ql * .82, qt * .9, -11, 1);
+    t += anise(cR - ql * .44, tv(.74), ar, 12) + anise(cR + ql * .42, tv(.8), ar * .9, 31) + anise(cR + ql * .18, tv(.44) - qt * 1.9, ar * .8, 4, .78);
+    L.table =`<defs><filter id="soft" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="${f1(H * .012)}"/></filter>${shadow('s5', H * .006, H * .01, .35)}</defs><g filter="url(#s5)">${t}</g>`;
 
     // every layer painted once at K device pixels, with the paper's grain, as the opening does
     const paint = async (id) => {
@@ -151,7 +227,10 @@
       for (const id of ['sky', 'far', 'mid', 'near', 'soil', 'table']) scene.append(await paint(id));
       // what the page lays over the picture, in its own pixels: the clouds, and the farmer with the stretch she walks
       const walk = tall ? [px - H * .01, px + H * .17] : [px - H * .2, px + H * .14];   // on a phone right of the bottles
-      window.__ready = { W, H: HT, base: H * .835, clouds, farmer: { svg: fm.svg, w: fm.w, h: fm.h, y: py - fm.h, from: walk[0] - fm.w / 2, to: walk[1] - fm.w / 2 } };
+      // the man rests at the near end of his stretch (to) and sets off from there; the sun, for the birds
+      window.__ready = { W, H: HT, base: H * .835, clouds, farmer: { svg: fm.svg, w: fm.w, h: fm.h, y: py - fm.h, from: walk[0] - fm.w / 2, to: walk[1] - fm.w / 2 },
+        man: { svg: wk.svg, w: wk.w, h: wk.h, y: wy - wk.h, from: stretch[0] - wk.w / 2, to: stretch[1] - wk.w / 2 },
+        sun: [sx, sy, R], farm: [fx, crestAt(m0, fx) + H * .02 - fs * 1.62] };
     })().catch((e) => { window.__ready = { error: String(e) }; });
   </script>
 </body>

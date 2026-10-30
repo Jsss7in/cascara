@@ -322,14 +322,62 @@ def shop_overlay(size, cls):
     f = o['farmer']
     out.append(f'            <span class="shop__farmer" style="left:{pc(f["from"], W)};top:{pc(f["y"], H)};width:{pc(f["w"], W)};--walk:{100 * (f["to"] - f["from"]) / f["w"]:.1f}%">'
                f'<svg viewBox="0 0 {f["w"]:.1f} {f["h"]:.1f}"><g class="dio__farmer-body">{f["svg"]}</g></svg></span>')
+    # the man on the left stands at the near end of his stretch (where he stays without motion) and walks off to the
+    # left from there (his drawing faces left); his loop takes as long as his stretch asks at an easy pace, so the two
+    # never step together, and the page meets him on his way back, coming towards the farm
+    m = o['man']
+    walk, dur = m['from'] - m['to'], 2 * abs(m['from'] - m['to']) / (.075 * m['h'])
+    out.append(f'            <span class="shop__farmer shop__farmer--man" style="left:{pc(m["to"], W)};top:{pc(m["y"], H)};width:{pc(m["w"], W)};'
+               f'--walk:{100 * walk / m["w"]:.1f}%;--dur:{dur:.1f}s;--delay:{-.9 * dur:.1f}s">'
+               f'<svg viewBox="0 0 {m["w"]:.1f} {m["h"]:.1f}"><g class="dio__farmer-body">{m["svg"]}</g></svg></span>')
+    out += shop_flocks(o)
     out.append('          </div>')
     return '\n'.join(out), (H - o['base']) / H
 
 
+def shop_flocks(o):
+    """Two small flocks over the shop, now and then: one from beside the title down into the picture's sky towards
+    the farm, the other up from beside the cards towards the sun; both grow smaller as they fly off into the picture.
+    All in the picture's own pixels (W wide, H high; the title lies above it, the cards over its foot), placed and
+    moved in shares of the flock's own box, so they keep their path at every width of the picture."""
+    W, H = o['W'], o['H']
+    (sx, sy, R), (fx, ftop) = o['sun'], o['farm']
+    loose = ((3.4, 1.7), [(.17, .5, 1), (.41, .2, .88), (.62, .74, .94), (.86, .42, .8)])
+    if W / H > 1.6:
+        flocks = [
+            # (start, end, wingspan, size at the end, loop, delay, formation[, start height where the title stands
+            # above the words, not beside them: there the words run the full width, so the flock sets off just
+            # beneath them]): from right of the title down to the farm
+            ((W * .405, -H * .14), (fx + W * .01, ftop - H * .09), W * .022, .3, 30, 2.5, loose, H * .05),
+            # from beside the cards up towards the sun; a little larger at first, as they start close by
+            ((W * .972, H * .925), (sx + R * .4, sy - R * .42), W * .025, .24, 34, 17, loose),
+        ]
+    else:
+        # on a phone the words run the full width: the first flock comes down the margin beside them, one behind the
+        # other, and turns towards the farm only once it is over the picture
+        flocks = [
+            ((W * .972, -H * .47), (fx + W * .01, ftop - H * .21), W * .06, .3, 30, 2.5, ((1.4, 3), [(.45, .86, 1), (.57, .5, .9), (.43, .14, .85)])),
+            ((W * .93, H * .9), (sx + R * .3, sy - R * .15), W * .068, .26, 34, 17, ((1.8, 2), [(.5, .2, 1), (.3, .55, .92), (.7, .78, .86)])),
+        ]
+    pc = lambda v, of: f'{100 * v / of:.3f}%'
+    out = []
+    for (x0, y0), (x1, y1), span, s1, dur, delay, ((bw, bh), birds), *stacked in flocks:
+        fw, fh = span * bw, span * bh            # the flock's box; each bird is k wingspans wide, half that high
+        inner = ''.join(
+            f'<span class="shop__bird" style="left:{100 * (bx - k / bw / 2):.2f}%;top:{100 * (by - k / bh / 4):.2f}%;width:{100 * k / bw:.2f}%;'
+            f'--fd:{3.3 + j * .37:.2f}s;--fdl:{-j * 1.13:.2f}s"><svg viewBox="0 0 40 20"><path class="shop__glint" d="M1 11Q11 1 20 12.4Q29 1 39 11"/><path d="M1 11Q11 1 20 12.4Q29 1 39 11"/></svg></span>'
+            for j, (bx, by, k) in enumerate(birds))
+        alt = ''.join(f';--ts:{pc(ys - fh / 2, H)};--ys:{100 * (y1 - ys) / fh:.1f}%' for ys in stacked)
+        out.append(f'            <span class="shop__flock" style="left:{pc(x0 - fw / 2, W)};--t0:{pc(y0 - fh / 2, H)};width:{pc(fw, W)};height:{pc(fh, H)};'
+                   f'--x:{100 * (x1 - x0) / fw:.1f}%;--y0:{100 * (y1 - y0) / fh:.1f}%{alt};--s:{s1};--dur:{dur}s;--delay:{delay}s"><span>{inner}</span></span>')
+    return out
+
+
 def shop():
     # The shop stands in the plantation: the evening sky runs on over its title, the picture goes from edge to edge –
-    # our table on the coffee field, clouds drifting, the farmer walking her row – and on the table both kinds side by
-    # side, the Original on the left, Cozy Spice on the right, each in the size chosen in its card. The soil runs on
+    # our table on the coffee field, clouds drifting, the farmer and a second worker walking their rows, now and then
+    # a few birds – and on the table both kinds side by side, the Original on the left beside a little heap of cascara,
+    # Cozy Spice on the right beside cinnamon and star anise, each in the size chosen in its card. The soil runs on
     # beneath the picture, behind the two cards, and fades into the paper.
     cards, stand = [], []
     for n, pr in enumerate(PRODUCTS):

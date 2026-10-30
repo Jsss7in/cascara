@@ -1,15 +1,16 @@
 // The shop's picture (scene.html) as images: wide for laptops, near square for phones.
-//   node _build/shopscene/render.mjs   (with the preview server on :5191; Playwright from ClaudeC/onyx-site)
+//   node _build/shopscene/render.mjs [port]   (a static server on the repo's root, :5191 unless given; Playwright from ClaudeC/onyx-site)
 import { createRequire } from 'module';
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 const require = createRequire('/Users/justinmeissner/ClaudeC/onyx-site/package.json');
 const { chromium } = require('playwright');
 const out = new URL('../../assets/shop/', import.meta.url).pathname;
+const port = +process.argv[2] || 5191;
 const b = await chromium.launch({ headless: true, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 for (const [W, H, K] of [[1360, 560, 2], [390, 340, 3]]) {
   const p = await b.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: K });
-  await p.goto(`http://localhost:5191/_build/shopscene/scene.html?w=${W}&h=${H}&k=${K}`, { waitUntil: 'load' });
+  await p.goto(`http://localhost:${port}/_build/shopscene/scene.html?w=${W}&h=${H}&k=${K}`, { waitUntil: 'load' });
   await p.waitForFunction(() => window.__ready, null, { timeout: 30000 });
   // what the page lays over the picture (clouds, the farmer): beside the scene, for the build
   const over = await p.evaluate(() => window.__ready);

@@ -623,8 +623,9 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .shop__intro { grid-column: 8 / span 5; color: var(--ink-2); }
 /* The shop stands in the plantation. The picture (_build/shopscene) goes from edge to edge; its sky runs on upwards
    behind the title, the sun's glow with it, and fades into the paper; its soil runs on beneath it, behind the cards,
-   and fades into the paper again before the next section. Over it the clouds drift and the farmer walks her row
-   (paused while it is off screen), and on the table stand both kinds, each in the size chosen in its card. */
+   and fades into the paper again before the next section. Over it the clouds drift, the farmer walks her row and a
+   second worker his, now and then a few birds fly in (all paused while it is off screen), and on the table stand
+   both kinds, each in the size chosen in its card, between what goes into them (painted into the picture). */
 .shop__stage { --soil: #3C2318; position: relative; max-width: 2200px; margin: clamp(18px, 3vw, 44px) auto 0; aspect-ratio: 1360 / 650;
   background: linear-gradient(to bottom, transparent 60%, var(--soil) 60%); }
 .shop__stage::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: 86%; height: min(560px, 70vh);
@@ -642,6 +643,34 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .shop__farmer svg { display: block; width: 100%; height: auto; overflow: visible; }
 @keyframes shop-walk { 0% { transform: translate3d(0, 0, 0) scaleX(1); } 49.99% { transform: translate3d(var(--walk), 0, 0) scaleX(1); }
   50% { transform: translate3d(var(--walk), 0, 0) scaleX(-1); } 100% { transform: translate3d(0, 0, 0) scaleX(-1); } }
+/* the man on the left: his own loop (--dur) and a longer stride with the sack, so the two never step together */
+.shop__farmer--man { animation-duration: var(--dur, 30s); animation-delay: var(--delay, 0s); }
+.shop__farmer--man .dio__farmer-body { animation-duration: .62s; }
+.shop__farmer--man :is(.dio__leg, .dio__arm) { animation-duration: 1.24s; animation-delay: -.5s; }
+.shop__farmer--man :is(.dio__leg--b, .dio__arm--f) { animation-delay: -1.74s; }
+/* Now and then a small flock: one from beside the title glides down into the picture's sky towards the farm, the
+   other rises from beside the cards towards the sun; both grow smaller as they fly off into the picture, then rest
+   unseen for most of the loop. Each flock is two boxes, one carrying it down or up and away (ease-out), the other
+   sideways, setting off a moment later (ease-in-out), so together they draw a soft curve: first down (or up), then
+   off to the left into the picture. Only transforms and opacity move. */
+.shop__flock { position: absolute; top: var(--t0); --y: var(--y0); display: block; animation: shop-fly-x var(--dur, 30s) linear var(--delay, 0s) infinite; }
+/* where the title stands above the words rather than beside them, the words run the full width: the first flock
+   sets off just beneath them, in the sky (crossing them, the birds looked like scribbles on the text) */
+@media (min-width: 701px) and (max-width: 900px) { .shop__flock { top: var(--ts, var(--t0)); --y: var(--ys, var(--y0)); } }
+.shop__flock > span { position: absolute; inset: 0; opacity: 0;
+  animation: shop-fly-y var(--dur, 30s) linear var(--delay, 0s) infinite, shop-fly-fade var(--dur, 30s) linear var(--delay, 0s) infinite; }
+.shop__bird { position: absolute; display: block; }
+.shop__bird svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 70%; animation: shop-flap var(--fd, 3.6s) ease-in-out var(--fdl, 0s) infinite; }
+.shop__bird path { fill: none; stroke: #3A2116; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+/* the evening light along their wings: lost in the sky, it shows them over the dark soil beside the cards */
+.shop__bird .shop__glint { stroke: #F6DCAE; stroke-width: 6.2; opacity: .5; }
+@keyframes shop-fly-x { 0%, 9% { transform: translate3d(0, 0, 0); animation-timing-function: cubic-bezier(.45, 0, .55, 1); } 38%, 100% { transform: translate3d(var(--x), 0, 0); } }
+@keyframes shop-fly-y { 0% { transform: translate3d(0, 0, 0) scale(1); animation-timing-function: cubic-bezier(.22, .62, .42, 1); }
+  38%, 100% { transform: translate3d(0, var(--y), 0) scale(var(--s)); } }
+@keyframes shop-fly-fade { 0%, 38%, 100% { opacity: 0; } 4%, 31% { opacity: 1; } }
+/* a few beats, then a glide */
+@keyframes shop-flap { 0%, 44%, 100% { transform: scaleY(.72); } 8%, 22%, 36% { transform: scaleY(.34); } 15%, 29% { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .shop__flock { display: none; } }
 .shop__stage.is-away *, .shop__stage:not(.is-near) * { animation-play-state: paused; }
 .stand-bottle { position: absolute; left: calc(50% - var(--apart, 7.5%)); bottom: var(--foot, 28%); height: 44.8%; aspect-ratio: 146 / 605; opacity: 0;
   transform: translate3d(-50%, 12px, 0); transition: opacity .5s var(--ease), transform .8s var(--ease); }
