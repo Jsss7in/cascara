@@ -179,6 +179,24 @@ function farmer(s) {
       + arm(-s * .16, 'dio__arm dio__arm--f'),
   };
 }
+function worker(s) {
+  const w = s * 1.1, h = s * 2.05, cx = w / 2;
+  const leg = (dx, cls) => `<path class="${cls}" fill="#4B4127" d="M${f1(cx + dx - s * .07)} ${f1(h * .6)}h${f1(s * .14)}l${f1(s * .02)} ${f1(h * .38)}h${f1(-s * .18)}z"/>`;
+  const svg = leg(-s * .09, 'dio__leg dio__leg--b')
+    + `<path fill="#E2CBA2" d="M${f1(cx - s * .2)} ${f1(h * .28)}h${f1(s * .4)}l${f1(s * .03)} ${f1(h * .34)}h${f1(-s * .46)}z"/>`
+    + leg(s * .09, 'dio__leg dio__leg--f')
+    // the sack lies over his back shoulder, long, its tied end hanging down behind him
+    + `<g transform="rotate(-42 ${f1(cx - s * .24)} ${f1(s * .75)})">`
+    + `<rect fill="#B98E5A" x="${f1(cx - s * .62)}" y="${f1(s * .54)}" width="${f1(s * .76)}" height="${f1(s * .42)}" rx="${f1(s * .2)}"/>`
+    + `<path fill="none" stroke="#8C6A3E" stroke-width="${f1(s * .035)}" stroke-linecap="round" d="M${f1(cx - s * .45)} ${f1(s * .58)}V${f1(s * .92)}"/>`
+    + `<path fill="#B98E5A" d="M${f1(cx - s * .58)} ${f1(s * .72)}l${f1(-s * .15)} ${f1(-s * .07)}v${f1(s * .2)}z"/></g>`
+    + `<circle fill="#7E5236" cx="${f1(cx + s * .02)}" cy="${f1(h * .2)}" r="${f1(s * .14)}"/>`
+    + `<path fill="#6A5C3A" d="M${f1(cx - s * .13)} ${f1(h * .19)}C${f1(cx - s * .13)} ${f1(h * .08)} ${f1(cx + s * .17)} ${f1(h * .08)} ${f1(cx + s * .17)} ${f1(h * .19)}Z"/>`
+    + `<path fill="#55492B" d="M${f1(cx + s * .1)} ${f1(h * .185)}h${f1(s * .24)}q${f1(s * .02)} ${f1(s * .05)} ${f1(-s * .04)} ${f1(s * .05)}h${f1(-s * .2)}z"/>`
+    + `<path class="dio__arm dio__arm--f" fill="#CDB089" d="M${f1(cx + s * .11)} ${f1(h * .3)}h${f1(s * .1)}l${f1(s * .02)} ${f1(h * .27)}h${f1(-s * .13)}z"/>`;
+  return { w, h, svg: `<g transform="matrix(-1 0 0 1 ${f1(w)} 0)">${svg}</g>` };
+}
+
 // a paper cloud at dusk: a long rounded base with puffs, lit warm from below
 function cloud(x, y, w) {
   const h = w * .16, rr = h / 2;
@@ -251,7 +269,7 @@ export function createDiorama(root) {
   });
   const byId = Object.fromEntries(layers.map((L) => [L.id, L]));
   let key = '', px = 0, py = 0, tpx = 0, tpy = 0;
-  let heaps = [], walker = null, gen = 0, lastOpacity = -1, gone = null, fades = [];
+  let heaps = [], walker = null, walker2 = null, gen = 0, lastOpacity = -1, gone = null, fades = [];
   let markDrawn; const drawn = new Promise((res) => { markDrawn = res; });
 
   // a small drawing that moves on its own: an SVG in its own element (CSS animates the element, never the drawing)
@@ -273,7 +291,7 @@ export function createDiorama(root) {
     key = k;
     for (const L of layers) { L.fx.innerHTML = ''; L.back.innerHTML = ''; }
     fades = []; lastOpacity = -1;
-    heaps = []; walker = null;
+    heaps = []; walker = null; walker2 = null;
     // the fruit (fr, fry) is smaller at rest than in the story; the scene is drawn at the story's size of it (r, ry)
     const { x: cx, y: cy } = box, fr = box.rx, fry = box.ry || box.rx * 1.27, r = fr / FRUIT_AT_REST, ry = fry / FRUIT_AT_REST;
     const rnd = seeded(1712);
@@ -386,12 +404,15 @@ export function createDiorama(root) {
       // she walks the nearer terrace, where she can be seen (behind the shrubs that sway in front of her)
       const fs = r * (narrow ? .5 : .42), fm = farmer(fs);
       const from = narrow ? W * .08 : Math.max(copy ? copy.right + 60 : W * .45, fx0 - s * 1.5), to = narrow ? W * .7 : Math.min(W * .95, cx + r * 1.4);
-      walker = { el: piece(byId.near, 'dio__farmer', 0, 0, fm.w, fm.h, `<g class="dio__farmer-body">${fm.svg}</g>`), crest: R6[4].crest, dy: ry * .12, from, to, w: fm.w, h: fm.h };
+      walker = { el: piece(byId.near, 'dio__farmer', 0, 0, fm.w, fm.h, `<g class="dio__farmer-body">${fm.svg}</g>`), crest: R6[4].crest, dy: ry * .12, from, to, w: fm.w, h: fm.h, face: 0 };
+      // and a second worker with his sack on the terrace behind her, by the farm, at his own pace (drawn facing left)
+      const wk = worker(fs * .78), wFrom = narrow ? W * .46 : Math.max(copy ? copy.right + r * 1.2 : W * .5, fx0 + s * 1.1), wTo = narrow ? W * .9 : Math.min(W * .92, cx - r * .25);
+      if (wTo - wFrom > r * .8) walker2 = { el: piece(byId.mid, 'dio__farmer dio__farmer--man', 0, 0, wk.w, wk.h, `<g class="dio__farmer-body">${wk.svg}</g>`), crest: c3, dy: ry * .08, from: wFrom, to: wTo, w: wk.w, h: wk.h, face: 0, left: true, pace: 7, shift: .37 };
       for (const [hx, hw] of narrow ? [[fx0 + s * 5.2, s * 2.2], [fx0 - s * 2.4, s * 1.6]] : [[fx0 - s * 2.6, s * 2.1], [fx0 + s * 5.4, s * 2.6]]) {
         const hy = crestAt(c3, hx) + ry * .12;
         if (!free(hx - hw / 2, hy - hw * .4)) continue;
         const hp = heap(hx, hy, hw, rnd);
-        heaps.push([hx, hy, hw]);
+        heaps.push([hx, hy, hw, c3]);
         inner += `<path filter="url(#dheap)" fill="#7A2418" d="${hp.mound}"/>${hp.cherries}`;
       }
       svgs.mid = `<defs>${shadows([2, 3])}${shadow('dheap', 3, 3, .3)}<radialGradient id="wglow"><stop offset="0" stop-color="${C.window}" stop-opacity=".45"/><stop offset="1" stop-color="${C.window}" stop-opacity="0"/></radialGradient>${narrow ? '' : freeClip('free3')}</defs>${inner}`;
@@ -418,9 +439,23 @@ export function createDiorama(root) {
         const hy = crestAt(R6[4].crest, hx) + ry * .2;
         if (free(hx - hw / 2, hy - hw * .4)) {
           const hp = heap(hx, hy, hw, rnd);
-          heaps.push([hx, hy, hw]);
+          heaps.push([hx, hy, hw, R6[4].crest]);
           svgs.near += `<defs>${shadow('dheap2', 4, 4, .32)}</defs><path filter="url(#dheap2)" fill="#7A2418" d="${hp.mound}"/>${hp.cherries}`;
         }
+      }
+      // the walkers keep to the longest stretch of their way that passes no heap on their terrace (they would seem to
+      // wade through it), with room for their own width
+      for (const w of [walker, walker2]) {
+        if (!w) continue;
+        let segs = [[w.from, w.to]];
+        for (const [hx, , hw, crest] of heaps) {
+          if (crest !== w.crest) continue;
+          const a = hx - hw / 2 - w.w * .7, b = hx + hw / 2 + w.w * .7;
+          segs = segs.flatMap(([p, q]) => (b <= p || a >= q ? [[p, q]] : [[p, a], [b, q]].filter(([u, v]) => v - u > 0)));
+        }
+        const best = segs.reduce((m, sg) => (sg[1] - sg[0] > m[1] - m[0] ? sg : m), [0, 0]);
+        w.from = best[0]; w.to = best[1];
+        if (w.to - w.from < w.w * 1.5) { w.el.remove(); if (w === walker) walker = null; else walker2 = null; }
       }
       // coffee shrubs close by, swaying in the evening wind
       const spots = narrow ? [.06, .34, .62] : [.56, .67, .8, .93];
@@ -609,19 +644,22 @@ export function createDiorama(root) {
     if (isGone !== gone) { gone = isGone; root.classList.toggle('is-gone', isGone); }   // nothing moves unseen
     if (!isGone) walk(t);
   }
-  // the farmer: there and back along the terrace in about forty seconds each way, facing the way she goes
-  let lastFace = 0;
+  // the farmer: there and back along the terrace in about forty seconds each way, facing the way she goes; the man
+  // the same along his, a little quicker and out of step with her
   function walk(t) {
-    if (!walker) return;
-    const span = walker.to - walker.from, period = Math.max(24, span / 9) * 2;
-    const ph = (t % period) / period, u = ph < .5 ? ph * 2 : 2 - ph * 2, face = ph < .5 ? 1 : -1;
-    const x = walker.from + span * u, y = crestAt(walker.crest, x) + walker.dy;
-    walker.el.style.transform = `translate3d(${(x - walker.w / 2).toFixed(1)}px, ${(y - walker.h).toFixed(1)}px, 0)`;
-    if (face !== lastFace) { lastFace = face; walker.el.style.setProperty('--face', face); }
+    for (const w of [walker, walker2]) {
+      if (!w) continue;
+      const span = w.to - w.from, period = Math.max(24, span / (w.pace || 9)) * 2;
+      const ph = ((t / period + (w.shift || 0)) % 1), u = ph < .5 ? ph * 2 : 2 - ph * 2;
+      const face = (ph < .5 ? 1 : -1) * (w.left ? -1 : 1);
+      const x = w.from + span * u, y = crestAt(w.crest, x) + w.dy;
+      w.el.style.transform = `translate3d(${(x - w.w / 2).toFixed(1)}px, ${(y - w.h).toFixed(1)}px, 0)`;
+      if (face !== w.face) { w.face = face; w.el.style.setProperty('--face', face); }
+    }
   }
   const lean = (x, y) => { tpx = x; tpy = y; };
   return { layout, update, lean, layers, ready: () => key !== '', whenDrawn: () => drawn };
 }
 
 // the same paper and the same hand, for the shop's picture (_build/shopscene)
-export { C as PALETTE, f1, curve, disc, oval, leaf, crestAt, shifted, shrubRow, shadeTree, farm, heap, shrubPiece, tuft, farmer, cloud, seeded, grainOn };
+export { C as PALETTE, f1, curve, disc, oval, leaf, crestAt, shifted, shrubRow, shadeTree, farm, heap, shrubPiece, tuft, farmer, worker, cloud, seeded, grainOn };

@@ -2,9 +2,9 @@
 // star anise in it, drawn flat like the rest of the page, tips as the section comes up the screen. The syrup inside
 // stays level (its area kept, the surface worked out for every tilt), rises to the spout and runs over it; the stream
 // falls into the first word's first letter, which fills from where it lands, then the other letters one by one from
-// the top. From the letter's foot a drop forms, falls and runs into the next word, and from the last word into a
-// bottle of Cozy Spice, which fills; then the stream thins and breaks, and threads that are done break into drops. Everything is a function of the scroll, so it plays back as well as on; it is worked out only
-// while the section is on screen, and only when the scroll has moved.
+// the top. From the letter's foot the stream runs on into the next word, and from the last word into our Cozy Spice
+// flask: one stream all the way down, which stays. Everything is a function of the scroll, so it plays back as well
+// as on; it is worked out only while the section is on screen, and only when the scroll has moved.
 (() => {
   const pour = document.querySelector('[data-pour]');
   if (!pour) return;
@@ -75,27 +75,10 @@
   el('path', { d: `M${Rt - 12} ${TOP + 12}V${BOT - 22}`, stroke: 'rgba(255, 255, 255, .62)', 'stroke-width': 4, 'stroke-linecap': 'round' }, potFront);
   el('path', { d: `M${L + 12} ${BOT - 30}V${BOT - 18}`, stroke: 'rgba(255, 255, 255, .5)', 'stroke-width': 3, 'stroke-linecap': 'round' }, potFront);
 
-  // ---- the bottle that catches the rest: our Cozy Spice flask, flat, its cap off -----------------------------------
-  const bottle = el('g', {});
-  const BOW = 60, BOH = 92, NK = 17, NH = 15;                   // body, neck (the mouth is at 0,0)
-  const bOuter = `M${-NK / 2} 0V${NH}C${-NK / 2} ${NH + 6} ${-BOW / 2} ${NH + 6} ${-BOW / 2} ${NH + 18}V${NH + BOH - 9}Q${-BOW / 2} ${NH + BOH} ${-BOW / 2 + 9} ${NH + BOH}`
-    + `H${BOW / 2 - 9}Q${BOW / 2} ${NH + BOH} ${BOW / 2} ${NH + BOH - 9}V${NH + 18}C${BOW / 2} ${NH + 6} ${NK / 2} ${NH + 6} ${NK / 2} ${NH}V0Z`;
-  el('path', { d: bOuter, fill: 'rgba(255, 250, 240, .42)' }, bottle);
-  const clip = el('clipPath', { id: 'pour-bottle' }, el('defs', {}, bottle));
-  el('path', { d: bOuter }, clip);
-  const bFill = el('rect', { x: -BOW / 2 - 2, width: BOW + 4, y: NH + BOH, height: 0, fill: SYRUP, 'clip-path': 'url(#pour-bottle)' }, bottle);
-  const bSurf = el('path', { fill: 'none', stroke: SURFACE, 'stroke-width': 2, 'clip-path': 'url(#pour-bottle)' }, bottle);
-  // the label, as on our flask: a red band, a cream wave, the green with the name
-  const lab = el('g', { 'clip-path': 'url(#pour-bottle)' }, bottle);
-  const ly = NH + 36, lh = 44;
-  el('rect', { x: -BOW / 2, y: ly, width: BOW, height: lh, fill: '#2B5E31' }, lab);
-  el('rect', { x: -BOW / 2, y: ly, width: BOW, height: 13, fill: '#93342C' }, lab);
-  el('path', { d: `M${-BOW / 2} ${ly + 13}q5 4 10 0t10 0 10 0 10 0 10 0 10 0V${ly + 17}q-5 4 -10 0t-10 0 -10 0 -10 0 -10 0 -10 0Z`, fill: '#D6C08A' }, lab);
-  const name = el('text', { x: 0, y: ly + 31, 'text-anchor': 'middle', 'font-family': 'DynaPuff, system-ui, sans-serif', 'font-weight': 600, 'font-size': 9.5, fill: '#F3E6CC' }, lab);
-  name.textContent = 'Cozy Spice';
-  el('path', { d: bOuter, fill: 'none', stroke: 'rgba(58, 33, 22, .5)', 'stroke-width': 1.5, 'stroke-linejoin': 'round' }, bottle);
-  el('path', { d: `M${BOW / 2 - 8} ${NH + 24}V${NH + BOH - 14}`, stroke: 'rgba(255, 255, 255, .6)', 'stroke-width': 3.4, 'stroke-linecap': 'round' }, bottle);
-  el('path', { d: `M${-NK / 2 - 1.5} 0H${NK / 2 + 1.5}`, stroke: 'rgba(58, 33, 22, .5)', 'stroke-width': 2.4, 'stroke-linecap': 'round' }, bottle);
+  // ---- the bottle that catches the stream: our real Cozy Spice flask (its photograph, cap off; in the page), its
+  // open neck at 52.4 % of its width; the syrup in it begins 18 % down ---------------------------------------------
+  const flask = catcher.querySelector('img');
+  const NECK_X = .524, SYRUP_AT = .18;
 
   // everything the syrup does outside the pot, one flat shape
   const flow = el('path', { fill: SYRUP });
@@ -137,9 +120,6 @@
   // (every piece is wound the same way round – clockwise on the screen – so where pieces overlap they add up instead
   // of cutting holes in one another)
   const drop = (x, y, r) => `M${f1(x - r)} ${f1(y)}a${f1(r)} ${f1(r * 1.08)} 0 1 1 ${f1(2 * r)} 0a${f1(r)} ${f1(r * 1.08)} 0 1 1 ${f1(-2 * r)} 0Z`;
-  // a drop hanging: pointed at the top, round below (x, y: the middle of its round)
-  const tear = (x, y, r) => `M${f1(x)} ${f1(y - r * 1.7)}C${f1(x + r * .35)} ${f1(y - r * 1.15)} ${f1(x + r)} ${f1(y - r * .6)} ${f1(x + r)} ${f1(y)}`
-    + `A${f1(r)} ${f1(r)} 0 0 1 ${f1(x - r)} ${f1(y)}C${f1(x - r)} ${f1(y - r * .6)} ${f1(x - r * .35)} ${f1(y - r * 1.15)} ${f1(x)} ${f1(y - r * 1.7)}Z`;
   // the outline of a line of syrup up to a length (its width times k), with round ends; while it runs, its head is a
   // drop of the given size
   const shape = (ln, upto, head = 0, k = 1) => {
@@ -161,15 +141,16 @@
   };
   // a soft rise of width towards the end of a line (where it runs into a letter): no sudden bump
   const fillet = (t, from, to, at = .8) => from + (to - from) * ease(clamp((t - at) / (1 - at)));
-  // a thread from one point to another, falling: a neck where it leaves, thin and a little uneven, widening smoothly
-  // where it runs into the next letter
+  // the stream from one point to another, falling: narrowing where it leaves a letter, an even stream, widening
+  // smoothly where it runs into the next letter
+  const STREAM = 4.6;
   const thread = (a, b, w0, w1, k) => {
     const n = 12 + Math.round(Math.abs(b[1] - a[1]) / 3), pts = [];
     for (let j = 0; j <= n; j++) {
       const t = j / n;
       pts.push([a[0] + (b[0] - a[0]) * ease(t) + Math.sin(t * 7 + k) * 1.1 * Math.sin(t * Math.PI), a[1] + (b[1] - a[1]) * t]);
     }
-    return run(pts, (t) => fillet(t, 2.5 + (w0 - 2.5) * Math.pow(1 - clamp(t / .2), 2) + .3 * Math.sin(t * 17 + k), w1, .8));
+    return run(pts, (t) => fillet(t, STREAM + (w0 - STREAM) * Math.pow(1 - clamp(t / .2), 2) + .25 * Math.sin(t * 13 + k), w1, .82));
   };
 
   // ---- the first letters, in syrup: their outlines in DynaPuff (from the page, see content.py), laid exactly where the
@@ -219,27 +200,27 @@
     const L0 = letters[0];
     // the pot hangs well above the first word, its spout just right of where the stream lands
     const lip = [L0.land[0] + 8, L0.land[1] - Math.max(80, L0.fs * 2.2)];
-    // the drips: from a foot of each first letter (from inside its stroke) into the next word's first letter (into
-    // its stroke), the last into the bottle; the other feet of each letter grow short drips once the word is full
-    const bRect = catcher.getBoundingClientRect();
-    const drips = [], deco = [];
-    let mouth = null;
+    // the stream runs on from a foot of each first letter (from inside its stroke) into the next word's first letter
+    // (into its stroke), and from the last word into the bottle's neck, down to the syrup in it: one stream all the way
+    // the flask stands right under the last letter's foot, so the stream falls straight into its neck (kept on screen)
+    const lastL = letters[letters.length - 1], lastFoot = lastL.feet[lastL.feet.length - 1];
+    flask.style.transform = '';
+    const f0 = flask.getBoundingClientRect();
+    const dx = Math.max(4 - f0.left, lastFoot[0] + ox - (f0.left + f0.width * NECK_X));
+    flask.style.transform = `translateX(${f1(dx)}px)`;
+    const fRect = flask.getBoundingClientRect();
+    const mouth = [fRect.left - ox + fRect.width * NECK_X, fRect.top - oy];
+    const pool = mouth[1] + fRect.height * SYRUP_AT;
+    const drips = [];
     letters.forEach((l, i) => {
-      const next = letters[i + 1], aim = next ? next.land[0] : Math.max(l.feet[0][0], BOW / 2 + 8);
+      const next = letters[i + 1], aim = next ? next.land[0] : mouth[0];
       const foot = l.feet.reduce((a, f) => (Math.abs(f[0] - aim) < Math.abs(a[0] - aim) ? f : a), l.feet[0]);
       const from = [foot[0], foot[1] - l.stroke * .55];
-      if (next) drips.push(thread(from, [next.land[0], next.land[1] + next.stroke * .5], l.stroke * .95, next.stroke * .9, i + 1));
-      else {
-        mouth = [Math.max(foot[0], BOW / 2 + 8), bRect.top - oy + 22];
-        drips.push(thread(from, [mouth[0], mouth[1] + 8], l.stroke * .95, 3.6, i + 1));
-      }
-      l.feet.filter((f) => f !== foot).slice(0, 2).forEach((f, k) => {
-        const len = l.fs * (.2 + .09 * ((i + k) % 3)), pts = [];
-        for (let j = 0; j <= 8; j++) pts.push([f[0] + Math.sin(j * .7 + k) * .4, f[1] - l.stroke * .5 + (len + l.stroke * .5) * j / 8]);
-        deco.push({ i, ln: run(pts, (t) => l.stroke * (.66 - .26 * t)), r: l.stroke * .38 });
-      });
+      drips.push(next ? thread(from, [next.land[0], next.land[1] + next.stroke * .5], l.stroke * .95, next.stroke * .9, i + 1)
+        : thread(from, [mouth[0], pool], l.stroke * .95, STREAM * .9, i + 1));
     });
-    // the timeline, in steps: tipping, the stream falling, each word filling and dripping on, the bottle filling
+    // the timeline, in steps: tipping, the stream falling, each word filling and the stream running on, at the end a
+    // little while of pouring into the bottle
     const segs = [];
     let at = 0;
     const add = (kind, len, extra = {}) => { segs.push({ kind, start: at, len, ...extra }); at += len; };
@@ -248,12 +229,10 @@
     letters.forEach((l, i) => {
       add('first', 52, { i });
       add('rest', 26 * rests[i].length + 30, { i });
-      add('form', 26, { i });
-      add('drip', drips[i].len * .8, { i });
+      add('drip', drips[i].len * .7, { i });
     });
     add('fill', 170);
-    G = { top: r.top + window.scrollY, h: pour.offsetHeight, lip, drips, deco, letters, segs, total: at, mouth, chars: rests.map((cs) => cs.map(() => -1)), text: texts.map(() => -1) };
-    bottle.setAttribute('transform', `translate(${f1(mouth[0])} ${f1(mouth[1])})`);
+    G = { top: r.top + window.scrollY, h: pour.offsetHeight, lip, drips, letters, segs, total: at, mouth, chars: rests.map((cs) => cs.map(() => -1)), text: texts.map(() => -1) };
     last = NaN;
     return true;
   };
@@ -275,7 +254,7 @@
     pending = 0;
     if (!G && !measure()) return;
     // the whole of it plays while the section passes: it begins as the section's top comes up past 66 % of the screen
-    // and is done – the bottle full – when the section's foot stands at 88 %. The screen's height is the layout's (on
+    // and is done when the section's foot stands at 88 %. The screen's height is the layout's (on
     // iOS it does not jump as the toolbar comes and goes)
     const vh = document.documentElement.clientHeight, from = G.top - vh * .66, to = G.top + G.h - vh * .88;
     const u = still ? G.total : Math.round(clamp((window.scrollY - from) / Math.max(1, to - from)) * G.total);
@@ -283,17 +262,15 @@
     last = u;
     const seg = (kind, i) => G.segs.find((s) => s.kind === kind && (i === undefined || s.i === i));
     const prog = (s) => clamp((u - s.start) / s.len);
-    const fb = prog(seg('fill'));
 
-    // the pot: it tips to the spill, on as it pours, and once the bottle is nearly full it rights itself a little
+    // the pot: it tips to the spill, then on as it pours
     const tip = prog(seg('tip')), after = clamp((u - seg('fall').start) / (seg('fill').start - seg('fall').start));
-    const back = ease(clamp((fb - .55) / .45));
-    const a = (tip < 1 ? A_SPILL * ease(tip) : A_SPILL + (A_END - A_SPILL) * after) * (1 - back) + A_SPILL * .82 * back;
+    const a = tip < 1 ? A_SPILL * ease(tip) : A_SPILL + (A_END - A_SPILL) * clamp((u - seg('fall').start) / (G.total - seg('fall').start));
     const tf = `translate(${f1(G.lip[0])} ${f1(G.lip[1])}) rotate(${(a * 180 / Math.PI).toFixed(2)})`;
     potBack.setAttribute('transform', tf); potFront.setAttribute('transform', tf);
     const P = cavity.map((p) => rot(p, a, G.lip));
     const V = Math.min(V0, held(a));
-    const pouring = tip >= 1 && back < .5;
+    const pouring = tip >= 1;
     const y = pouring ? Math.max(rot(LIP, a, G.lip)[1], levelFor(P, V)) : levelFor(P, V);
     const S = below(P, y);
     liquid.setAttribute('d', S.length > 2 ? `M${S.map(([x, yy]) => `${f1(x)} ${f1(yy)}`).join('L')}Z` : '');
@@ -308,16 +285,9 @@
     let d = '';
     const fall = seg('fall'), fp = prog(fall);
     if (u > fall.start) {
-      const st = streamNow(a);
-      if (fb < .78) {
-        // over the spout first, then down, the head falling faster and faster; thinner as the pot empties
-        const reach = st.len * Math.min(1, fp * fp * .8 + fp * .2);
-        d += shape(st, reach, fp < 1 ? 5.2 : 0, 1 - .45 * clamp(fb / .78));
-      } else {
-        // it breaks: a drop hangs from the spout, the rest has run down
-        const tipP = st.pts[2];
-        d += tear(tipP.x - 1, tipP.y + 4, 2.8 * (1 - clamp((fb - .78) / .22) * .5));
-      }
+      // over the spout first, then down, the head falling faster and faster
+      const st = streamNow(a), reach = st.len * Math.min(1, fp * fp * .8 + fp * .2);
+      d += shape(st, reach, fp < 1 ? 5.2 : 0);
     }
     G.letters.forEach((l, i) => {
       const f = prog(seg('first', i)), g = prog(seg('rest', i));
@@ -338,25 +308,11 @@
       const o = Math.round(clamp((g - .45) / .55) * 100) / 100;
       if (o !== G.text[i]) { G.text[i] = o; texts[i].style.opacity = o; texts[i].style.transform = `translate3d(0, ${f1((1 - o) * 8)}px, 0)`; }
       facts[i].classList.toggle('is-full', g >= 1);
-      // a drop forms at the foot, falls and runs on; once the next word is full (or the bottle nearly), the thread
-      // thins and breaks, and a drop stays hanging from the foot
-      const form = prog(seg('form', i)), dp = prog(seg('drip', i)), dr = G.drips[i];
-      const done = i < G.letters.length - 1 ? prog(seg('rest', i + 1)) : clamp(fb / .8);
-      const r0 = 2 + form * 2.8, foot = dr.pts[0];
-      if (form > 0 && dp <= 0) d += tear(foot.x, foot.y + l.stroke * .55 + form * 6, r0);
-      else if (dp > 0 && done < 1) d += shape(dr, dr.len * Math.min(1, dp * dp * .7 + dp * .3), dp < 1 ? r0 : 0, 1 - .5 * done);
-      else if (done >= 1) d += tear(foot.x, foot.y + l.stroke * .55 + 4, 3.2);
-      // and once its word is full, the letter's other feet grow short drips, tapering to a drop
-      if (g > 0) for (const k of G.deco) if (k.i === i) {
-        const len = k.ln.len * ease(clamp(g * 1.3));
-        if (len > 1) d += shape(k.ln, len, 0) + tear(k.ln.pts.filter((q) => q.at <= len).pop().x, k.ln.pts.filter((q) => q.at <= len).pop().y, k.r * (.6 + .4 * ease(clamp(g * 1.3))));
-      }
+      // once the word is full the stream runs on from the letter's foot, down into the next word (and stays)
+      const dp = prog(seg('drip', i)), dr = G.drips[i];
+      if (dp > 0) d += shape(dr, dr.len * Math.min(1, dp * dp * .6 + dp * .4), dp < 1 ? STREAM * .75 : 0);
     });
     flow.setAttribute('d', d);
-    // the bottle fills
-    const top = NH + BOH - 3 - (BOH - 10) * ease(fb) * .9;
-    bFill.setAttribute('y', f1(top)); bFill.setAttribute('height', f1(NH + BOH - top + 2));
-    bSurf.setAttribute('d', fb > .02 ? `M${-BOW / 2} ${f1(top + 1)}H${BOW / 2}` : '');
   };
 
   const ask = () => { if (!pending) pending = requestAnimationFrame(draw); };

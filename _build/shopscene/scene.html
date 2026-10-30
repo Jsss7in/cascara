@@ -16,7 +16,7 @@
 <body>
   <div id="scene"></div>
   <script type="module">
-    import { PALETTE as C, f1, curve, disc, oval, crestAt, shrubRow, shadeTree, farm, shrubPiece, tuft, farmer, cloud, seeded, grainOn } from '../hero3d/diorama.js';
+    import { PALETTE as C, f1, curve, disc, oval, crestAt, shrubRow, shadeTree, farm, shrubPiece, tuft, farmer, worker, cloud, seeded, grainOn } from '../hero3d/diorama.js';
     // H: the height the scene is composed to; HT: the picture's, a band of soil more beneath the table, so the table
     // stands on the ground and the soil runs on, behind the cards on the page
     const q = new URLSearchParams(location.search), W = +q.get('w') || 1360, H = +q.get('h') || 560, K = +q.get('k') || 2;
@@ -78,12 +78,15 @@
     for (let k = 1; k <= 4; k++) terr += `<path fill="none" stroke="${C.cut[2]}" stroke-width="${f1(H * .003)}" opacity=".55" d="${curve(m0.map(([x, y]) => [x, y + k * H * .018]))}"/>`;
     let mtrees = '';
     for (const [x, s] of [[fx - fs * 2.6, .05], [W * .5 + Math.min(W * .07, H * .2), .042], [sx + H * .32, .05], [W * .97, .046]]) mtrees += shadeTree(x, crestAt(m0, x) + H * .012, H * s);
+    // the heap on the farm's hill: on wide screens left of the house (the man walks right of it, and would seem to wade
+    // through it); a phone's narrow picture has three heaps without it, and the farmer walks where it would lie
+    const heapX = fx - fs * 3.3, hillHeap = W / H >= 1.6;
     L.mid = `<defs>${shadow('s2', H * .005, H * .007, .22)}<radialGradient id="wg"><stop offset="0" stop-color="${C.window}" stop-opacity=".8"/><stop offset="1" stop-color="${C.window}" stop-opacity="0"/></radialGradient></defs>
       <g filter="url(#s2)">${band(m0, C.ridge[2])}${terr}<path fill="${C.tree[1]}" d="${mtrees}"/>
       <path fill="${C.wall}" d="${F.wall}"/><path fill="${C.roof}" d="${F.roof}"/><path fill="${C.door}" d="${F.door}"/><path fill="${C.window}" d="${F.win}"/>
       <circle cx="${f1(F.glow[0])}" cy="${f1(F.glow[1])}" r="${f1(F.glow[2])}" fill="url(#wg)"/>
       <path fill="${C.tree[2]}" d="${F.beds}"/><path fill="${C.berry}" d="${F.cherries}"/>
-      ${cascaraHeap(fx + fs * 5.4, crestAt(m0, fx + fs * 5.4) + H * .022, fs * 1.5, fs * .55, 40, fs * .1)}</g>`;
+      ${hillHeap ? cascaraHeap(heapX, crestAt(m0, heapX) + H * .022, fs * 1.5, fs * .55, 40, fs * .1) : ''}</g>`;
 
     // the field close by: two rows of coffee shrubs with ripe cherries, and the farmer among them
     const n0 = ground(H * .655, H * .016, 3.1), n1 = ground(H * .745, H * .014, 4.4);
@@ -101,23 +104,6 @@
     // olive cap – cut like the farmer (diorama.js farmer(): legs and the free arm are their own shapes, so they swing
     // as he walks; the other arm holds the sack, hidden behind him). He is drawn facing left: he rests at the near end
     // of his stretch, so without motion he still stands in the picture, and sets off to the left from there.
-    const worker = (s) => {
-      const w = s * 1.1, h = s * 2.05, cx = w / 2;
-      const leg = (dx, cls) => `<path class="${cls}" fill="#4B4127" d="M${f1(cx + dx - s * .07)} ${f1(h * .6)}h${f1(s * .14)}l${f1(s * .02)} ${f1(h * .38)}h${f1(-s * .18)}z"/>`;
-      const svg = leg(-s * .09, 'dio__leg dio__leg--b')
-        + `<path fill="#E2CBA2" d="M${f1(cx - s * .2)} ${f1(h * .28)}h${f1(s * .4)}l${f1(s * .03)} ${f1(h * .34)}h${f1(-s * .46)}z"/>`
-        + leg(s * .09, 'dio__leg dio__leg--f')
-        // the sack lies over his back shoulder, long, its tied end hanging down behind him
-        + `<g transform="rotate(-42 ${f1(cx - s * .24)} ${f1(s * .75)})">`
-        + `<rect fill="#B98E5A" x="${f1(cx - s * .62)}" y="${f1(s * .54)}" width="${f1(s * .76)}" height="${f1(s * .42)}" rx="${f1(s * .2)}"/>`
-        + `<path fill="none" stroke="#8C6A3E" stroke-width="${f1(s * .035)}" stroke-linecap="round" d="M${f1(cx - s * .45)} ${f1(s * .58)}V${f1(s * .92)}"/>`
-        + `<path fill="#B98E5A" d="M${f1(cx - s * .58)} ${f1(s * .72)}l${f1(-s * .15)} ${f1(-s * .07)}v${f1(s * .2)}z"/></g>`
-        + `<circle fill="#7E5236" cx="${f1(cx + s * .02)}" cy="${f1(h * .2)}" r="${f1(s * .14)}"/>`
-        + `<path fill="#6A5C3A" d="M${f1(cx - s * .13)} ${f1(h * .19)}C${f1(cx - s * .13)} ${f1(h * .08)} ${f1(cx + s * .17)} ${f1(h * .08)} ${f1(cx + s * .17)} ${f1(h * .19)}Z"/>`
-        + `<path fill="#55492B" d="M${f1(cx + s * .1)} ${f1(h * .185)}h${f1(s * .24)}q${f1(s * .02)} ${f1(s * .05)} ${f1(-s * .04)} ${f1(s * .05)}h${f1(-s * .2)}z"/>`
-        + `<path class="dio__arm dio__arm--f" fill="#CDB089" d="M${f1(cx + s * .11)} ${f1(h * .3)}h${f1(s * .1)}l${f1(s * .02)} ${f1(h * .27)}h${f1(-s * .13)}z"/>`;
-      return { w, h, svg: `<g transform="matrix(-1 0 0 1 ${f1(w)} 0)">${svg}</g>` };
-    };
     const wk = worker(H * .09);
     // his stretch (centres): on wide screens between the farm and the Original; on a phone, where the farm stands
     // close to the bottle, from just outside the picture's left edge up to the farm, and back out
@@ -226,7 +212,10 @@
     (async () => {
       for (const id of ['sky', 'far', 'mid', 'near', 'soil', 'table']) scene.append(await paint(id));
       // what the page lays over the picture, in its own pixels: the clouds, and the farmer with the stretch she walks
-      const walk = tall ? [px - H * .01, px + H * .17] : [px - H * .2, px + H * .14];   // on a phone right of the bottles
+      // her stretch (centres): on wide screens right of the Cozy Spice; on a phone in the gap between the two bottles;
+      // either way clear of the heap on her row
+      const walk = tall ? [W * .38, px + H * .17] : [px - H * .2, px + H * .14];
+      walk[1] = Math.min(walk[1], hB - H * .08 - fm.w * .7);
       // the man rests at the near end of his stretch (to) and sets off from there; the sun, for the birds
       window.__ready = { W, H: HT, base: H * .835, clouds, farmer: { svg: fm.svg, w: fm.w, h: fm.h, y: py - fm.h, from: walk[0] - fm.w / 2, to: walk[1] - fm.w / 2 },
         man: { svg: wk.svg, w: wk.w, h: wk.h, y: wy - wk.h, from: stretch[0] - wk.w / 2, to: stretch[1] - wk.w / 2 },

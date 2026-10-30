@@ -399,6 +399,9 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .dio__farmer { left: 0; top: 0; will-change: transform; }
 .dio__farmer svg { transform: scaleX(var(--face, 1)); }
 .dio__farmer-body { animation: dio-bob .55s ease-in-out infinite alternate; }
+.dio__farmer--man .dio__farmer-body { animation-duration: .62s; }
+.dio__farmer--man :is(.dio__leg, .dio__arm) { animation-duration: 1.24s; animation-delay: -.5s; }
+.dio__farmer--man :is(.dio__leg--b, .dio__arm--f) { animation-delay: -1.74s; }
 .dio__leg, .dio__arm { transform-box: fill-box; transform-origin: 50% 0; animation: dio-step 1.1s ease-in-out infinite alternate; }
 .dio__leg--b, .dio__arm--f { animation-delay: -1.1s; }
 @keyframes dio-step { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
@@ -486,7 +489,9 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* with the outlines (pour.js) the first letters are drawn in syrup; the type beneath only keeps their room */
 .pour.has-glyphs .pour__ink .pour__first { visibility: hidden; }
 .pour__catch { display: none; }
-.pour.is-live .pour__catch { display: block; height: 150px; }
+/* our Cozy Spice flask, its cap off, catches the stream beneath the last word (pour.js aims at its neck) */
+.pour.is-live .pour__catch { display: block; margin-top: 30px; }
+.pour__catch img { display: block; width: 68px; height: auto; filter: drop-shadow(0 14px 14px rgba(58, 33, 22, .22)); }
 .pour__fact dd { margin: 8px 0 0 46px; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
 .pour__fact dd em { font-style: italic; }
 .pour.is-live .pour__fact dd { opacity: 0; will-change: opacity, transform; }

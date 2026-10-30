@@ -665,7 +665,7 @@ def pour():
     return (f'<div class="pour" data-pour data-glyphs=\'{glyphs}\'>\n'
             '          <svg class="pour__flow" aria-hidden="true"></svg>\n'
             '          <dl class="pour__facts">\n' + rows + '\n          </dl>\n'
-            '          <div class="pour__catch" aria-hidden="true"></div>\n        </div>')
+            '          <div class="pour__catch" aria-hidden="true"><img src="assets/pour/flask.webp" alt="" width="212" height="406" loading="lazy" decoding="async"></div>\n        </div>')
 
 
 V['POUR'] = pour()
