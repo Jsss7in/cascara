@@ -471,28 +471,25 @@ html.has-menu, html.has-menu body { overflow: hidden; }
    the first letter from where the stream lands, the rest from the left. From each word's first letter the syrup drips
    into the next, and from the last into a bottle of Cozy Spice, which fills. All of it follows the scroll, both ways. */
 .pour { --syrup: #51301D; position: relative; margin-top: 26px; }
-.pour.is-live { padding-top: 168px; }
+.pour.is-live { padding-top: 196px; }
 .pour__flow { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
 .pour__facts { margin: 0; display: grid; gap: 36px; }
-.pour__fact dt { position: relative; width: fit-content; font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); letter-spacing: -.01em; color: var(--syrup); }
+.pour__fact dt { position: relative; width: fit-content; font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); font-variant-ligatures: none; letter-spacing: -.01em; color: var(--syrup); }
 .pour__ghost { display: none; }
 .pour__ink { display: block; }
 .pour__ink > span, .pour__ghost > span { display: inline; }
 .pour.is-live .pour__ghost { display: block; opacity: .13; }
 .pour.is-live .pour__ink { position: absolute; inset: 0; }
-/* the first letter fills from the top, its surface tilting a little; the rest from the left, running ahead below */
-.pour.is-live .pour__ink .pour__first { --y: calc(var(--f, 0) * 135% - 20%);
-  clip-path: polygon(-30% -40%, 130% -40%, 130% calc(var(--y) - .06em), 60% calc(var(--y) + .04em), -30% calc(var(--y) - .02em)); }
-.pour.is-live .pour__ink .pour__rest { --x: calc(var(--g, 0) * (100% + .7em));
-  clip-path: polygon(-20% -30%, calc(var(--x) - .7em) -30%, calc(var(--x) - .5em) 20%, calc(var(--x) - .26em) 58%, calc(var(--x) - .08em) 88%, var(--x) 130%, -20% 130%); }
+/* each letter after the first fills from the top, its front uneven like running syrup (pour.js sets --y) */
+.pour.is-live .pour__ink .pour__ch { --y: -15%;
+  clip-path: polygon(-12% -30%, 112% -30%, 112% calc(var(--y) - .03em), 78% calc(var(--y) + .025em), 52% calc(var(--y) - .01em), 26% calc(var(--y) + .035em), -12% calc(var(--y) - .005em)); }
 /* with the outlines (pour.js) the first letters are drawn in syrup; the type beneath only keeps their room */
 .pour.has-glyphs .pour__ink .pour__first { visibility: hidden; }
 .pour__catch { display: none; }
 .pour.is-live .pour__catch { display: block; height: 150px; }
 .pour__fact dd { margin: 8px 0 0 46px; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
 .pour__fact dd em { font-style: italic; }
-.pour.is-live .pour__fact dd { opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity .6s var(--ease) .35s, transform .6s var(--ease) .35s; }
-.pour.is-live .pour__fact.is-full dd { opacity: 1; transform: none; }
+.pour.is-live .pour__fact dd { opacity: 0; will-change: opacity, transform; }
 
 /* ---------- plan ---------- */
 
