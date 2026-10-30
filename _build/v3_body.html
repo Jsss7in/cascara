@@ -30,7 +30,7 @@
         // the mark has time to draw itself and the name to rise, however fast the page is
         setTimeout(() => {
           bar.style.transform = 'scaleX(1)';
-          setTimeout(() => { el.classList.add('is-done'); root.classList.remove('is-loading'); setTimeout(() => el.remove(), 900); }, 260);
+          setTimeout(() => { el.classList.add('is-done'); root.classList.remove('is-loading'); document.dispatchEvent(new Event('cascarup:shown')); setTimeout(() => el.remove(), 900); }, 260);
         }, Math.max(0, 2600 - (performance.now() - t0)));
       };
       const step = () => { got++; bar.style.transform = `scaleX(${.12 + .78 * got / need})`; if (got >= need) finish(); };
@@ -54,20 +54,20 @@
     <section class="hero" id="top" data-hero data-tone="paper" aria-labelledby="hero-title">
       <div class="hero__stage" data-hero-stage>
         <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
-        <!-- a real coffee cherry on its branch, among real leaves (photographs, mirrored; the branch baked into one
-             picture by _build/plant/bake.mjs). The cherry lies exactly over the 3D model until the fruit opens. -->
+        <!-- a paper diorama round the cherry (hero3d/diorama.js): sun, terraced coffee hills, red soil, a branch of cut
+             paper. data-box: the room it needs round the cherry, in the cherry's half widths (the 3D framing uses it).
+             The real cherry (a photograph) lies exactly over the 3D model until the fruit opens. -->
+        <div class="hero__dio" data-hero-dio data-box="-3.35,-1.9,4.15,3.7" aria-hidden="true"></div>
         <div class="hero__photos">
-          <img class="hero__plant" data-hero-plant src="assets/plant/zweig.webp" alt="" width="{{PLANT_W}}" height="{{PLANT_H}}" decoding="async" fetchpriority="high"
-               data-cx="{{PLANT_CX}}" data-cy="{{PLANT_CY}}" data-rx="{{PLANT_RX}}" data-turn="{{PLANT_TURN}}" data-box="{{PLANT_BOX}}">
           <img class="hero__cherry" data-hero-cherry src="assets/cherry/kirsche.webp" alt="" width="1011" height="1253" decoding="async" fetchpriority="high"
                data-texture="assets/cherry/kirsche-textur.jpg" data-aspect="1.2751" data-cx="0.4989" data-cy="0.4951" data-rx="0.4527" data-ry="0.4658">
         </div>
 
         <div class="hero__copy" data-beat="-1,-.5,.04,.1">
-          <p class="eyebrow hero__eyebrow">Cascara · Fribourg</p>
+          <p class="eyebrow hero__eyebrow">Cascara · Freiburg</p>
           <h1 class="hero__brand" id="hero-title">Cascarup</h1>
           <p class="hero__claim">Die Kaffeekirsche kann mehr.</p>
-          <p class="hero__lede">Sirup aus der Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.</p>
+          <p class="hero__lede">Sirup aus der Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Freiburg.</p>
         </div>
 
         <div class="hero__parts" aria-hidden="true">
@@ -93,7 +93,7 @@
         </div>
 
         <p class="hero__name" data-hero-name aria-hidden="true"><b>Kaffeekirsche</b><i>Coffea arabica</i></p>
-        <p class="hero__scroll" data-hero-cue aria-hidden="true"><span>Scroll für mehr</span></p>
+        <p class="hero__scroll" data-hero-cue aria-hidden="true"><span class="cue"><svg class="cue__bottle" viewBox="0 0 192 48" aria-hidden="true"><defs><clipPath id="cuebody"><path d="M22 4H146c10 0 16 5 22 10l4 3c2 1.5 4 2 7 2h8c2.2 0 4 1.8 4 4v2c0 2.2-1.8 4-4 4h-8c-3 0-5 .5-7 2l-4 3c-6 5-12 10-22 10H22a20 20 0 0 1 0-40z"/></clipPath></defs><path class="cue__glass" d="M22 4H146c10 0 16 5 22 10l4 3c2 1.5 4 2 7 2h8c2.2 0 4 1.8 4 4v2c0 2.2-1.8 4-4 4h-8c-3 0-5 .5-7 2l-4 3c-6 5-12 10-22 10H22a20 20 0 0 1 0-40z"/><g clip-path="url(#cuebody)"><path class="cue__syrup" d="M-40 33q10-4 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0V60H-40z"/></g><path class="cue__edge" d="M22 4H146c10 0 16 5 22 10l4 3c2 1.5 4 2 7 2h8c2.2 0 4 1.8 4 4v2c0 2.2-1.8 4-4 4h-8c-3 0-5 .5-7 2l-4 3c-6 5-12 10-22 10H22a20 20 0 0 1 0-40z"/><path class="cue__track" d="M27 14v20"/><path class="cue__drop" d="M27 13.2c1.8 2.4 2.8 3.8 2.8 5.2a2.8 2.8 0 0 1-5.6 0c0-1.4 1-2.8 2.8-5.2z"/></svg><span class="cue__label">Scroll für mehr</span></span></p>
       </div>
     </section>
 

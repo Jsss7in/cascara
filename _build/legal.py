@@ -36,7 +36,7 @@ impressum = f'''<p class="legal__lead">Angaben zum Betreiber dieser Website.</p>
       Cascarup<br>
       Schülerunternehmen im Company Programme von Young Enterprise Switzerland (YES)<br>
       c/o Collège Saint-Michel<br>
-      Fribourg, Schweiz
+      Freiburg, Schweiz
     </address>
 
     <h3>Kontakt</h3>
@@ -69,7 +69,7 @@ datenschutz = f'''<p class="legal__lead">Diese Website sammelt so wenige Daten w
     <h2>Verantwortlich</h2>
     <address>
       Cascarup<br>
-      c/o Collège Saint-Michel, Fribourg<br>
+      c/o Collège Saint-Michel, Freiburg<br>
       E-Mail: {MAIL}
     </address>
 
@@ -121,7 +121,7 @@ ship_rows = ''.join(f"<li>bis {kg} kg: CHF&nbsp;{price:.2f}</li>" for kg, price 
 bedingungen = f'''<p class="legal__lead">{'' if content.SALES_OPEN else 'Unser Online-Shop öffnet bald; bis dahin kann noch nicht bestellt werden. '}So wird das Bestellen bei Cascarup funktionieren: Du bestellst online, bezahlst mit TWINT oder Karte, und wir schicken dir deine Flaschen per Post.</p>
 
     <h2>Anbieter</h2>
-    <p>Cascarup, Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Fribourg. E-Mail: {MAIL}</p>
+    <p>Cascarup, Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Freiburg. E-Mail: {MAIL}</p>
 
     <h2>Angebot und Preise</h2>
     <p>Wir verkaufen unseren Sirup in der Taschenflasche zu 200 ml und in der Flasche zu 500 ml, solange Vorrat. Die Preise gelten in Schweizer Franken:</p>

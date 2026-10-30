@@ -15,7 +15,7 @@ V = {
  'SITE_URL': 'https://cascarup.ch/',
  'IMG_DRY': 'assets/photos/trocknen.jpg', 'IMG_DRY_ALT': 'Kaffeekirschen trocknen in der Sonne, frische rote zwischen dunklen, schon getrockneten',
  'HERO_LEDE': 'Wir entwickeln einen Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche. '
-              'Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.',
+              'Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Freiburg.',
 
  'FRUIT_TEXT': 'Jede Kaffeebohne ist der Samen einer Kirsche. Meist liegen zwei davon in einer Frucht, '
                'umhüllt von Fruchtfleisch und einer roten Haut.',
@@ -44,8 +44,8 @@ V = {
  'STEPS': steps([
      ('Reifen und ernten', 'Nach der Blüte brauchen Arabica-Kirschen rund sieben bis neun Monate, bis sie reif und rot sind. Dann werden sie geerntet.', 'Auf der Plantage'),
      ('Trennen und trocknen', 'Die Bohnen werden aus der Frucht gelöst. Haut und Fruchtfleisch werden getrocknet: Das ist Cascara.', 'Bei der Aufbereitung'),
-     ('Aufgiessen und einkochen', 'Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.', 'In Fribourg'),
-     ('Abfüllen', 'Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.', 'In Fribourg'),
+     ('Aufgiessen und einkochen', 'Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.', 'In Freiburg'),
+     ('Abfüllen', 'Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.', 'In Freiburg'),
  ]),
 
  'PROJECT_P1': 'Wir sind ein Schülerunternehmen am Collège Saint-Michel. Im Company Programme von Young Enterprise '
@@ -53,7 +53,7 @@ V = {
                'Schuljahres ein eigenes Miniunternehmen.',
  'PROJECT_P2': 'Unser Beitrag ist ein Produkt aus dem, was bei der Kaffee-Ernte übrig bleibt.',
  'PROJECT_FACTS': facts([
-     ('Schule', 'Collège Saint-Michel, Fribourg<br><span class="muted">gegründet 1582</span>'),
+     ('Schule', 'Collège Saint-Michel, Freiburg<br><span class="muted">gegründet 1582</span>'),
      ('Programm', 'YES Company Programme'),
      ('Schuljahr', '2026/27'),
  ]),
@@ -131,7 +131,7 @@ V['DRINKS'] = drinks()
 # Where our stand is. Dates in 2026; a stand turns «Vorbei» by itself once its day has passed (main.js).
 # The maps are drawn from OpenStreetMap by _build/maps.py; «at» is the pin, at the centre of each map.
 SKYLINES = {
- # Fribourg: the cathedral tower over the old town, the bridge across the Sarine below
+ # Freiburg: the cathedral tower over the old town, the bridge across the Sarine below
  'fribourg': '<path d="M4 56h56"/><path d="M3 47h20"/><path d="M4 47v9m18-9v9"/><path d="M4 56a4.5 4.5 0 0 1 9 0a4.5 4.5 0 0 1 9 0"/>'
              '<path d="M25 56V24h10v32"/><path d="M24 24h12"/><path d="M26 24v-6h8v6"/><path d="M26 18l1-3 1 3m1 0l1-5 1 5m1 0l1-3 1 3"/>'
              '<path d="M28.5 30v6m3-6v6"/><path d="M35 40l7-6 7 6v16"/><path d="M49 44l5-5 5 5v12"/><path d="M40 47h4m8 2h4"/>',
@@ -146,12 +146,12 @@ SKYLINES = {
 }
 STANDS = [
  dict(date='2026-10-29', weekday='Donnerstag', day='29', month='Oktober', time='19:00', title='Eröffnungsfeier',
-      place='Aula, Collège de Gambach', town='Fribourg', icon='fribourg', map='gambach', at=(46.8069923, 7.1497324)),
+      place='Aula, Collège de Gambach', town='Freiburg', icon='fribourg', map='gambach', at=(46.8069923, 7.1497324)),
  dict(date='2026-11-21', weekday='Samstag', day='21', month='November', title='Wochenmarkt',
       place='Altstadt', town='Estavayer-le-Lac', icon='estavayer', map='estavayer', at=(46.84918, 6.84732),
       view=(46.8503, 6.8430)),   # framed towards the lake, so Estavayer-le-Lac shows its lake
  dict(date='2026-12-05', weekday='Samstag', day='5', month='Dezember', title='Saint-Nicolas-Markt',
-      place='Collège Saint-Michel', town='Fribourg', icon='fribourg', map='stmichel', at=(46.8067246, 7.1579802)),
+      place='Collège Saint-Michel', town='Freiburg', icon='fribourg', map='stmichel', at=(46.8067246, 7.1579802)),
  dict(date='2026-12-19', weekday='Samstag', day='19', month='Dezember', title='Weihnachtsmarkt',
       place='Altstadt', town='Avenches', icon='avenches', map='avenches', at=(46.8794048, 7.0396615)),
 ]
@@ -291,7 +291,7 @@ BOTTLE_NAME = {200: 'Taschenflasche', 500: 'Flasche'}
 PRODUCT_FACTS = [
  ('Zutaten', None), ('Allergene', None), ('Füllmenge', '200 ml oder 500 ml'),
  ('Haltbarkeit', None), ('Hinweis', 'Enthält Koffein aus der Kaffeekirsche.'),
- ('Hergestellt von', 'Cascarup, c/o Collège Saint-Michel, Fribourg, Schweiz'),
+ ('Hergestellt von', 'Cascarup, c/o Collège Saint-Michel, Freiburg, Schweiz'),
 ]
 chf = lambda x: f'{x:.2f}'
 
@@ -307,7 +307,7 @@ PERKS = [
   '<path d="M10 22 32 12l22 10v24L32 56 10 46z"/><path d="M10 22l22 10 22-10"/><path d="M32 32v24"/><path d="M21 17l22 10v8"/>'),
  ('Bezahlen', 'Online mit TWINT oder Karte, sobald der Shop öffnet.' if not SALES_OPEN else 'Sicher online, mit TWINT oder mit Karte.',
   '<rect x="8" y="22" width="32" height="22" rx="3.5"/><path d="M8 29h32"/><path d="M14 37h9"/><rect x="38" y="12" width="18" height="36" rx="4"/><path d="M44 43h6"/>'),
- ('Von Hand', 'Jede Flasche ist handgemacht: gekocht und abgefüllt in Fribourg.',
+ ('Von Hand', 'Jede Flasche ist handgemacht: gekocht und abgefüllt in Freiburg.',
   '<path d="M28.5 6h7v5h-7z"/><path d="M29 11v6c-4 1.6-6 4.6-6 8.6V55a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V25.6c0-4-2-7-6-8.6v-6"/><path d="M23 31h18v15H23z"/>'),
 ]
 
@@ -392,7 +392,7 @@ TEAM = [
  ('justin', 'Justin Meissner', 'CTO', (106, 118)),
  ('niklas', 'Niklas Broch', 'CPO', (110, 117)),
 ]
-V['TEAM_P'] = ('Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Fribourg und haben Cascarup im '
+V['TEAM_P'] = ('Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Freiburg und haben Cascarup im '
                'Rahmen unserer Maturaarbeit gegründet. Jede und jeder von uns führt einen eigenen Bereich.')
 
 
@@ -679,7 +679,7 @@ def footer(base=''):
     </div>
     <div class="footer__base">
       <span>© 2026 {COMPANY}</span>
-      <span>Ein Schülerunternehmen im <span class="nowrap">YES Company Programme</span> · <span class="nowrap">Collège Saint-Michel</span>, Fribourg</span>
+      <span>Ein Schülerunternehmen im <span class="nowrap">YES Company Programme</span> · <span class="nowrap">Collège Saint-Michel</span>, Freiburg</span>
     </div>
   </footer>'''
 
@@ -720,7 +720,7 @@ def certificate(live=False, small=False, full=True):
           <p class="cert__value">15.–</p>
           {holder}{count}{stamp}
           <p class="cert__no">Nº <span data-cert-no>{'—' if live else '001'}</span></p>
-          <p class="cert__place">Fribourg · 2026/27</p>
+          <p class="cert__place">Freiburg · 2026/27</p>
           <p class="cert__micro" aria-hidden="true">{micro}</p>
         </div>'''
 
@@ -776,7 +776,7 @@ PS_STEPS = [
 PS_TERMS = [
  f'Ein Partizipationsschein kostet CHF {PS_PRICE}.–. Online kannst du bis zu {PS_MAX} Scheine auf einmal kaufen.',
  'Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.',
- 'Herausgeber ist Cascarup, ein Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Fribourg.',
+ 'Herausgeber ist Cascarup, ein Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Freiburg.',
  'Bezahlt wird mit TWINT, mit deinem persönlichen Code in der Mitteilung. Dein Schein gehört dir, sobald deine Zahlung bei uns ist.',
  'Der Schein gilt für unser Unternehmungsjahr 2026/27.',
  'Wählst du «Geld zurück», zahlen wir dir am Ende des Unternehmungsjahres deinen Betrag zurück. Wie und wann genau, schreiben wir dir rechtzeitig per E-Mail.',
@@ -997,7 +997,7 @@ def ps_main():
   </main>'''
 
 
-V['END_TEXT'] = 'Von Hand abgefüllt in Fribourg, in zwei Sorten. ' + ('Jetzt im Shop.' if SALES_OPEN else 'Bald im Shop.')
+V['END_TEXT'] = 'Von Hand abgefüllt in Freiburg, in zwei Sorten. ' + ('Jetzt im Shop.' if SALES_OPEN else 'Bald im Shop.')
 V['LOADER_WORD'] = ''.join(f'<span style="--i:{i}">{c}</span>' for i, c in enumerate('Cascarup'))
 V['NAV'] = nav()
 V['MENU'] = menu()

@@ -7,11 +7,11 @@
   <link rel="alternate" hreflang="en" href="https://cascarup.ch/en/">
   <link rel="alternate" hreflang="x-default" href="https://cascarup.ch/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Cascarup – Sirup aus der Kaffeekirsche · Fribourg</title>
+  <title>Cascarup – Sirup aus der Kaffeekirsche · Freiburg</title>
   <script>window.cascarupT=(function(d){return function(s){return d[s]||s}})({});</script>
-  <meta name="description" content="Cascarup macht Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche: ein Schülerunternehmen am Collège Saint-Michel in Fribourg. Zwei Sorten, bald online bestellbar, per Post in die ganze Schweiz.">
+  <meta name="description" content="Cascarup macht Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche: ein Schülerunternehmen am Collège Saint-Michel in Freiburg. Zwei Sorten, bald online bestellbar, per Post in die ganze Schweiz.">
   <meta property="og:title" content="Cascarup – Sirup aus der Kaffeekirsche">
-  <meta property="og:description" content="Original und Cozy Spice, per Post in die ganze Schweiz. Ein Schülerunternehmen aus Fribourg.">
+  <meta property="og:description" content="Original und Cozy Spice, per Post in die ganze Schweiz. Ein Schülerunternehmen aus Freiburg.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://cascarup.ch/">
   <link rel="canonical" href="https://cascarup.ch/">
@@ -52,8 +52,8 @@
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>
-  <link rel="stylesheet" href="assets/fonts.css?v=20261030105943">
-  <link rel="stylesheet" href="styles.css?v=20261030105943">
+  <link rel="stylesheet" href="assets/fonts.css?v=20261030115442">
+  <link rel="stylesheet" href="styles.css?v=20261030115442">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -87,7 +87,7 @@
         // the mark has time to draw itself and the name to rise, however fast the page is
         setTimeout(() => {
           bar.style.transform = 'scaleX(1)';
-          setTimeout(() => { el.classList.add('is-done'); root.classList.remove('is-loading'); setTimeout(() => el.remove(), 900); }, 260);
+          setTimeout(() => { el.classList.add('is-done'); root.classList.remove('is-loading'); document.dispatchEvent(new Event('cascarup:shown')); setTimeout(() => el.remove(), 900); }, 260);
         }, Math.max(0, 2600 - (performance.now() - t0)));
       };
       const step = () => { got++; bar.style.transform = `scaleX(${.12 + .78 * got / need})`; if (got >= need) finish(); };
@@ -153,20 +153,20 @@
     <section class="hero" id="top" data-hero data-tone="paper" aria-labelledby="hero-title">
       <div class="hero__stage" data-hero-stage>
         <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
-        <!-- a real coffee cherry on its branch, among real leaves (photographs, mirrored; the branch baked into one
-             picture by _build/plant/bake.mjs). The cherry lies exactly over the 3D model until the fruit opens. -->
+        <!-- a paper diorama round the cherry (hero3d/diorama.js): sun, terraced coffee hills, red soil, a branch of cut
+             paper. data-box: the room it needs round the cherry, in the cherry's half widths (the 3D framing uses it).
+             The real cherry (a photograph) lies exactly over the 3D model until the fruit opens. -->
+        <div class="hero__dio" data-hero-dio data-box="-3.35,-1.9,4.15,3.7" aria-hidden="true"></div>
         <div class="hero__photos">
-          <img class="hero__plant" data-hero-plant src="assets/plant/zweig.webp" alt="" width="2175" height="1653" decoding="async" fetchpriority="high"
-               data-cx="1199.48" data-cy="439.5" data-rx="256.31" data-turn="-22.59943" data-box="-3.018,-1.691,3.722,3.319">
           <img class="hero__cherry" data-hero-cherry src="assets/cherry/kirsche.webp" alt="" width="1011" height="1253" decoding="async" fetchpriority="high"
                data-texture="assets/cherry/kirsche-textur.jpg" data-aspect="1.2751" data-cx="0.4989" data-cy="0.4951" data-rx="0.4527" data-ry="0.4658">
         </div>
 
         <div class="hero__copy" data-beat="-1,-.5,.04,.1">
-          <p class="eyebrow hero__eyebrow">Cascara · Fribourg</p>
+          <p class="eyebrow hero__eyebrow">Cascara · Freiburg</p>
           <h1 class="hero__brand" id="hero-title">Cascarup</h1>
           <p class="hero__claim">Die Kaffeekirsche kann mehr.</p>
-          <p class="hero__lede">Sirup aus der Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Fribourg.</p>
+          <p class="hero__lede">Sirup aus der Schale der Kaffeekirsche. Ein Schülerunternehmen am <span class="nowrap">Collège Saint-Michel</span> in Freiburg.</p>
         </div>
 
         <div class="hero__parts" aria-hidden="true">
@@ -184,7 +184,7 @@
 
         <div class="hero__end" data-beat=".885,.93,1,1">
           <p class="hero__end-brand">Cascarup</p>
-          <p class="hero__end-text">Von Hand abgefüllt in Fribourg, in zwei Sorten. Bald im Shop.</p>
+          <p class="hero__end-text">Von Hand abgefüllt in Freiburg, in zwei Sorten. Bald im Shop.</p>
           <div class="hero__actions">
             <a class="button button--solid" href="#shop">Zum Shop</a>
             <a class="hero__more" href="#staende">Wo du uns findest</a>
@@ -192,7 +192,7 @@
         </div>
 
         <p class="hero__name" data-hero-name aria-hidden="true"><b>Kaffeekirsche</b><i>Coffea arabica</i></p>
-        <p class="hero__scroll" data-hero-cue aria-hidden="true"><span>Scroll für mehr</span></p>
+        <p class="hero__scroll" data-hero-cue aria-hidden="true"><span class="cue"><svg class="cue__bottle" viewBox="0 0 192 48" aria-hidden="true"><defs><clipPath id="cuebody"><path d="M22 4H146c10 0 16 5 22 10l4 3c2 1.5 4 2 7 2h8c2.2 0 4 1.8 4 4v2c0 2.2-1.8 4-4 4h-8c-3 0-5 .5-7 2l-4 3c-6 5-12 10-22 10H22a20 20 0 0 1 0-40z"/></clipPath></defs><path class="cue__glass" d="M22 4H146c10 0 16 5 22 10l4 3c2 1.5 4 2 7 2h8c2.2 0 4 1.8 4 4v2c0 2.2-1.8 4-4 4h-8c-3 0-5 .5-7 2l-4 3c-6 5-12 10-22 10H22a20 20 0 0 1 0-40z"/><g clip-path="url(#cuebody)"><path class="cue__syrup" d="M-40 33q10-4 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0V60H-40z"/></g><path class="cue__edge" d="M22 4H146c10 0 16 5 22 10l4 3c2 1.5 4 2 7 2h8c2.2 0 4 1.8 4 4v2c0 2.2-1.8 4-4 4h-8c-3 0-5 .5-7 2l-4 3c-6 5-12 10-22 10H22a20 20 0 0 1 0-40z"/><path class="cue__track" d="M27 14v20"/><path class="cue__drop" d="M27 13.2c1.8 2.4 2.8 3.8 2.8 5.2a2.8 2.8 0 0 1-5.6 0c0-1.4 1-2.8 2.8-5.2z"/></svg><span class="cue__label">Scroll für mehr</span></span></p>
       </div>
     </section>
 
@@ -239,7 +239,7 @@
         <ul class="shop__perks">
           <li data-reveal style="--d:0"><svg viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M10 22 32 12l22 10v24L32 56 10 46z"/><path pathLength="1" d="M10 22l22 10 22-10"/><path pathLength="1" d="M32 32v24"/><path pathLength="1" d="M21 17l22 10v8"/></svg><div><h3>Versand</h3><p>Per Post in die ganze Schweiz.</p></div></li>
           <li data-reveal style="--d:1"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="22" width="32" height="22" rx="3.5"/><path pathLength="1" d="M8 29h32"/><path pathLength="1" d="M14 37h9"/><rect x="38" y="12" width="18" height="36" rx="4"/><path pathLength="1" d="M44 43h6"/></svg><div><h3>Bezahlen</h3><p>Online mit TWINT oder Karte, sobald der Shop öffnet.</p></div></li>
-          <li data-reveal style="--d:2"><svg viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M28.5 6h7v5h-7z"/><path pathLength="1" d="M29 11v6c-4 1.6-6 4.6-6 8.6V55a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V25.6c0-4-2-7-6-8.6v-6"/><path pathLength="1" d="M23 31h18v15H23z"/></svg><div><h3>Von Hand</h3><p>Jede Flasche ist handgemacht: gekocht und abgefüllt in Fribourg.</p></div></li>
+          <li data-reveal style="--d:2"><svg viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M28.5 6h7v5h-7z"/><path pathLength="1" d="M29 11v6c-4 1.6-6 4.6-6 8.6V55a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V25.6c0-4-2-7-6-8.6v-6"/><path pathLength="1" d="M23 31h18v15H23z"/></svg><div><h3>Von Hand</h3><p>Jede Flasche ist handgemacht: gekocht und abgefüllt in Freiburg.</p></div></li>
         </ul>
         <details class="shop__facts">
           <summary>Zutaten und Hinweise</summary>
@@ -249,7 +249,7 @@
             <div><dt>Füllmenge</dt><dd>200 ml oder 500 ml</dd></div>
             <div><dt>Haltbarkeit</dt><dd><span class="muted">folgt</span></dd></div>
             <div><dt>Hinweis</dt><dd>Enthält Koffein aus der Kaffeekirsche.</dd></div>
-            <div><dt>Hergestellt von</dt><dd>Cascarup, c/o Collège Saint-Michel, Fribourg, Schweiz</dd></div>
+            <div><dt>Hergestellt von</dt><dd>Cascarup, c/o Collège Saint-Michel, Freiburg, Schweiz</dd></div>
           </dl>
         </details>
         <p class="shop__note">Alle Preise in Schweizer Franken. Versand per Post in die ganze Schweiz.</p>
@@ -298,8 +298,8 @@
         <ol class="steps">
           <li data-reveal><div><h3>Reifen und ernten</h3><p>Nach der Blüte brauchen Arabica-Kirschen rund sieben bis neun Monate, bis sie reif und rot sind. Dann werden sie geerntet.</p><p class="step__who">Auf der Plantage</p></div></li>
           <li data-reveal><div><h3>Trennen und trocknen</h3><p>Die Bohnen werden aus der Frucht gelöst. Haut und Fruchtfleisch werden getrocknet: Das ist Cascara.</p><p class="step__who">Bei der Aufbereitung</p></div></li>
-          <li data-reveal><div><h3>Aufgiessen und einkochen</h3><p>Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.</p><p class="step__who">In Fribourg</p></div></li>
-          <li data-reveal><div><h3>Abfüllen</h3><p>Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.</p><p class="step__who">In Fribourg</p></div></li>
+          <li data-reveal><div><h3>Aufgiessen und einkochen</h3><p>Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.</p><p class="step__who">In Freiburg</p></div></li>
+          <li data-reveal><div><h3>Abfüllen</h3><p>Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.</p><p class="step__who">In Freiburg</p></div></li>
         </ol>
       </div>
     </section>
@@ -359,8 +359,8 @@
         <p class="stand__date"><time datetime="2026-10-29T19:00"><span class="stand__day">29.</span> Oktober</time></p>
         <p class="stand__when">Donnerstag · 19:00</p>
         <h3 class="stand__title">Eröffnungsfeier</h3>
-        <p class="stand__place">Aula, Collège de Gambach<br>Fribourg</p>
-        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.8069923%2C7.1497324" target="_blank" rel="noopener" aria-label="Eröffnungsfeier in Fribourg: Karte öffnen"><img src="assets/maps/gambach.svg" alt="Karte: Aula, Collège de Gambach, Fribourg" width="600" height="400" loading="lazy" decoding="async"></a>
+        <p class="stand__place">Aula, Collège de Gambach<br>Freiburg</p>
+        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.8069923%2C7.1497324" target="_blank" rel="noopener" aria-label="Eröffnungsfeier in Freiburg: Karte öffnen"><img src="assets/maps/gambach.svg" alt="Karte: Aula, Collège de Gambach, Freiburg" width="600" height="400" loading="lazy" decoding="async"></a>
         <p class="stand__links"><a href="https://www.google.com/maps/search/?api=1&query=46.8069923%2C7.1497324" target="_blank" rel="noopener">Route</a><a href="assets/staende/2026-10-29.ics" download>In den Kalender</a></p>
       </li>
       <li class="stand" data-reveal data-stand="2026-11-21" style="--d:1">
@@ -379,8 +379,8 @@
         <p class="stand__date"><time datetime="2026-12-05"><span class="stand__day">5.</span> Dezember</time></p>
         <p class="stand__when">Samstag</p>
         <h3 class="stand__title">Saint-Nicolas-Markt</h3>
-        <p class="stand__place">Collège Saint-Michel<br>Fribourg</p>
-        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.8067246%2C7.1579802" target="_blank" rel="noopener" aria-label="Saint-Nicolas-Markt in Fribourg: Karte öffnen"><img src="assets/maps/stmichel.svg" alt="Karte: Collège Saint-Michel, Fribourg" width="600" height="400" loading="lazy" decoding="async"></a>
+        <p class="stand__place">Collège Saint-Michel<br>Freiburg</p>
+        <a class="stand__map" href="https://www.google.com/maps/search/?api=1&query=46.8067246%2C7.1579802" target="_blank" rel="noopener" aria-label="Saint-Nicolas-Markt in Freiburg: Karte öffnen"><img src="assets/maps/stmichel.svg" alt="Karte: Collège Saint-Michel, Freiburg" width="600" height="400" loading="lazy" decoding="async"></a>
         <p class="stand__links"><a href="https://www.google.com/maps/search/?api=1&query=46.8067246%2C7.1579802" target="_blank" rel="noopener">Route</a><a href="assets/staende/2026-12-05.ics" download>In den Kalender</a></p>
       </li>
       <li class="stand" data-reveal data-stand="2026-12-19" style="--d:3">
@@ -405,11 +405,11 @@
           <div class="team__copy">
             <p class="eyebrow" data-reveal>Das Team</p>
             <h2 class="display" id="team-title" data-reveal style="--d:1">Ein Schuljahr.<br>Ein echtes <em>Unternehmen.</em></h2>
-            <p data-reveal style="--d:2">Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Fribourg und haben Cascarup im Rahmen unserer Maturaarbeit gegründet. Jede und jeder von uns führt einen eigenen Bereich.</p>
+            <p data-reveal style="--d:2">Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Freiburg und haben Cascarup im Rahmen unserer Maturaarbeit gegründet. Jede und jeder von uns führt einen eigenen Bereich.</p>
             <p data-reveal style="--d:3">Im Company Programme von Young Enterprise Switzerland gründen und führen Schülerinnen und Schüler zwischen 16 und 20 Jahren während eines Schuljahres ein eigenes Miniunternehmen. Unser Beitrag ist ein Produkt aus dem, was bei der Kaffee-Ernte übrig bleibt.</p>
           </div>
           <dl class="team__facts" data-reveal style="--d:2">
-            <div><dt>Schule</dt><dd>Collège Saint-Michel, Fribourg<br><span class="muted">gegründet 1582</span></dd></div>
+            <div><dt>Schule</dt><dd>Collège Saint-Michel, Freiburg<br><span class="muted">gegründet 1582</span></dd></div>
           <div><dt>Programm</dt><dd>YES Company Programme</dd></div>
           <div><dt>Schuljahr</dt><dd>2026/27</dd></div>
           </dl>
@@ -470,7 +470,7 @@
           <p class="cert__value">15.–</p>
           
           <p class="cert__no">Nº <span data-cert-no>001</span></p>
-          <p class="cert__place">Fribourg · 2026/27</p>
+          <p class="cert__place">Freiburg · 2026/27</p>
           <p class="cert__micro" aria-hidden="true">CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR · CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR · CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR · CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR</p>
         </div></div>
         <div class="join__copy">
@@ -510,7 +510,7 @@
     </div>
     <div class="footer__base">
       <span>© 2026 Cascarup</span>
-      <span>Ein Schülerunternehmen im <span class="nowrap">YES Company Programme</span> · <span class="nowrap">Collège Saint-Michel</span>, Fribourg</span>
+      <span>Ein Schülerunternehmen im <span class="nowrap">YES Company Programme</span> · <span class="nowrap">Collège Saint-Michel</span>, Freiburg</span>
     </div>
   </footer>
 
@@ -590,9 +590,9 @@
   </dialog>
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden><img class="menu-btn__bottle" src="assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async"><span>Menü</span><i aria-hidden="true"></i></button>
 
-  <script src="main.js?v=20261030105943" defer></script>
-  <script src="checkout.js?v=20261030105943" defer></script>
-  <script src="shop.js?v=20261030105943" defer></script>
-  <script type="module" src="assets/hero3d.js?v=20261030105943"></script>
+  <script src="main.js?v=20261030115442" defer></script>
+  <script src="checkout.js?v=20261030115442" defer></script>
+  <script src="shop.js?v=20261030115442" defer></script>
+  <script type="module" src="assets/hero3d.js?v=20261030115442"></script>
 </body>
 </html>

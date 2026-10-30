@@ -3,18 +3,9 @@ SA3 = ('CC BY-SA 3.0', 'https://creativecommons.org/licenses/by-sa/3.0/deed.de')
 BY4 = ('CC BY 4.0', 'https://creativecommons.org/licenses/by/4.0/deed.de')
 SA_NOTE = 'Zugeschnitten und farblich angepasst; die bearbeitete Fassung steht unter derselben Lizenz.'
 PHOTOS = [
- dict(use='Kaffeekirsche und Zweig (Seitenanfang, die Kirsche auch als Oberfläche des 3D-Modells)', title='«Coffea arabica 1DS-II 4-5105»', author='SAplants',
+ dict(use='Kaffeekirsche (Seitenanfang, auch als Oberfläche des 3D-Modells)', title='«Coffea arabica 1DS-II 4-5105»', author='SAplants',
       license=SA4[0], license_url=SA4[1], page='https://commons.wikimedia.org/wiki/File:Coffea_arabica_1DS-II_4-5105.jpg',
-      changes='Kirsche und Zweig freigestellt, gespiegelt, gedreht und farblich leicht angepasst; die bearbeitete Fassung steht unter derselben Lizenz.'),
- dict(use='Weitere Kaffeekirschen am Zweig (Seitenanfang)', title='«Coffea arabica 1DS-II 4-5108»', author='SAplants',
-      license=SA4[0], license_url=SA4[1], page='https://commons.wikimedia.org/wiki/File:Coffea_arabica_1DS-II_4-5108.jpg',
-      changes='Zwei Kirschen freigestellt und neu angeordnet; die bearbeitete Fassung steht unter derselben Lizenz.'),
- dict(use='Kaffeeblatt (Seitenanfang)', title='«Coffea arabica Kawa arabska 2021-0-09 02»', author='Agnieszka Kwiecień, Nova',
-      license=SA4[0], license_url=SA4[1], page='https://commons.wikimedia.org/wiki/File:Coffea_arabica_Kawa_arabska_2021-0-09_02.jpg',
-      changes='Ein Blatt freigestellt und gedreht; die bearbeitete Fassung steht unter derselben Lizenz.'),
- dict(use='Kaffeeblätter (Seitenanfang)', title='«Coffee leaves»', author='Truehmer',
-      license=SA4[0], license_url=SA4[1], page='https://commons.wikimedia.org/wiki/File:Coffee_leaves.jpg',
-      changes='Blätter freigestellt, gedreht und etwas abgedunkelt; die bearbeitete Fassung steht unter derselben Lizenz.'),
+      changes='Kirsche freigestellt, gespiegelt, gedreht und farblich leicht angepasst; die bearbeitete Fassung steht unter derselben Lizenz.'),
  dict(use='Kaffeebohne, flache Seite (Oberfläche der Bohnen im 3D-Modell)', title='«Обжаренное кофейное зерно»', author='Alexander Klepnev',
       license='CC BY 4.0', license_url='https://creativecommons.org/licenses/by/4.0/deed.de', page='https://commons.wikimedia.org/wiki/File:%D0%9E%D0%B1%D0%B6%D0%B0%D1%80%D0%B5%D0%BD%D0%BD%D0%BE%D0%B5_%D0%BA%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D0%BE%D0%B5_%D0%B7%D0%B5%D1%80%D0%BD%D0%BE.jpg',
       changes='Eine Bohne freigestellt, gedreht, verkleinert und farblich angeglichen.'),

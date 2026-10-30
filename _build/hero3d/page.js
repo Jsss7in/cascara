@@ -3,6 +3,7 @@
 // real cherry lies exactly over the model; it hands over as the fruit opens. Between the chapters of the story
 // the page glides on by itself, so a little scroll draws the reader into the next one.
 import { createHero, CHAPTERS } from './hero3d.js';
+import { createDiorama } from './diorama.js';
 
 (() => {
   // ?debug=ui: errors and the 3D state shown on the page itself (for testing on phones without an inspector)
@@ -22,6 +23,8 @@ import { createHero, CHAPTERS } from './hero3d.js';
   const cue = hero.querySelector('[data-hero-cue]');       // «Scroll für mehr», under the cherry
   const name = hero.querySelector('[data-hero-name]');     // the cherry's name, on its first screen
   const plant = hero.querySelector('[data-hero-plant]');   // its branch, with leaves and other cherries
+  const dioEl = hero.querySelector('[data-hero-dio]');     // or, instead, the paper diorama round it
+  const dioBox = dioEl && dioEl.dataset.box ? dioEl.dataset.box.split(',').map(Number) : null;
   const pl = plant && { cx: +plant.dataset.cx, cy: +plant.dataset.cy, rx: +plant.dataset.rx, turn: +plant.dataset.turn, box: plant.dataset.box.split(',').map(Number) };
   const copy = hero.querySelector('.hero__copy');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -47,7 +50,7 @@ import { createHero, CHAPTERS } from './hero3d.js';
 
   let three = null;
   try {
-    three = createHero(canvas, { onFrame, photo: pic, plantBox: pl && pl.box, gentle: matchMedia('(pointer: coarse)').matches });
+    three = createHero(canvas, { onFrame, photo: pic, plantBox: (pl && pl.box) || dioBox, gentle: matchMedia('(pointer: coarse)').matches });
   } catch {
     three = null;
   }
@@ -57,6 +60,16 @@ import { createHero, CHAPTERS } from './hero3d.js';
     out.textContent = JSON.stringify(three.state()) + ` reduce=${reduce} y=${Math.round(scrollY)} cls=${hero.className}\n${out.dataset.taps || ''}`;
   }, 400);
   hero.classList.add('is-3d');
+  // the diorama: its layers rise as the loading screen lifts, and lean with the pointer on screens that have one
+  const dio = dioEl ? createDiorama(dioEl) : null;
+  if (dio) {
+    const up = () => dioEl.classList.add('is-up');
+    document.addEventListener('cascarup:shown', up, { once: true });
+    setTimeout(up, 12000);
+    if (matchMedia('(pointer: fine)').matches && !reduce) {
+      addEventListener('pointermove', (e) => dio.lean(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1), { passive: true });
+    }
+  }
   three.background = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#E6D3B7';
   if (/[?&]debug\b/.test(location.search)) window.__hero = three;   // test shots jump straight to a moment
   // ?debug&at=0.765: the page opens at that moment of the story (for checking a frame on a phone)
@@ -126,17 +139,27 @@ import { createHero, CHAPTERS } from './hero3d.js';
 
   // Words follow the 3D scene's own (softly following) progress, so they never run ahead of the picture.
   // Only what changes is written, and only on these few elements.
-  let photoShown = -1, introShown = -1, plantShown = -1;
+  let photoShown = -1, introShown = -1, plantShown = -1, dioShown = true, copyBox = null;
   function onFrame(p, labels, fruitBox) {
+    // the paper diorama: laid out round the cherry while the story rests at its start, flown apart by the first move
+    if (dio) {
+      const w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
+      const end = narrow ? .05 : .072, o = Math.round((1 - smooth(narrow ? .012 : end - .028, end, p)) * 500) / 500;
+      if (o > 0 || dioShown) {
+        if (p < .003) dio.layout(fruitBox(), w, h, narrow, copyBox);
+        dio.update(smooth(.004, end, p), o, performance.now() / 1000, w, h, narrow);
+      }
+      dioShown = o > 0;
+    }
     // the first screen: the cherry is named, and beneath it the invitation to scroll; both go with the first move
     const intro = Math.round((1 - smooth(.012, .05, p)) * 500) / 500;
     if (intro > 0 && (cue || name)) {
       const b = fruitBox(), w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
       if (cue) {
         // at the foot of the picture, below the cherry; on narrow screens below the words
-        const copyBottom = copy.getBoundingClientRect().bottom - stage.getBoundingClientRect().top;
-        cue.style.setProperty('--x', `${(narrow ? w / 2 : b.x).toFixed(1)}px`);
-        cue.style.setProperty('--y', `${(narrow ? Math.min(h - 46, copyBottom + 14) : h - 76).toFixed(1)}px`);
+        const copyRect = copy.getBoundingClientRect(), stageTop = stage.getBoundingClientRect().top;
+        cue.style.setProperty('--x', `${(w / 2).toFixed(1)}px`);
+        cue.style.setProperty('--y', `${(narrow ? Math.min(h - 58, copyRect.bottom - stageTop + 12) : h - 82).toFixed(1)}px`);
       }
       if (name) {
         // beside the cherry where there is room for the words; on a phone above it, under the buttons
@@ -216,6 +239,8 @@ import { createHero, CHAPTERS } from './hero3d.js';
     three.frame = narrow
       ? { l: 14, t: navH + 4, r: w - 14, b: c.top - s.top - 14 }
       : { l: right + 48, t: navH + 28, r: w - 32, b: h - 104 };
+    // where the words are: the diorama keeps its land clear of them
+    copyBox = { left: c.left - s.left, right, top: c.top - s.top, bottom: c.bottom - s.top };
   }
   // size and pause: render only while the hero is on screen
   const size = () => { const r = stage.getBoundingClientRect(); three.resize(Math.round(r.width), Math.round(r.height)); frameIt(); };
