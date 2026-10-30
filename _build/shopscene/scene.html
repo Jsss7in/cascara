@@ -212,9 +212,11 @@
     (async () => {
       for (const id of ['sky', 'far', 'mid', 'near', 'soil', 'table']) scene.append(await paint(id));
       // what the page lays over the picture, in its own pixels: the clouds, and the farmer with the stretch she walks
-      // her stretch (centres): on wide screens right of the Cozy Spice; on a phone in the gap between the two bottles;
+      // her stretch (centres): on wide screens right of the Cozy Spice; on a phone she paces in the gap between the two
+      // bottles (beside them she would stand half hidden);
       // either way clear of the heap on her row
-      const walk = tall ? [W * .38, px + H * .17] : [px - H * .2, px + H * .14];
+      const gap = W * .14 - HT * .448 * 146 / 605 / 2 - fm.w * .55;   // half the room between the bottles, for her centre
+      const walk = tall ? [W * .5 - gap, W * .5 + gap] : [px - H * .2, px + H * .14];
       walk[1] = Math.min(walk[1], hB - H * .08 - fm.w * .7);
       // the man rests at the near end of his stretch (to) and sets off from there; the sun, for the birds
       window.__ready = { W, H: HT, base: H * .835, clouds, farmer: { svg: fm.svg, w: fm.w, h: fm.h, y: py - fm.h, from: walk[0] - fm.w / 2, to: walk[1] - fm.w / 2 },

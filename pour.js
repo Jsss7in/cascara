@@ -206,7 +206,7 @@
     const lastL = letters[letters.length - 1], lastFoot = lastL.feet[lastL.feet.length - 1];
     flask.style.transform = '';
     const f0 = flask.getBoundingClientRect();
-    const dx = Math.max(4 - f0.left, lastFoot[0] + ox - (f0.left + f0.width * NECK_X));
+    const dx = Math.max(16 - f0.left, lastFoot[0] + ox - (f0.left + f0.width * NECK_X));   // 16px: the page's side margin
     flask.style.transform = `translateX(${f1(dx)}px)`;
     const fRect = flask.getBoundingClientRect();
     const mouth = [fRect.left - ox + fRect.width * NECK_X, fRect.top - oy];
@@ -313,6 +313,9 @@
       if (dp > 0) d += shape(dr, dr.len * Math.min(1, dp * dp * .6 + dp * .4), dp < 1 ? STREAM * .75 : 0);
     });
     flow.setAttribute('d', d);
+    // the menu pill steps aside while the flask passes under it at the foot of the screen
+    const fr = flask.getBoundingClientRect(), low = fr.bottom > document.documentElement.clientHeight - 96 && fr.top < document.documentElement.clientHeight;
+    if (low !== G.low) { G.low = low; document.documentElement.classList.toggle('is-pouring', low); }
   };
 
   const ask = () => { if (!pending) pending = requestAnimationFrame(draw); };
@@ -326,6 +329,7 @@
   new IntersectionObserver(([e]) => {
     if (e.isIntersecting === near) return;
     near = e.isIntersecting;
-    if (near) { window.addEventListener('scroll', ask, { passive: true }); ask(); } else window.removeEventListener('scroll', ask);
+    if (near) { window.addEventListener('scroll', ask, { passive: true }); ask(); }
+    else { window.removeEventListener('scroll', ask); document.documentElement.classList.remove('is-pouring'); if (G) G.low = false; }
   }, { rootMargin: '200px 0px' }).observe(pour);
 })();

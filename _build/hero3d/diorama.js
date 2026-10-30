@@ -403,10 +403,10 @@ export function createDiorama(root) {
       // the farmer's walk: along this terrace, between the farm's beds and the far side of the scene
       // she walks the nearer terrace, where she can be seen (behind the shrubs that sway in front of her)
       const fs = r * (narrow ? .5 : .42), fm = farmer(fs);
-      const from = narrow ? W * .08 : Math.max(copy ? copy.right + 60 : W * .45, fx0 - s * 1.5), to = narrow ? W * .7 : Math.min(W * .95, cx + r * 1.4);
+      const from = narrow ? W * .08 : Math.max(copy ? copy.right + 60 : W * .45, fx0 - s * 1.5), to = narrow ? W * .44 : Math.min(W * .95, cx + r * 1.4);
       walker = { el: piece(byId.near, 'dio__farmer', 0, 0, fm.w, fm.h, `<g class="dio__farmer-body">${fm.svg}</g>`), crest: R6[4].crest, dy: ry * .12, from, to, w: fm.w, h: fm.h, face: 0 };
       // and a second worker with his sack on the terrace behind her, by the farm, at his own pace (drawn facing left)
-      const wk = worker(fs * .78), wFrom = narrow ? W * .46 : Math.max(copy ? copy.right + r * 1.2 : W * .5, fx0 + s * 1.1), wTo = narrow ? W * .9 : Math.min(W * .92, cx - r * .25);
+      const wk = worker(fs * .78), wFrom = narrow ? W * .5 : Math.max(copy ? copy.right + r * 1.2 : W * .5, fx0 + s * 1.1), wTo = narrow ? W * .68 : Math.min(W * .92, cx - r * .25);
       if (wTo - wFrom > r * .8) walker2 = { el: piece(byId.mid, 'dio__farmer dio__farmer--man', 0, 0, wk.w, wk.h, `<g class="dio__farmer-body">${wk.svg}</g>`), crest: c3, dy: ry * .08, from: wFrom, to: wTo, w: wk.w, h: wk.h, face: 0, left: true, pace: 7, shift: .37 };
       for (const [hx, hw] of narrow ? [[fx0 + s * 5.2, s * 2.2], [fx0 - s * 2.4, s * 1.6]] : [[fx0 - s * 2.6, s * 2.1], [fx0 + s * 5.4, s * 2.6]]) {
         const hy = crestAt(c3, hx) + ry * .12;
@@ -443,13 +443,15 @@ export function createDiorama(root) {
           svgs.near += `<defs>${shadow('dheap2', 4, 4, .32)}</defs><path filter="url(#dheap2)" fill="#7A2418" d="${hp.mound}"/>${hp.cherries}`;
         }
       }
-      // the walkers keep to the longest stretch of their way that passes no heap on their terrace (they would seem to
-      // wade through it), with room for their own width
+      // the walkers keep to the longest stretch of their way that passes no heap reaching into their figure (they would
+      // seem to wade through it), with room for their own width
       for (const w of [walker, walker2]) {
         if (!w) continue;
         let segs = [[w.from, w.to]];
-        for (const [hx, , hw, crest] of heaps) {
-          if (crest !== w.crest) continue;
+        for (const [hx, hy, hw] of heaps) {
+          // the walker's feet and head where the heap lies; the heap's mound from its foot up
+          const feet = crestAt(w.crest, hx) + w.dy, head = feet - w.h;
+          if (hy < head || hy - hw * .45 > feet) continue;
           const a = hx - hw / 2 - w.w * .7, b = hx + hw / 2 + w.w * .7;
           segs = segs.flatMap(([p, q]) => (b <= p || a >= q ? [[p, q]] : [[p, a], [b, q]].filter(([u, v]) => v - u > 0)));
         }

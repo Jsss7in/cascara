@@ -357,7 +357,7 @@ def shop_flocks(o):
         # other, and turns towards the farm only once it is over the picture
         flocks = [
             ((W * .972, -H * .47), (fx + W * .01, ftop - H * .21), W * .06, .3, 30, 2.5, ((1.4, 3), [(.45, .86, 1), (.57, .5, .9), (.43, .14, .85)])),
-            ((W * .93, H * .9), (sx + R * .3, sy - R * .15), W * .068, .26, 34, 17, ((1.8, 2), [(.5, .2, 1), (.3, .55, .92), (.7, .78, .86)])),
+            ((W * .93, H * .5), (sx + R * .3, sy - R * .15), W * .068, .26, 34, 17, ((1.8, 2), [(.5, .2, 1), (.3, .55, .92), (.7, .78, .86)])),
         ]
     pc = lambda v, of: f'{100 * v / of:.3f}%'
     out = []
@@ -1041,6 +1041,7 @@ def ps_main():
             <p class="cart__done-note" data-done-note hidden></p>
             <a class="button button--solid" href="index.html#shop">Zum Shop</a>
           </div>
+        </div>
 '''
     return f'''  <main id="main" class="ps">
     <!-- the way in: what a certificate is, beside the certificate itself -->

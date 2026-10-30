@@ -288,7 +288,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* while the fruit lies open across the screen, its sentence stands above it, in the middle (on phones beneath it) */
 .hero__beat--apart { left: 50%; top: calc(var(--nav-h) + 26px); width: min(80vw, 1040px); text-align: center; transform: translate3d(-50%, calc((1 - var(--in, 1)) * 18px), 0); }
 .hero__end-brand { font: 600 clamp(3.25rem, 5.6vw, 5.5rem)/.92 var(--brand); letter-spacing: -.012em; color: var(--terra); }
-.hero__end-text { margin-top: 24px; max-width: 25em; color: var(--ink-2); line-height: 1.6; }
+.hero__end-text { margin-top: 24px; max-width: 25em; color: var(--ink-2); line-height: 1.6; text-wrap: balance; }
 
 /* the names of the layers on the opened fruit: a dot on the layer, a hairline, the name */
 .hero__parts { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
@@ -317,6 +317,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .cue__track { stroke: rgba(58, 33, 22, .2); stroke-width: 1.5; stroke-linecap: round; }
 .cue__drop { fill: var(--terra); transform-box: fill-box; transform-origin: 50% 50%; animation: cue-drop 2.2s var(--ease-io) infinite; }
 .cue__label { position: absolute; left: 17%; width: 68%; top: 0; height: 100%; display: grid; place-items: center; text-align: center; font: 500 .6875rem/1.1 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
+.hero__scroll:lang(fr) .cue__label { letter-spacing: .12em; font-size: .625rem; }
 @keyframes cue-bob { from { transform: translateY(-1.5px); } to { transform: translateY(1.5px); } }
 @keyframes cue-wave { to { transform: translateX(40px); } }
 @keyframes cue-drop { 0% { transform: translateY(-1px) scale(.4); opacity: 0; } 25% { transform: translateY(0) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(14px) scale(.85); opacity: 0; } }
@@ -705,6 +706,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .product__top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; }
 .product__name { font: 600 clamp(1.75rem, 2.6vw, 2.6rem)/1 var(--brand); color: var(--terra); }
 .product__price { font: 600 clamp(1.15rem, 1.6vw, 1.5rem)/1 var(--brand); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.product > * { min-width: 0; }
 .product__tag { font: 500 .6875rem/1.3 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--terra-ink); }
 .product__text { color: var(--ink-2); font-size: 1rem; line-height: 1.5; max-width: 32em; }
 .product__sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 6px; align-self: end; }
@@ -768,7 +770,8 @@ html.has-menu, html.has-menu body { overflow: hidden; }
   .product__text { display: none; }
   .product__sizes { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .product__size { min-height: 48px; padding: 8px 12px 7px; border-radius: 14px; }
-  .product__add { padding-left: 12px; padding-right: 12px; min-height: 46px; font-size: .875rem; }
+  .product__add { padding-left: 8px; padding-right: 8px; min-height: 46px; font-size: .875rem; white-space: normal; text-wrap: balance; line-height: 1.15; }
+  .product__size { min-width: 0; }
   .cart { width: 100vw; margin: 0; }
   .cart[open] { animation-name: cart-up; }
   @keyframes cart-up { from { transform: translate3d(0, 36px, 0); opacity: 0; } }
@@ -856,7 +859,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .menu-btn {
   position: fixed; z-index: 60; left: max(18px, env(safe-area-inset-left)); bottom: calc(18px + env(safe-area-inset-bottom));
   display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 18px 0 50px; border: 1px solid rgba(58, 33, 22, .12); border-radius: 999px;
-  background: rgba(255, 250, 242, .96); color: var(--ink); font: 400 .9375rem/1 var(--sans); letter-spacing: .03em; cursor: pointer;
+  background: #FFFAF2; color: var(--ink); font: 400 .9375rem/1 var(--sans); letter-spacing: .03em; cursor: pointer;
   box-shadow: 0 14px 30px -16px rgba(43, 24, 16, .5), inset 0 1px 0 #fff; animation: pill-in .35s var(--ease);
   -webkit-tap-highlight-color: transparent;
 }
@@ -870,6 +873,8 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 @keyframes pill-in { from { opacity: 0; transform: translate3d(0, 10px, 0); } }
 /* while something is being typed, the pill steps aside (it would cover the field or the button beneath it) */
 html.is-typing .menu-btn { opacity: 0; transform: translate3d(0, 14px, 0); pointer-events: none; transition: opacity .2s, transform .2s; }
+html.is-pouring .menu-btn { opacity: 0; transform: translate3d(0, 14px, 0); pointer-events: none; }
+.menu-btn { transition: opacity .25s, transform .25s; }
 
 /* the basket: a sheet from the right (from below on phones) */
 html.has-cart, html.has-cart body { overflow: hidden; }
@@ -1080,7 +1085,7 @@ html:has(.is-legal) { background: var(--paper); }
 
 @media (max-width: 560px) {
   .facts div, .team__facts div { grid-template-columns: 1fr; gap: 2px; }
-  .footer__base { flex-direction: column; }
+  .footer__base { flex-direction: column; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
 }
 
 /* ---------- reduced motion: no pinning, no travelling ---------- */
@@ -1132,7 +1137,7 @@ html:has(.is-legal) { background: var(--paper); }
      instead of ending on a cut line */
   .hero__stage::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 57px; z-index: 3; pointer-events: none;
-    background: linear-gradient(rgba(230, 211, 183, 0), rgba(230, 211, 183, .7) 50%, rgb(230, 211, 183) 88%);
+    background: linear-gradient(rgba(122, 78, 52, 0), rgba(150, 101, 70, .5) 30%, rgba(206, 168, 132, .86) 60%, rgb(230, 211, 183) 88%);
   }
   .hero__stage::before {
     content: ""; position: absolute; left: 0; right: 0; top: 0; height: 44px; z-index: 3; pointer-events: none;
