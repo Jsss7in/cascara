@@ -389,6 +389,13 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .dio__wing { transform-box: fill-box; transform-origin: 50% 70%; animation: dio-flap var(--flap, .6s) ease-in-out infinite alternate; }
 @keyframes dio-flap { to { transform: scaleY(.25); } }
 .dio__halo { animation: dio-breathe 7s ease-in-out infinite alternate; }
+.dio__farmer { left: 0; top: 0; will-change: transform; }
+.dio__farmer svg { transform: scaleX(var(--face, 1)); }
+.dio__farmer-body { animation: dio-bob .55s ease-in-out infinite alternate; }
+.dio__leg, .dio__arm { transform-box: fill-box; transform-origin: 50% 0; animation: dio-step 1.1s ease-in-out infinite alternate; }
+.dio__leg--b, .dio__arm--f { animation-delay: -1.1s; }
+@keyframes dio-step { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
+@keyframes dio-bob { from { transform: translateY(0); } to { transform: translateY(-1.2px); } }
 @keyframes dio-breathe { from { transform: scale(.97); opacity: .8; } to { transform: scale(1.03); opacity: 1; } }
 .dio__sway { transform-origin: 50% 100%; animation: dio-sway var(--dur, 5s) ease-in-out var(--delay, 0s) infinite alternate; }
 @keyframes dio-sway { from { transform: rotate(calc(var(--deg, 2deg) * -1)); } to { transform: rotate(var(--deg, 2deg)); } }
@@ -402,7 +409,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .hero.is-flat .hero__swirl { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .dio__rise { transition: none; }
-  .dio__cloud, .dio__mist, .dio__wing, .dio__halo, .dio__sway { animation: none; }
+  .dio__cloud, .dio__mist, .dio__wing, .dio__halo, .dio__sway, .dio__farmer-body, .dio__leg, .dio__arm { animation: none; }
   .dio__bird { display: none; }
 }
 /* the cherry and its branch are one picture: they come in together, softly, once the branch has loaded (page.js) */

@@ -160,6 +160,25 @@ function tuft(s, rnd) {
   }
   return { w, h, svg: `<path fill="${C.leaf[1]}" d="${d}"/>` };
 }
+// a coffee farmer, cut from paper: straw hat, terracotta shirt, a basket on the back; arms and legs are their own
+// shapes so they can swing as she walks (styles.css), the whole figure is moved along the terrace (update)
+function farmer(s) {
+  const w = s * 1.1, h = s * 2.05, cx = w / 2;
+  const leg = (dx, cls) => `<path class="${cls}" fill="#4A3424" d="M${f1(cx + dx - s * .07)} ${f1(h * .6)}h${f1(s * .14)}l${f1(s * .02)} ${f1(h * .38)}h${f1(-s * .18)}z"/>`;
+  const arm = (dx, cls) => `<path class="${cls}" fill="#9C4B23" d="M${f1(cx + dx - s * .05)} ${f1(h * .3)}h${f1(s * .1)}l${f1(s * .02)} ${f1(h * .27)}h${f1(-s * .13)}z"/>`;
+  return {
+    w, h,
+    svg: leg(-s * .09, 'dio__leg dio__leg--b') + arm(s * .16, 'dio__arm dio__arm--b')
+      + `<path fill="#A8743E" d="M${f1(cx - s * .52)} ${f1(h * .27)}h${f1(s * .34)}l${f1(-s * .04)} ${f1(h * .3)}h${f1(-s * .26)}z"/>`
+      + `<path fill="none" stroke="#7A5128" stroke-width="${f1(s * .03)}" d="M${f1(cx - s * .5)} ${f1(h * .36)}h${f1(s * .3)}M${f1(cx - s * .48)} ${f1(h * .45)}h${f1(s * .28)}"/>`
+      + `<path fill="#B4592A" d="M${f1(cx - s * .2)} ${f1(h * .28)}h${f1(s * .4)}l${f1(s * .03)} ${f1(h * .34)}h${f1(-s * .46)}z"/>`
+      + leg(s * .09, 'dio__leg dio__leg--f')
+      + `<circle fill="#8A5A3C" cx="${f1(cx + s * .02)}" cy="${f1(h * .2)}" r="${f1(s * .14)}"/>`
+      + `<ellipse fill="#D9B27A" cx="${f1(cx + s * .02)}" cy="${f1(h * .13)}" rx="${f1(s * .34)}" ry="${f1(s * .07)}"/>`
+      + `<path fill="#C99E62" d="M${f1(cx - s * .12)} ${f1(h * .13)}q${f1(s * .14)} ${f1(-s * .26)} ${f1(s * .28)} 0z"/>`
+      + arm(-s * .16, 'dio__arm dio__arm--f'),
+  };
+}
 // a paper cloud at dusk: a long rounded base with puffs, lit warm from below
 function cloud(x, y, w) {
   const h = w * .16, rr = h / 2;
@@ -204,7 +223,7 @@ export function createDiorama(root, swirlRoot = null) {
   });
   const byId = Object.fromEntries(layers.map((L) => [L.id, L]));
   let key = '', px = 0, py = 0, tpx = 0, tpy = 0;
-  let heaps = [], swirl = [], centre = null, swirlShown = false;
+  let heaps = [], swirl = [], centre = null, swirlShown = false, walker = null;
 
   // a small drawing that moves on its own: an SVG in its own element (CSS animates the element, never the drawing)
   const piece = (layer, cls, x, y, w, h, inner, style = '', behind = false) => {
@@ -222,7 +241,7 @@ export function createDiorama(root, swirlRoot = null) {
     if (k === key || !W || !H || !box.rx) return;
     key = k;
     for (const L of layers) { L.fx.innerHTML = ''; L.back.innerHTML = ''; }
-    heaps = [];
+    heaps = []; walker = null;
     // the fruit (fr, fry) is smaller at rest than in the story; the scene is drawn at the story's size of it (r, ry)
     const { x: cx, y: cy } = box, fr = box.rx, fry = box.ry || box.rx * 1.27, r = fr / FRUIT_AT_REST, ry = fry / FRUIT_AT_REST;
     const rnd = seeded(1712);
@@ -259,7 +278,7 @@ export function createDiorama(root, swirlRoot = null) {
         const hh = w * .5, id = `cg${i}`;
         piece(byId.sky, 'dio__cloud', x - w * .6, y - hh, w * 1.2, hh + 12,
           `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset=".35" stop-color="${C.cloudTop}"/><stop offset="1" stop-color="${C.cloudLow}"/></linearGradient>${shadow(`${id}s`, 3, 4, .14)}</defs>`
-          + `<path filter="url(#${id}s)" fill="url(#${id})" d="${cloud(w * .6, hh, w)}"/>`, `--drift:${f1((i % 2 ? -1 : 1) * r * .5)}px;--dur:${34 + i * 9}s;--delay:${-i * 7}s`);
+          + `<path filter="url(#${id}s)" fill="url(#${id})" d="${cloud(w * .6, hh, w)}"/>`, `--drift:${f1((i % 2 ? -1 : 1) * r * 1.5)}px;--dur:${22 + i * 6}s;--delay:${-i * 7}s`);
       });
       // birds crossing the evening sky, in a loose line
       const birds = narrow ? 3 : 5, top = narrow ? Math.max(96, cy - ry * 1.9) : Math.max(160, cy - ry * 1.9);
@@ -326,9 +345,12 @@ export function createDiorama(root, swirlRoot = null) {
       // the farm, right of the words (left on phones), and the glow of its window at dusk
       const fx0 = narrow ? W * .2 : Math.max(copy ? copy.right + r * 1.4 : W * .6, cx - r * 2.6), s = r * (narrow ? .3 : .28);
       const f = farm(fx0, crestAt(c3, fx0) + ry * .1, s);
-      inner += `<path fill="${C.wall}" d="${f.wall}"/><path fill="${C.roof}" d="${f.roof}"/><path fill="${C.door}" d="${f.door}"/>`
-        + `<path fill="${C.tree[1]}" d="${f.beds}"/><path fill="${C.berry}" d="${f.cherries}"/>`
-        + `<circle fill="url(#wglow)" cx="${f1(f.glow[0])}" cy="${f1(f.glow[1])}" r="${f1(f.glow[2])}"/><path fill="${C.window}" d="${f.win}"/>`;
+      inner += `<path fill="${C.tree[1]}" d="${f.beds}"/><path fill="${C.berry}" d="${f.cherries}"/>`;
+      // the farmer's walk: along this terrace, between the farm's beds and the far side of the scene
+      // she walks the nearer terrace, where she can be seen (behind the shrubs that sway in front of her)
+      const fs = r * (narrow ? .5 : .42), fm = farmer(fs);
+      const from = narrow ? W * .08 : Math.max(copy ? copy.right + 60 : W * .45, fx0 - s * 1.5), to = narrow ? W * .7 : Math.min(W * .95, cx + r * 1.4);
+      walker = { el: piece(byId.near, 'dio__farmer', 0, 0, fm.w, fm.h, `<g class="dio__farmer-body">${fm.svg}</g>`), crest: R6[4].crest, dy: ry * .12, from, to, w: fm.w, h: fm.h };
       for (const [hx, hw] of narrow ? [[fx0 + s * 5.2, s * 2.2], [fx0 - s * 2.4, s * 1.6]] : [[fx0 - s * 2.6, s * 2.1], [fx0 + s * 5.4, s * 2.6]]) {
         const hy = crestAt(c3, hx) + ry * .12;
         if (!free(hx - hw / 2, hy - hw * .4)) continue;
@@ -509,6 +531,7 @@ export function createDiorama(root, swirlRoot = null) {
     root.style.opacity = opacity.toFixed(3);
     root.style.visibility = opacity > 0 ? 'visible' : 'hidden';
     whirl(e);
+    walk(t);
     root.classList.toggle('is-gone', opacity <= 0);    // nothing moves where nothing is seen
   }
   // each cherry: lifts off its heap, swings out onto a tilted ring round the fruit (in front of it on the near half,
@@ -536,6 +559,16 @@ export function createDiorama(root, swirlRoot = null) {
       const z = near ? 3 : 1;
       if (z !== c.z) { c.z = z; c.el.style.zIndex = z; }
     }
+  }
+  // the farmer: there and back along the terrace in about forty seconds each way, facing the way she goes
+  let lastFace = 0;
+  function walk(t) {
+    if (!walker) return;
+    const span = walker.to - walker.from, period = Math.max(24, span / 9) * 2;
+    const ph = (t % period) / period, u = ph < .5 ? ph * 2 : 2 - ph * 2, face = ph < .5 ? 1 : -1;
+    const x = walker.from + span * u, y = crestAt(walker.crest, x) + walker.dy;
+    walker.el.style.transform = `translate3d(${(x - walker.w / 2).toFixed(1)}px, ${(y - walker.h).toFixed(1)}px, 0)`;
+    if (face !== lastFace) { lastFace = face; walker.el.style.setProperty('--face', face); }
   }
   const lean = (x, y) => { tpx = x; tpy = y; };
   return { layout, update, lean, layers, ready: () => key !== '' };
