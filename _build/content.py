@@ -221,8 +221,6 @@ SOCIALS = [
   '<rect x="2.8" y="2.8" width="18.4" height="18.4" rx="5.4"/><circle cx="12" cy="12" r="4.4"/><circle class="socials__dot" cx="17.4" cy="6.6" r="1.05"/>'),
  ('TikTok', f'https://www.tiktok.com/@{HANDLE}',
   '<path d="M14.4 2.8v12.6a4.4 4.4 0 1 1-4.4-4.4"/><path d="M14.4 2.8c.6 3.2 2.9 5.4 6.2 5.6"/>'),
- ('X', 'https://x.com/cascarup_ch',   # on X the name is cascarup_ch
-  '<path d="M4.6 4.5h4l10.8 15h-4z"/><path d="M19 4.5l-5.9 6.5M10.9 13.4 5 19.5"/>'),
 ]
 # Not live: on 9.10.2026 there was no public Facebook page @cascarup (facebook.com showed only the login wall).
 # Once it exists, move it back into SOCIALS above and add Facebook to the «Soziale Medien» paragraph in legal.py.
@@ -269,7 +267,7 @@ SALES_OPEN = False
 # The participation certificates are on sale before the shop: they are paid with TWINT (our QR code, the amount and a
 # code of the buyer's own in the payment's message, so we know whose payment it is). The order reaches us by e-mail
 # through FormSubmit (NOTIFY_ENDPOINT), which also sends the buyer a confirmation.
-PS_OPEN = True
+PS_OPEN = False
 # The order book (_build/bestellbuch/Code.gs, a Google Sheet): its web-app address. Once set, every order is filed
 # there first; FormSubmit only if that fails, and the ready e-mail only if both fail.
 PS_SHEET = ''
@@ -900,8 +898,8 @@ def ps_main():
 '''
     # until the certificates can be bought online: a name and an e-mail, so we can write once they can
     notify = f'''          <p class="eyebrow">Dein Schein</p>
-          <h2 class="display" id="ps-form-title">Bald <em>erhältlich.</em></h2>
-          <p class="ps-soon">Online zeichnen kannst du deinen Schein bald. Lass uns deinen Namen und deine E-Mail-Adresse da, dann schreiben wir dir, sobald es losgeht.</p>
+          <h2 class="display" id="ps-form-title">Bald wieder <em>erhältlich.</em></h2>
+          <p class="ps-soon">Online zeichnen kannst du deinen Schein bald wieder. Lass uns deinen Namen und deine E-Mail-Adresse da, dann schreiben wir dir, sobald es wieder losgeht.</p>
           <form class="order ps-order" data-notify data-endpoint="{NOTIFY_ENDPOINT}" novalidate>
             <fieldset class="order__group">
               <legend>Deine Angaben</legend>
@@ -936,7 +934,7 @@ def ps_main():
 {why}
         </ul>
         <div class="hero__actions" data-reveal style="--d:4">
-          <a class="button button--solid" href="#zeichnen">{'Schein sichern' if PS_OPEN else 'Bald erhältlich'}</a>
+          <a class="button button--solid" href="#zeichnen">{'Schein sichern' if PS_OPEN else 'Bald wieder erhältlich'}</a>
           <a class="hero__more" href="#so-gehts">So funktioniert es</a>
         </div>
         {'<p class="ps-stock" data-reveal style="--d:5">Solange der Vorrat reicht.</p>' if PS_OPEN else ''}
