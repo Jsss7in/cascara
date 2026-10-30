@@ -219,7 +219,9 @@ function grainOn(ctx, w, h) {
 // (three device pixels to the point) every layer twice over: at once the paper's grain was blown up into dots and the
 // shapes went soft; the grain is drawn in the canvas's own pixels, so it stays fine only if those are small.
 const SHARP = { sky: 1, far: 1, mid: 1.5, near: 1.5, soil: 1.5, branch: 2, close: 1 };
-const sharp = (id, dpr) => Math.min(dpr, dpr > 2 ? 2 : SHARP[id] || 1);
+// The branch in front, beside the real cherry, always at the screen's full sharpness (up to three device pixels to
+// the point) and without grain: it must be as crisp as the photograph it holds.
+const sharp = (id, dpr) => (id === 'branch' ? Math.min(dpr, 3) : Math.min(dpr, dpr > 2 ? 2 : SHARP[id] || 1));
 
 // Every layer is drawn once as a picture (the SVG painted onto a canvas, while the loading screen still shows), so
 // what moves afterwards are finished pictures: nothing is drawn again while the page runs, only moved and faded.
@@ -550,7 +552,9 @@ export function createDiorama(root) {
     await Promise.all(layers.map(async (L) => {
       const inner = svgs[L.id] || '', c = L.paint, k = sharp(L.id, dpr);
       if (!inner) { c.width = c.height = 0; return; }
-      const doc = `<svg xmlns="${NS}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${inner}</svg>`;
+      // the drawing as large as the canvas's pixels: Safari may rasterise an SVG picture at its own size and only
+      // then scale it, which left the branch soft
+      const doc = `<svg xmlns="${NS}" width="${Math.round(W * k)}" height="${Math.round(H * k)}" viewBox="0 0 ${W} ${H}">${inner}</svg>`;
       const url = URL.createObjectURL(new Blob([doc], { type: 'image/svg+xml' }));
       try {
         const img = new Image();
@@ -566,7 +570,7 @@ export function createDiorama(root) {
         if (L.id === 'branch') c.style.transformOrigin = `${W - b.x}px ${H * .45 - b.y}px`;
         const ctx = c.getContext('2d');
         ctx.drawImage(img, -b.x * k, -b.y * k, W * k, H * k);
-        grainOn(ctx, c.width, c.height);
+        if (L.id !== 'branch') grainOn(ctx, c.width, c.height);
         c.style.display = ''; L.svg.style.display = 'none';
       } catch {
         // this browser cannot paint the drawing into a canvas: it goes in as a drawing
@@ -581,6 +585,7 @@ export function createDiorama(root) {
 
   // ---- every frame: the lean with the pointer, a breath of wind, and the flight on the first scroll ----------------
   function update(go, opacity, t, W, H, narrow = false, away = opacity <= 0) {
+    const dpr = window.devicePixelRatio || 1;
     px += (tpx - px) * .06; py += (tpy - py) * .06;
     if (Math.abs(tpx - px) < .001) px = tpx;
     if (Math.abs(tpy - py) < .001) py = tpy;
@@ -588,7 +593,8 @@ export function createDiorama(root) {
     for (const L of layers) {
       const f = narrow ? L.flyNarrow : L.fly;
       const x = -px * L.depth * 26 + f[0] * e * W, y = -py * L.depth * 16 + f[1] * e * H, s = 1 + f[2] * e;
-      const tf = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
+      // on whole device pixels: a picture moved by a fraction of a pixel is resampled, and goes soft
+      const tf = `translate3d(${(Math.round(x * dpr) / dpr).toFixed(2)}px, ${(Math.round(y * dpr) / dpr).toFixed(2)}px, 0) scale(${s.toFixed(4)})`;
       if (tf !== L.tf) { L.tf = tf; L.wrap.style.transform = tf; }
     }
     if (opacity !== lastOpacity) {
