@@ -556,8 +556,9 @@ V['STANDS'] = stands()
 V['SHOP'] = shop()
 V['CART'] = cart()
 # ---------------------------------------------------------------------------
-# Cascara in four facts, poured: a pot of our syrup with cinnamon and star anise tips as it comes up the page, its
-# syrup runs down the left and each fact comes in as the syrup reaches it. The pot is 36 frames rendered from the
+# Cascara in four facts, poured: a pot of our syrup with cinnamon and star anise tips as it comes up the page; its
+# syrup runs over the rim into the first word and fills it, then drips from word to word, and each fact comes in as
+# its word fills. The pot is 36 frames rendered from the
 # opening's own 3D pot (_build/pour/render.mjs → assets/pour/pot.webp, 6 to a row); meta.json: where its lip is.
 CASCARA_FACTS = [
     ('Was', 'Haut und Fruchtfleisch der Kaffeekirsche, getrocknet'),
@@ -571,7 +572,8 @@ def pour():
     import json, pathlib
     m = json.loads((pathlib.Path(__file__).parent / 'pour' / 'meta.json').read_text())
     lips = ' '.join(f'{x:.4f},{y:.4f}' for x, y, _ in m['lips'])
-    rows = '\n'.join(f'          <div class="pour__fact"><span class="pour__bead" aria-hidden="true"></span><dt>{a}</dt><dd>{b}</dd></div>'
+    # each label twice: the word as a faint mould, and over it the same word in syrup, which fills as the syrup arrives
+    rows = '\n'.join(f'          <div class="pour__fact"><dt><span class="pour__word">{a}</span><span class="pour__word pour__fill" aria-hidden="true">{a}</span></dt><dd>{b}</dd></div>'
                      for a, b in CASCARA_FACTS)
     return (f'<div class="pour" data-pour data-frames="{m["n"]}" data-cols="{m["cols"]}" data-pour-at="{m["pour"]}" data-lips="{lips}" '
             f'style="--pot-w:{m["w"]}px;--pot-h:{m["h"]}px">\n'

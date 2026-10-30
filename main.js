@@ -157,8 +157,9 @@
   else window.addEventListener('load', () => setTimeout(warmPictures, 1000), { once: true });
 
   // Cascara, poured (the section on dried cascara): as the pot comes up the page it tips – one frame of the sheet
-  // at a time, moved on the GPU – and once it pours, its syrup runs down the left from its lip; each fact comes in as
-  // the syrup reaches it. Everything follows the scroll, both ways, and is worked out only while it is on screen.
+  // at a time, moved on the GPU – and once it pours, its syrup runs over the rim and falls into the first word, which
+  // fills; from the word's first letter it drips on into the next, and so down to the last. Each word's line comes in
+  // as the word fills. Everything follows the scroll, both ways, and is worked out only while it is on screen.
   const pour = document.querySelector('[data-pour]');
   if (pour) {
     const pot = pour.querySelector('.pour__pot'), sheet = pot.querySelector('img'), svg = pour.querySelector('.pour__flow');
@@ -167,24 +168,88 @@
     const N = +pour.dataset.frames, COLS = +pour.dataset.cols, FROM = +pour.dataset.pourAt;
     const lips = pour.dataset.lips.split(' ').map((p) => p.split(',').map(Number));
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const clamp = (v) => Math.min(1, Math.max(0, v));
-    let G = null, frame = -1, shownLen = -1, lit = -1, pending = 0;
+    const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+    const WORD = 70;                     // how much scroll a word takes to fill before the syrup drips on
+    let G = null, frame = -1, shownFront = -1, full = -1, pending = 0;
+    // where a word's first letter is: the syrup lands in it and drips on from it
+    const letter = (f) => {
+      const node = f.querySelector('.pour__word').firstChild, range = document.createRange();
+      range.setStart(node, 0); range.setEnd(node, 1);
+      const r = range.getBoundingClientRect(), fs = parseFloat(getComputedStyle(f.querySelector('dt')).fontSize);
+      return { x: r.left + r.width * .5, top: r.top + fs * .2, bottom: r.bottom - fs * .2 };
+    };
+    // a line of syrup, sampled every few pixels: its centre (x, y), its width, and how far along it is
+    const run = (pts, widths) => {
+      const out = []; let len = 0;
+      for (let i = 0; i < pts.length; i++) {
+        if (i) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+        out.push({ x: pts[i][0], y: pts[i][1], w: widths(i / (pts.length - 1)), at: len });
+      }
+      return { pts: out, len };
+    };
+    const bez = (p0, p1, p2, p3, t) => { const u = 1 - t; return [u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]]; };
+    const bump = (t, at, w) => Math.exp(-((t - at) * (t - at)) / (2 * w * w));
     const measure = () => {
-      const r = pour.getBoundingClientRect(), rail = parseFloat(getComputedStyle(pour).getPropertyValue('--rail')) || 22;
-      const beads = facts.map((f) => { const b = f.firstElementChild; return f.offsetTop + b.offsetTop + b.offsetHeight / 2; });
-      G = { top: r.top + window.scrollY, w: pot.offsetWidth, h: pot.offsetHeight, x: pot.offsetLeft, y: pot.offsetTop, rail, beads, end: beads[beads.length - 1] };
+      const r = pour.getBoundingClientRect(), ox = r.left, oy = r.top;
+      const L = facts.map((f) => { const l = letter(f); return { x: l.x - ox, top: l.top - oy, bottom: l.bottom - oy }; });
+      G = { top: r.top + window.scrollY, w: pot.offsetWidth, h: pot.offsetHeight, x: pot.offsetLeft, y: pot.offsetTop, L, segs: [] };
       svg.setAttribute('viewBox', `0 0 ${Math.round(r.width)} ${Math.round(pour.offsetHeight)}`);
-      frame = -1; shownLen = -1;
+      // the drips between the words: a thin thread, a little uneven, with beads of syrup along it and a neck where it
+      // leaves the letter; each is its own, so none looks like the other
+      let at = 0;
+      G.segs.push({ kind: 'stream', start: 0, len: 0 });
+      L.forEach((l, i) => {
+        G.segs.push({ kind: 'word', i, start: 0, len: WORD });
+        if (i < L.length - 1) {
+          const n = L[i + 1], k = i + 1, n0 = 8 + Math.round((n.top - l.bottom) / 3), pts = [];
+          for (let j = 0; j <= n0; j++) {
+            const t = j / n0;
+            pts.push([l.x + (n.x - l.x) * t * t * (3 - 2 * t) + Math.sin(t * 9 + k) * 1.2 * Math.sin(t * Math.PI), l.bottom - 2 + (n.top + 3 - l.bottom) * t]);
+          }
+          const seg = run(pts, (t) => 2 + 4 * bump(t, 0, .06) + .45 * Math.sin(t * 23 + k));
+          // round beads of syrup hanging on the thread, a little longer than wide, each its own size
+          seg.beads = [.24 + .07 * Math.sin(k * 2.1), .52 + .08 * Math.cos(k * 1.3), .8 + .05 * Math.sin(k * 3.7)]
+            .map((t, b) => ({ ...seg.pts[Math.round(t * (seg.pts.length - 1))], r: 3.1 + ((k * 7 + b * 5) % 4) * .45 }));
+          G.segs.push({ kind: 'drip', i, start: 0, ...seg });
+        }
+      });
+      frame = -1; shownFront = NaN; full = -1;
     };
-    // the syrup leaves the lip, bends out a little and falls straight down the rail to the last fact's drop
-    let curve = 0, lipY = 0;
-    const shape = (f) => {
-      const [lx0, ly0] = lips[f], lx = G.x + lx0 * G.w, ly = G.y + ly0 * G.h, R = G.rail;
-      lipY = ly; curve = Math.hypot(lx - R, 52) * 1.04;
-      const d = `M${lx.toFixed(1)} ${ly.toFixed(1)}C${(lx - 2).toFixed(1)} ${(ly + 14).toFixed(1)} ${R} ${(ly + 28).toFixed(1)} ${R} ${(ly + 52).toFixed(1)}V${G.end.toFixed(1)}`;
-      syrup.setAttribute('d', d);
-      shine.setAttribute('d', d); shine.setAttribute('transform', 'translate(-2.2 0)');
+    // the stream from the lip of the current frame: over the rim, out a little, falling and thinning into the first word
+    const stream = (f) => {
+      const [lx0, ly0] = lips[f], lx = G.x + lx0 * G.w, ly = G.y + ly0 * G.h, T = G.L[0];
+      const p0 = [lx + 7, ly - 4], p1 = [lx - 6, ly - 4.5], p2 = [lx - 10, ly + 14], p3 = [T.x, T.top + 4];
+      const c0 = [lx - 9, ly + 6], c1 = [T.x - 2, (ly + T.top) / 2];
+      const pts = [];
+      for (let j = 0; j <= 10; j++) pts.push(bez(p0, p1, p2, [lx - 9, ly + 6], j / 10));
+      for (let j = 1; j <= 24; j++) { const t = j / 24; const q = bez([lx - 9, ly + 6], c0, c1, p3, t); pts.push([q[0] + Math.sin(t * 7) * .8 * t, q[1]]); }
+      return run(pts, (t) => (t < .2 ? 9.5 - 6 * (t / .2) * (t / .2) * .4 : 7.1 - 3.2 * Math.pow((t - .2) / .8, .6)) + .35 * Math.sin(t * 31));
     };
+    // the outline of a line of syrup up to a length, and its gleam; at its tip, while it runs, a drop
+    const shape = (line, upto, tip) => {
+      const P = line.pts.filter((q) => q.at <= upto);
+      if (P.length < 2) return ['', ''];
+      const left = [], right = [];
+      for (let i = 0; i < P.length; i++) {
+        const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)];
+        let nx = -(b.y - a.y), ny = b.x - a.x; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+        left.push(`${(P[i].x + nx * P[i].w / 2).toFixed(1)} ${(P[i].y + ny * P[i].w / 2).toFixed(1)}`);
+        right.push(`${(P[i].x - nx * P[i].w / 2).toFixed(1)} ${(P[i].y - ny * P[i].w / 2).toFixed(1)}`);
+      }
+      let d = `M${left.join('L')}L${right.reverse().join('L')}Z`;
+      const e = P[P.length - 1];
+      if (tip) { const r = Math.max(3.2, e.w * .62); d += `M${(e.x - r).toFixed(1)} ${(e.y + r * .2).toFixed(1)}a${r.toFixed(1)} ${(r * 1.12).toFixed(1)} 0 1 0 ${(2 * r).toFixed(1)} 0a${r.toFixed(1)} ${(r * 1.12).toFixed(1)} 0 1 0 ${(-2 * r).toFixed(1)} 0Z`; }
+      const g = P.filter((q) => q.w > 3).map((q) => `${(q.x - q.w * .22).toFixed(1)} ${q.y.toFixed(1)}`);
+      let gl = g.length > 1 ? `M${g.join('L')}` : '';
+      for (const b of line.beads || []) {
+        if (b.at > upto) break;
+        const r = b.r, ry = r * 1.22;
+        d += `M${(b.x - r).toFixed(1)} ${b.y.toFixed(1)}a${r.toFixed(1)} ${ry.toFixed(1)} 0 1 0 ${(2 * r).toFixed(1)} 0a${r.toFixed(1)} ${ry.toFixed(1)} 0 1 0 ${(-2 * r).toFixed(1)} 0Z`;
+        gl += `M${(b.x - r * .5).toFixed(1)} ${(b.y - ry * .35).toFixed(1)}a${(r * .55).toFixed(1)} ${(ry * .55).toFixed(1)} 0 0 1 ${(r * .42).toFixed(1)} ${(-ry * .38).toFixed(1)}`;
+      }
+      return [d, gl];
+    };
+    let line = null;
     const draw = () => {
       pending = 0;
       if (!G) measure();
@@ -194,27 +259,33 @@
       if (f !== frame) {
         frame = f;
         sheet.style.transform = `translate3d(${-(f % COLS) * G.w}px, ${-Math.floor(f / COLS) * G.h}px, 0)`;
-        if (f >= FROM) shape(f);
+        line = f >= FROM ? stream(f) : null;
+        if (line) { G.segs[0].len = line.len; let at = 0; for (const s of G.segs) { s.start = at; at += s.len; } }
+        shownFront = NaN;              // drawn anew, whatever the syrup's reach
       }
-      // the syrup's front: from the lip as soon as the pot pours, a little faster than the page scrolls
+      // how far the syrup has come along its way: from the lip as soon as the pot pours, a little faster than the page
       const pourRel = -G.h * .6 + (FROM / (N - 1)) * G.h * 1.5;
-      const front = f >= FROM ? Math.min(G.end, lipY + Math.max(0, rel - pourRel) * 1.5) : 0;
-      const run = front - lipY, len = f < FROM || run < 1 ? 0 : run <= 52 ? curve * run / 52 : curve + run - 52;
-      const L = Math.round(len);
-      if (L !== shownLen) {
-        shownLen = L;
-        const vis = L > 0 ? 'visible' : 'hidden';
-        syrup.style.visibility = shine.style.visibility = vis;
-        if (L > 0) { syrup.style.strokeDasharray = `${L} 100000`; shine.style.strokeDasharray = `${Math.max(0, L - 6)} 100000`; }
+      const front = !line ? -1 : Math.round(Math.max(0, rel - pourRel) * 1.5);
+      if (front !== shownFront) {
+        shownFront = front;
+        let d = '', g = '', n = 0;
+        if (line) for (const s of G.segs) {
+          const upto = front - s.start;
+          if (upto <= 0) break;
+          if (s.kind === 'word') { n = s.i + 1; continue; }
+          const [sd, sg] = shape(s.kind === 'stream' ? line : s, upto, upto < s.len);
+          d += sd; g += sg;
+        }
+        syrup.setAttribute('d', d); shine.setAttribute('d', g);
+        if (n !== full) { full = n; facts.forEach((el, i) => el.classList.toggle('is-full', i < n)); }
       }
-      const n = f < FROM ? 0 : G.beads.filter((y) => y <= front + 2).length;
-      if (n !== lit) { lit = n; facts.forEach((el, i) => el.classList.toggle('is-on', i < n)); }
     };
     const ask = () => { if (!pending) pending = requestAnimationFrame(draw); };
     pour.classList.add('is-live');
     const anew = () => { G = null; ask(); };
     window.addEventListener('resize', anew);
     if ('ResizeObserver' in window) new ResizeObserver(anew).observe(document.body);
+    document.fonts?.ready.then(anew);
     // only while it is near the screen
     let near = false;
     new IntersectionObserver(([e]) => {
