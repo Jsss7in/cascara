@@ -608,28 +608,27 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .shop__head .eyebrow { grid-column: 1 / -1; }
 .shop__head .display { grid-column: 1 / span 6; margin-top: 26px; }
 .shop__intro { grid-column: 8 / span 5; color: var(--ink-2); }
-/* the picture: our table on the coffee field at dusk (_build/shopscene), and on it the bottle chosen below, standing
-   where the picture's light falls, with its own soft shadow; one bottle fades into the other */
-.shop__stage { position: relative; margin-top: clamp(40px, 5vw, 72px); aspect-ratio: 1360 / 560; border-radius: 30px; overflow: hidden;
+/* the picture: our table on the coffee field at dusk (_build/shopscene), and on it both kinds side by side, each in the
+   size chosen below, with its own soft shadow; a change of size fades one bottle into the other */
+.shop__stage { --apart: 7.5%; position: relative; margin-top: clamp(40px, 5vw, 72px); aspect-ratio: 1360 / 560; border-radius: 30px; overflow: hidden;
   background: #E6D3B7; box-shadow: 0 40px 70px -50px rgba(58, 33, 22, .55); }
 .shop__field { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.stand-bottle { position: absolute; left: 50%; bottom: 16.5%; height: 52%; aspect-ratio: 146 / 605; opacity: 0;
+.stand-bottle { position: absolute; left: calc(50% - var(--apart)); bottom: 16.5%; height: 52%; aspect-ratio: 146 / 605; opacity: 0;
   transform: translate3d(-50%, 12px, 0); transition: opacity .5s var(--ease), transform .8s var(--ease); }
 .stand-bottle--200 { height: 40.3%; aspect-ratio: 212 / 469; }
+.stand-bottle--r { left: calc(50% + var(--apart)); }
 .stand-bottle img { position: relative; display: block; width: 100%; height: 100%; }
 .stand-bottle::before { content: ""; position: absolute; left: -55%; right: -55%; bottom: -4%; height: 9%; border-radius: 50%;
   background: radial-gradient(closest-side, rgba(43, 24, 16, .5), rgba(43, 24, 16, 0)); }
 .stand-bottle.is-shown { opacity: 1; transform: translate3d(-50%, 0, 0); }
-@media (max-width: 700px) { .shop__stage { aspect-ratio: 390 / 340; border-radius: 24px; } }
+@media (max-width: 700px) { .shop__stage { --apart: 14%; aspect-ratio: 390 / 340; border-radius: 24px; } }
 
-/* the two kinds side by side beneath the picture: the chosen one is the one on the table */
+/* the two kinds side by side beneath the picture, as they stand on the table: the Original left, Cozy Spice right */
 .shop__grid { margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); gap: 0 16px; }
 /* both cards share one set of rows (subgrid): name and price, what it is, the sizes, the button stand at the same
    height in both, however their words wrap */
-.product { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 12px; align-content: start; padding: 26px 28px 28px; border-radius: 26px; cursor: pointer;
-  border: 1px solid var(--line); background: rgba(255, 250, 242, .22); transition: border-color .3s, background-color .3s, box-shadow .3s; }
-.product:hover { border-color: rgba(58, 33, 22, .3); }
-.product.is-picked { border-color: rgba(180, 89, 42, .6); background: rgba(255, 250, 242, .55); box-shadow: 0 26px 44px -36px rgba(58, 33, 22, .55); }
+.product { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 12px; align-content: start; padding: 26px 28px 28px; border-radius: 26px;
+  border: 1px solid var(--line); background: rgba(255, 250, 242, .45); box-shadow: 0 26px 44px -38px rgba(58, 33, 22, .45); }
 .product__top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; }
 .product__name { font: 600 clamp(1.75rem, 2.6vw, 2.6rem)/1 var(--brand); color: var(--terra); }
 .product__price { font: 600 clamp(1.15rem, 1.6vw, 1.5rem)/1 var(--brand); white-space: nowrap; font-variant-numeric: tabular-nums; }

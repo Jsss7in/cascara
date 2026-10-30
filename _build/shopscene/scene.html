@@ -27,6 +27,21 @@
     const band = (cr, fill) => `<path fill="${fill}" d="${curve(cr)}L${f1(W * 1.06)} ${f1(H + 20)}L${f1(-W * .06)} ${f1(H + 20)}Z"/>`;
     const shadow = (id, dy, sd, o) => `<filter id="${id}" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="${f1(dy)}" stdDeviation="${f1(sd)}" flood-color="rgb(${C.ink})" flood-opacity="${o}"/></filter>`;
     const L = {};
+    const husk = (x, y, s, a, c, rim) => `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)}) scale(${f1(s)})"><path fill="${c}" d="M-1 .15C-1.02-.4-.62-.86-.05-.88C.5-.9.98-.55 1.02-.05C1.05.32.78.5.48.38C.3.3.38.08.2.02C-.05-.06-.2.22-.38.42C-.6.62-.98.55-1 .15Z"/><path fill="none" stroke="${rim}" stroke-width=".12" stroke-linecap="round" d="M-.78-.42C-.5-.74-.05-.8.35-.7C.62-.62.85-.4.9-.15"/></g>`;
+    const browns = ['#3d1106', '#4f170a', '#5e1f0c', '#6b2410', '#47140a', '#742a12'];
+    const cascaraHeap = (hx, hy, hw, hh, n, size) => {
+      let t = `<ellipse cx="${f1(hx)}" cy="${f1(hy + hh * .04)}" rx="${f1(hw * .6)}" ry="${f1(hh * .18)}" fill="#2b1206" opacity=".35"/>`;
+      const top = [];
+      for (let i = 0; i <= 24; i++) { const u = -1 + 2 * i / 24; top.push([hx + u * hw / 2, hy - hh * Math.pow(Math.max(0, 1 - u * u), .62)]); }
+      t += `<path fill="#3d1106" d="${curve(top)}Q${f1(hx)} ${f1(hy + hh * .12)} ${f1(hx - hw / 2)} ${f1(hy)}Z"/>`;
+      const pieces = [];
+      for (let i = 0; i < n; i++) {
+        const u = rnd() * 2 - 1, cap = Math.pow(Math.max(0, 1 - u * u), .62), v = Math.pow(rnd(), .7) * cap;
+        pieces.push([hx + u * hw * .49, hy - v * hh * .98 + hh * .03, size * (.8 + rnd() * .55), rnd() * 360, browns[(rnd() * browns.length) | 0], v > cap * .75 && rnd() < .5 ? '#9c4b23' : '#7a2c14']);
+      }
+      pieces.sort((a, b) => a[1] - b[1]).forEach((q) => { t += husk(...q); });
+      return t;
+    };
 
     // the sky: the evening glow, the sun low on the right behind the hills, a few clouds
     const sx = W * .5 + Math.min(W * .26, H * .62), sy = H * .44, R = H * .2;
@@ -58,23 +73,27 @@
       <g filter="url(#s2)">${band(m0, C.ridge[2])}${terr}<path fill="${C.tree[1]}" d="${mtrees}"/>
       <path fill="${C.wall}" d="${F.wall}"/><path fill="${C.roof}" d="${F.roof}"/><path fill="${C.door}" d="${F.door}"/><path fill="${C.window}" d="${F.win}"/>
       <circle cx="${f1(F.glow[0])}" cy="${f1(F.glow[1])}" r="${f1(F.glow[2])}" fill="url(#wg)"/>
-      <path fill="${C.tree[2]}" d="${F.beds}"/><path fill="${C.berry}" d="${F.cherries}"/></g>`;
+      <path fill="${C.tree[2]}" d="${F.beds}"/><path fill="${C.berry}" d="${F.cherries}"/>
+      ${cascaraHeap(fx + fs * 5.4, crestAt(m0, fx + fs * 5.4) + H * .022, fs * 1.5, fs * .55, 40, fs * .1)}</g>`;
 
     // the field close by: two rows of coffee shrubs with ripe cherries, and the farmer among them
     const n0 = ground(H * .655, H * .016, 3.1), n1 = ground(H * .745, H * .014, 4.4);
     const r0 = shrubRow(n0, H * .004, -W * .05, W * 1.05, H * .03, H * .034, rnd, true);
     const r1 = shrubRow(n1, H * .004, -W * .05, W * 1.05, H * .046, H * .05, rnd, true);
-    const fm = farmer(H * .09), px = W * .5 + Math.min(W * .17, H * .4), py = crestAt(n0, px) + H * .012;
+    const fm = farmer(H * .09), px = W * .5 + Math.min(W * .27, H * .6), py = crestAt(n0, px) + H * .012;
+    const hA = W * .5 - Math.min(W * .3, H * .68), hB = W * .5 + Math.min(W * .35, H * .8);
     L.near = `<defs>${shadow('s3', H * .006, H * .008, .26)}</defs><g filter="url(#s3)">
       ${band(n0, C.ridge[4])}<path fill="${C.row[0]}" d="${r0.d}"/><path fill="${C.berry}" d="${r0.b}"/>
+      ${cascaraHeap(hB, crestAt(n0, hB) + H * .02, H * .16, H * .06, 70, H * .011)}
       <g transform="translate(${f1(px - fm.w / 2)} ${f1(py - fm.h)})">${fm.svg}</g>
-      ${band(n1, C.ridge[5])}<path fill="${C.row[1]}" d="${r1.d}"/><path fill="${C.berry}" d="${r1.b}"/></g>`;
+      ${band(n1, C.ridge[5])}<path fill="${C.row[1]}" d="${r1.d}"/><path fill="${C.berry}" d="${r1.b}"/>
+      ${cascaraHeap(hA, crestAt(n1, hA) + H * .03, H * .24, H * .085, 110, H * .014)}</g>`;
 
     // in front: the dark soil, and big shrubs at the edges, close to the eye
     const s0 = ground(H * .835, H * .008, 5.2);
     let front = '';
     for (const [x, s] of [[W * .5 - Math.min(W * .47, H * 1.18), .2], [W * .5 + Math.min(W * .47, H * 1.18), .22], [W * .5 - Math.min(W * .38, H * .98), .13], [W * .5 + Math.min(W * .4, H * 1.0), .12]]) {
-      const sp = shrubPiece(H * s, rnd);
+      const sp = shrubPiece(Math.min(H * s, W * s * .62), rnd);
       front += `<g transform="translate(${f1(x - sp.w / 2)} ${f1(H * .9 - sp.h)})">${sp.svg}</g>`;
     }
     for (let i = 0; i < 7; i++) { const tf = tuft(H * (.03 + rnd() * .02), rnd), x = W * (.05 + i * .15 + rnd() * .05); front += `<g transform="translate(${f1(x)} ${f1(crestAt(s0, x) - tf.h + H * .01)})">${tf.svg}</g>`; }
@@ -105,23 +124,6 @@
       }
     }
     t += `<path d="M${f1(fr[0])} ${f1(y1)}H${f1(fr[1])}" stroke="#d29a68" stroke-width="${f1(H * .004)}" opacity=".8"/>`;
-    // a heap of cascara on the left: dried husks – curled shells of deep mahogany, packed into a soft dome
-    const hx = W / 2 - Math.min(H * .44, W * .25), hy = H * .82, hw = Math.min(H * .34, W * .27), hh = H * .13;
-    const browns = ['#3d1106', '#4f170a', '#5e1f0c', '#6b2410', '#47140a', '#742a12'];
-    const husk = (x, y, s, a, c, rim) => `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)}) scale(${f1(s)})"><path fill="${c}" d="M-1 .15C-1.02-.4-.62-.86-.05-.88C.5-.9.98-.55 1.02-.05C1.05.32.78.5.48.38C.3.3.38.08.2.02C-.05-.06-.2.22-.38.42C-.6.62-.98.55-1 .15Z"/><path fill="none" stroke="${rim}" stroke-width=".12" stroke-linecap="round" d="M-.78-.42C-.5-.74-.05-.8.35-.7C.62-.62.85-.4.9-.15"/></g>`;
-    t += `<ellipse cx="${f1(hx)}" cy="${f1(hy + hh * .04)}" rx="${f1(hw * .62)}" ry="${f1(hh * .2)}" fill="#3a1d10" opacity=".5" filter="url(#soft)"/>`;
-    // the mound beneath, so no table shows through, then the shells on it from the back to the front
-    const top = [];
-    for (let i = 0; i <= 24; i++) { const u = -1 + 2 * i / 24; top.push([hx + u * hw / 2, hy - hh * Math.pow(Math.max(0, 1 - u * u), .62)]); }
-    t += `<path fill="#3d1106" d="${curve(top)}Q${f1(hx)} ${f1(hy + hh * .12)} ${f1(hx - hw / 2)} ${f1(hy)}Z"/>`;
-    const pieces = [];
-    for (let i = 0; i < 230; i++) {
-      const u = rr() * 2 - 1, cap = Math.pow(Math.max(0, 1 - u * u), .62), v = Math.pow(rr(), .7) * cap;
-      const c = browns[(rr() * browns.length) | 0];
-      pieces.push([hx + u * hw * .49, hy - v * hh * .98 + H * .004, H * (.012 + rr() * .008), rr() * 360, c, v > cap * .75 && rr() < .5 ? '#9c4b23' : '#7a2c14']);
-    }
-    for (let i = 0; i < 12; i++) pieces.push([hx + (rr() * 2 - 1) * hw * .8, hy + (rr() - .2) * hh * .2, H * (.012 + rr() * .006), rr() * 360, browns[(rr() * browns.length) | 0], '#7a2c14']);
-    pieces.sort((a, b) => a[1] - b[1]).forEach((q) => { t += husk(...q); });
     L.table = `<defs><filter id="soft" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="${f1(H * .012)}"/></filter>${shadow('s5', H * .006, H * .01, .35)}</defs><g filter="url(#s5)">${t}</g>`;
 
     // every layer painted once at K device pixels, with the paper's grain, as the opening does

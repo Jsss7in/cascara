@@ -309,8 +309,8 @@ PERKS = [
 
 
 def shop():
-    # Above, one picture: our table on the coffee field at dusk, and on it the bottle chosen below. Below, the two
-    # kinds side by side: choosing a kind or a size puts that bottle on the table.
+    # Above, one picture: our table on the coffee field at dusk, and on it both kinds side by side – the Original on
+    # the left, Cozy Spice on the right, each in the size chosen in its card below.
     cards, stand = [], []
     for n, pr in enumerate(PRODUCTS):
         data = json.dumps({'id': pr['id'], 'name': pr['name'],
@@ -321,8 +321,8 @@ def shop():
             for ml, price in pr['sizes'])
         for ml, _ in pr['sizes']:
             w, h = STAND[ml]
-            shown = n == 0 and ml == FIRST
-            stand.append(f'          <span class="stand-bottle stand-bottle--{ml}{" is-shown" if shown else ""}" data-kind="{pr["id"]}" data-ml="{ml}">'
+            shown = ml == FIRST
+            stand.append(f'          <span class="stand-bottle stand-bottle--{ml} stand-bottle--{"lr"[n]}{" is-shown" if shown else ""}" data-kind="{pr["id"]}" data-ml="{ml}">'
                          f'<img src="assets/shop/stand/{pr["id"]}-{ml}.webp" width="{w}" height="{h}" alt="{pr["name"]}, {BOTTLE_NAME[ml]} mit {ml} ml"'
                          f'{"" if shown else " loading=" + chr(34) + "lazy" + chr(34)} decoding="async"></span>')
         price0 = dict(pr['sizes'])[FIRST]
@@ -338,7 +338,7 @@ def shop():
                 '              <button type="button" class="button product__add product__soon" disabled>Bald erhältlich</button>\n'
                 '            </div>\n')
         cards.append(
-            f'        <article class="product product--{pr["id"]}{" is-picked" if n == 0 else ""}" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
+            f'        <article class="product product--{pr["id"]}" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
             '            <div class="product__top">\n'
             f'              <h3 class="product__name">{pr["name"]}</h3>\n'
             f'              <p class="product__price" data-price>CHF {chf(price0)}</p>\n'
