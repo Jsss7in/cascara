@@ -156,145 +156,69 @@
   if (hero) document.addEventListener('cascarup:shown', () => setTimeout(warmPictures, 2500), { once: true });
   else window.addEventListener('load', () => setTimeout(warmPictures, 1000), { once: true });
 
-  // Cascara, poured (the section on dried cascara): as the pot comes up the page it tips – one frame of the sheet
-  // at a time, moved on the GPU – and once it pours, its syrup runs over the rim and falls into the first word, which
-  // fills with it from the left; from that word's first letter it drips on into the next, and so down to the last.
-  // Flat, in the syrup's own colour. Each word's line comes in once the word is full. Everything follows the scroll,
-  // both ways, and is worked out only while it is on screen.
-  const pour = document.querySelector('[data-pour]');
-  if (pour) {
-    const pot = pour.querySelector('.pour__pot'), sheet = pot.querySelector('img'), svg = pour.querySelector('.pour__flow');
-    const syrupP = pour.querySelector('.pour__syrup');
-    const facts = [...pour.querySelectorAll('.pour__fact')], inks = facts.map((f) => f.querySelector('.pour__ink'));
-    const N = +pour.dataset.frames, COLS = +pour.dataset.cols, FROM = +pour.dataset.pourAt;
-    const lips = pour.dataset.lips.split(' ').map((p) => p.split(',').map(Number));
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-    const FILL = 1.3;                    // pixels of word filled for each pixel the syrup's front moves on
-    const f1 = (v) => v.toFixed(1);
-    const bez = (p0, p1, p2, p3, t) => { const u = 1 - t; return [u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]]; };
-    const bump = (t, at, w) => Math.exp(-((t - at) * (t - at)) / (2 * w * w));
-    // where a word's first letter is: the syrup falls into its top and drips on from its foot
-    const letter = (ink, ox, oy) => {
-      const node = ink.firstChild, range = document.createRange();
-      range.setStart(node, 0); range.setEnd(node, 1);
-      const r = range.getBoundingClientRect(), b = ink.getBoundingClientRect(), fs = parseFloat(getComputedStyle(ink).fontSize);
-      // the glyph's own height in DynaPuff: cap height from about .2em under the line's top to the baseline at .9em
-      return { x: r.left - ox + r.width * .3, top: b.top - oy + fs * .3, bottom: b.top - oy + fs * .9, w: b.width, stroke: fs * .15 };
-    };
-    // a line of syrup, sampled every few pixels: its centre, its width, how far along it is
-    const run = (pts, widths) => {
-      const out = []; let len = 0;
-      for (let i = 0; i < pts.length; i++) {
-        if (i) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
-        out.push({ x: pts[i][0], y: pts[i][1], w: widths(i / (pts.length - 1)), at: len });
-      }
-      return { pts: out, len };
-    };
-    let G = null, frame = -1, shownFront = NaN, full = -1, pending = 0, line = null;
-    const measure = () => {
-      const r = pour.getBoundingClientRect();
-      G = { top: r.top + window.scrollY, w: pot.offsetWidth, h: pot.offsetHeight, x: pot.offsetLeft, y: pot.offsetTop, segs: [], fills: inks.map(() => -1) };
-      svg.setAttribute('viewBox', `0 0 ${Math.round(r.width)} ${Math.round(pour.offsetHeight)}`);
-      G.L = inks.map((ink) => letter(ink, r.left, r.top));
-      G.segs.push({ kind: 'stream', len: 0 });
-      G.L.forEach((l, i) => {
-        G.segs.push({ kind: 'word', i, len: l.w / FILL });
-        if (i < G.L.length - 1) {
-          // the drip to the next word: it sags out of the letter's foot, runs down as a thin thread, thicker here and
-          // thinner there as syrup runs, and swells as it runs into the next word's first letter
-          const n = G.L[i + 1], k = i + 1, n0 = 10 + Math.round((n.top - l.bottom) / 3), pts = [];
-          for (let j = 0; j <= n0; j++) {
-            const t = j / n0;
-            pts.push([l.x + (n.x - l.x) * t * t * (3 - 2 * t) + Math.sin(t * 8 + k * 1.7) * 1.4 * Math.sin(t * Math.PI), l.bottom - l.stroke * .2 + (n.top + l.stroke * .3 - (l.bottom - l.stroke * .2)) * t]);
-          }
-          const seg = run(pts, (t) => 2.6 + (l.stroke * .95 - 2.6) * Math.pow(1 - clamp(t / .24), 2) + (n.stroke * .8 - 2.6) * Math.pow(clamp((t - .8) / .2), 2)
-            + 1.6 * bump(t, .46 + .08 * Math.sin(k * 2.3), .07) + .4 * Math.sin(t * 17 + k));
-          G.segs.push({ kind: 'drip', i, ...seg });
-        }
-      });
-      frame = -1; shownFront = NaN; full = -1;
-    };
-    // the stream from the lip of the current frame: over the rim, out a little, falling into the first letter,
-    // thinning as it falls and widening a little where it meets the word
-    const stream = (f) => {
-      const [lx0, ly0] = lips[f], lx = G.x + lx0 * G.w, ly = G.y + ly0 * G.h, T = G.L[0], end = [T.x, T.top];
-      const p0 = [lx + 7, ly - 4], p1 = [lx - 6, ly - 4.5], p2 = [lx - 10, ly + 14], m = [lx - 9, ly + 6];
-      const c0 = [lx - 9, ly + 18], c1 = [end[0] - 3, end[1] - (end[1] - ly) * .35];
-      const pts = [];
-      for (let j = 0; j <= 10; j++) pts.push(bez(p0, p1, p2, m, j / 10));
-      for (let j = 1; j <= 26; j++) pts.push(bez(m, c0, c1, end, j / 26));
-      return run(pts, (t) => (t < .22 ? 10 - 3 * (t / .22) : 7 - 2.4 * Math.pow((t - .22) / .78, .7)) + 3 * bump(t, 1, .05));
-    };
-    // the outline of a line of syrup up to a length, with a round drop at its tip while it runs
-    const shape = (ln, upto, tip) => {
-      const P = ln.pts.filter((q) => q.at <= upto);
-      if (P.length < 2) return '';
-      const L = [], R = [];
-      for (let i = 0; i < P.length; i++) {
-        const a = P[Math.max(0, i - 1)], b = P[Math.min(P.length - 1, i + 1)];
-        let nx = -(b.y - a.y), ny = b.x - a.x; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
-        const h = P[i].w / 2;
-        L.push(`${f1(P[i].x + nx * h)} ${f1(P[i].y + ny * h)}`); R.push(`${f1(P[i].x - nx * h)} ${f1(P[i].y - ny * h)}`);
-      }
-      let d = `M${L.join('L')}L${R.reverse().join('L')}Z`;
-      const drop = (x, y, r) => `M${f1(x - r)} ${f1(y)}a${f1(r)} ${f1(r * 1.15)} 0 1 0 ${f1(2 * r)} 0a${f1(r)} ${f1(r * 1.15)} 0 1 0 ${f1(-2 * r)} 0Z`;
-      const e = P[P.length - 1];
-      if (tip) d += drop(e.x, e.y + 1, Math.max(3.4, e.w * .62));
-      return d;
-    };
-    const draw = () => {
-      pending = 0;
-      if (!G) measure();
-      // the reading line, a little below the middle of the screen, in the block's own coordinates
-      const rel = still ? 1e6 : window.scrollY + window.innerHeight * .62 - G.top;
-      const tilt = clamp((rel + G.h * .6) / (G.h * 1.5)), f = Math.round(tilt * (N - 1));
-      if (f !== frame) {
-        frame = f;
-        sheet.style.transform = `translate3d(${-(f % COLS) * G.w}px, ${-Math.floor(f / COLS) * G.h}px, 0)`;
-        line = f >= FROM ? stream(f) : null;
-        if (line) { G.segs[0].len = line.len; let at = 0; for (const sg of G.segs) { sg.start = at; at += sg.len; } }
-        shownFront = NaN;
-      }
-      // how far the syrup has come: from the lip as soon as the pot pours, a little faster than the page scrolls
-      const pourRel = -G.h * .6 + (FROM / (N - 1)) * G.h * 1.5;
-      const front = !line ? -1 : Math.round(Math.max(0, rel - pourRel) * 1.5);
-      if (front === shownFront) return;
-      shownFront = front;
-      let d = '', n = 0;
-      for (const sg of G.segs) {
-        const upto = line ? front - sg.start : -1;
-        if (sg.kind === 'word') {
-          const fill = Math.round(clamp(upto / sg.len) * 1000) / 1000;
-          if (fill !== G.fills[sg.i]) { G.fills[sg.i] = fill; inks[sg.i].style.setProperty('--fill', fill); }
-          if (fill >= 1) n = sg.i + 1;
-          continue;
-        }
-        if (upto > 0) d += shape(sg.kind === 'stream' ? line : sg, upto, upto < sg.len);
-      }
-      syrupP.setAttribute('d', d);
-      if (n !== full) { full = n; facts.forEach((el, i) => el.classList.toggle('is-full', i < n)); }
-    };
-    const ask = () => { if (!pending) pending = requestAnimationFrame(draw); };
-    pour.classList.add('is-live');
-    const anew = () => { G = null; ask(); };
-    window.addEventListener('resize', anew);
-    if ('ResizeObserver' in window) new ResizeObserver(anew).observe(document.body);
-    document.fonts?.ready.then(anew);
-    // only while it is near the screen
-    let near = false;
-    new IntersectionObserver(([e]) => {
-      if (e.isIntersecting === near) return;
-      near = e.isIntersecting;
-      if (near) { window.addEventListener('scroll', ask, { passive: true }); ask(); } else window.removeEventListener('scroll', ask);
-    }, { rootMargin: '200px 0px' }).observe(pour);
-  }
-
   // What runs on by itself (the shop's clouds and farmer, the team) runs only while it is near the screen.
   if ('IntersectionObserver' in window) {
     const runs = new IntersectionObserver((seen) => { for (const e of seen) e.target.classList.toggle('is-near', e.isIntersecting); }, { rootMargin: '100px 0px' });
     document.querySelectorAll('[data-pause-away]').forEach((el) => runs.observe(el));
   } else document.querySelectorAll('[data-pause-away]').forEach((el) => el.classList.add('is-near'));
+
+  // The team's ring: it turns slowly on its own; a swipe, a drag or a sideways scroll turns it by hand, and once let
+  // go it glides on and settles back into its own pace. It is turned only while it is on screen.
+  const ring = document.querySelector('.team__loop');
+  if (ring && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const people = ring.querySelector('.team__people');
+    const SPEED = window.matchMedia('(max-width: 900px)').matches ? 360 / 80 : 360 / 96;   // degrees a second
+    let angle = 0, vel = SPEED, held = null, last = 0, raf = 0, near = false, hover = false, radius = 0;
+    const deg = (px) => { if (!radius) radius = (people.offsetWidth + (parseFloat(getComputedStyle(ring).getPropertyValue('--gap')) || 30)) * 1.866; return px / radius * 180 / Math.PI; };
+    const put = () => { people.style.transform = `translateZ(calc(-1 * var(--r))) rotateY(${angle.toFixed(3)}deg)`; };
+    const tick = (now) => {
+      raf = 0;
+      if (!near) return;
+      const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
+      if (!held) {
+        // after a push the ring glides and eases back to its own pace (stopped while a mouse rests on it)
+        const aim = hover ? 0 : SPEED;
+        vel += (aim - vel) * (1 - Math.pow(.12, dt));
+        angle += vel * dt;
+        put();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const go = () => { if (!raf && near) { last = 0; raf = requestAnimationFrame(tick); } };
+    new IntersectionObserver(([e]) => { near = e.isIntersecting; if (near) go(); }, { rootMargin: '80px 0px' }).observe(ring);
+    window.addEventListener('resize', () => { radius = 0; });
+    ring.addEventListener('pointerdown', (e) => {
+      held = { x: e.clientX, t: performance.now(), id: e.pointerId, moved: false }; vel = 0;
+      ring.classList.add('is-held');
+    });
+    ring.addEventListener('pointermove', (e) => {
+      if (!held || e.pointerId !== held.id) return;
+      const dx = e.clientX - held.x, now = performance.now(), dt = Math.max(1, now - held.t);
+      if (!held.moved && Math.abs(dx) > 4) { held.moved = true; try { ring.setPointerCapture(e.pointerId); } catch { /* fine */ } }
+      if (!held.moved) return;
+      const d = deg(dx);
+      angle += d; put();
+      vel = vel * .6 + (d / (dt / 1000)) * .4;          // its speed as it leaves the hand
+      held.x = e.clientX; held.t = now;
+    });
+    const letGo = (e) => {
+      if (!held || (e && e.pointerId !== held.id)) return;
+      if (performance.now() - held.t > 90) vel = 0;     // held still before letting go: no throw
+      vel = Math.max(-240, Math.min(240, vel));
+      held = null; ring.classList.remove('is-held'); go();
+    };
+    ring.addEventListener('pointerup', letGo); ring.addEventListener('pointercancel', letGo);
+    ring.addEventListener('lostpointercapture', letGo);
+    ring.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
+    ring.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hover = false; });
+    // a sideways scroll on a trackpad or a mouse wheel turns it too; an up-and-down one stays the page's
+    ring.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      angle -= deg(e.deltaX); put();
+      vel = SPEED * Math.sign(-e.deltaX || 1) * 2;
+    }, { passive: false });
+  }
 
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
   const start = () => {

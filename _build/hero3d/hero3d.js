@@ -709,6 +709,7 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   function layout(w, h) {
     width = w; height = h;
     renderer.setSize(w, h, false);
+    needsDraw = true;                // a new size clears the picture to black: draw it again at once, covered or not
     camera.aspect = w / h;
     wide = w / h > 1.05;
     camera.fov = wide ? 24 : lerp(33, 27, smooth(.56, .8, w / h));
@@ -972,7 +973,7 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   }
 
   let frames = 0, lastError = '', covered = false;
-  let lastTarget = 0, gaps = [], drawn = 0;
+  let lastTarget = 0, gaps = [], drawn = 0, needsDraw = true;
   const sharpness = (r) => { ratio = Math.max(1, r); renderer.setPixelRatio(ratio); };
   function frame(now) {
     if (!running) return;
@@ -1002,7 +1003,7 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
       apply(story(progress), dt);
       // under the page's own first picture there is nothing to draw – but a picture now and then keeps the drawing
       // warm, or the first frame of the first scroll comes late
-      if (!covered || now - drawn > 400) { renderer.render(scene, camera); drawn = now; }
+      if (!covered || needsDraw || now - drawn > 400) { renderer.render(scene, camera); drawn = now; needsDraw = false; }
       onFrame?.(story(progress), labels, fruitBox);
     } catch (err) { lastError = String(err && err.stack || err).slice(0, 300); }
     requestAnimationFrame(frame);

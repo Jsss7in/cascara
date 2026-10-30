@@ -587,8 +587,8 @@ V['SHOP'] = shop()
 V['CART'] = cart()
 # ---------------------------------------------------------------------------
 # Cascara in four facts, poured: a pot of our syrup with cinnamon and star anise tips as it comes up the page; its
-# syrup runs over the rim and falls into the first word, which fills with it from left to right; from that word it
-# drips on into the next, and each fact comes in as its word is full. The pot is 36 frames rendered from the
+# syrup runs over the spout and falls into the first word, which fills with it; from that word it drips on into the
+# next, and from the last into a bottle of Cozy Spice. Drawn and moved by pour.js, flat, in the syrup's colour. The pot is 36 frames rendered from the
 # opening's own 3D pot (_build/pour/render.mjs → assets/pour/pot.webp, 6 to a row); meta.json: where its lip is.
 CASCARA_FACTS = [
     ('Was', 'Haut und Fruchtfleisch der Kaffeekirsche, getrocknet'),
@@ -599,19 +599,25 @@ CASCARA_FACTS = [
 
 
 def pour():
-    import json, pathlib
-    m = json.loads((pathlib.Path(__file__).parent / 'pour' / 'meta.json').read_text())
-    lips = ' '.join(f'{x:.4f},{y:.4f}' for x, y, _ in m['lips'])
     # each label in our type, in the syrup's own colour: a faint word waiting, and over it the same word, which the
-    # syrup fills as it runs in
+    # syrup fills as it runs in – the first letter from the top, where the stream lands, the rest from the left (pour.js
+    # parts each word into its first letter and the rest, so the words stay whole for the translations). pour.js draws
+    # the pot, the stream, the drips and the bottle that catches the rest.
     rows = '\n'.join(f'          <div class="pour__fact"><dt><span class="pour__ghost" aria-hidden="true">{a}</span><span class="pour__ink">{a}</span></dt><dd>{b}</dd></div>'
                      for a, b in CASCARA_FACTS)
-    return (f'<div class="pour" data-pour data-frames="{m["n"]}" data-cols="{m["cols"]}" data-pour-at="{m["pour"]}" data-lips="{lips}" '
-            f'style="--pot-w:{m["w"]}px;--pot-h:{m["h"]}px">\n'
-            '          <div class="pour__pot" aria-hidden="true"><img src="assets/pour/pot.webp" alt="" '
-            f'width="{m["w"] * m["cols"]}" height="{m["h"] * -(-m["n"] // m["cols"])}" loading="lazy" decoding="async"></div>\n'
-            '          <svg class="pour__flow" aria-hidden="true"><path class="pour__syrup"/></svg>\n'
-            '          <dl class="pour__facts">\n' + rows + '\n          </dl>\n        </div>')
+    # the first letters' outlines in DynaPuff (font units, y down from the baseline; _build/pour/glyphs.py), with where
+    # a stream lands on each and where drops hang from its feet: pour.js draws them in syrup, one shape with the stream
+    g = json.loads((pathlib.Path(__file__).parent / 'pour' / 'glyphs.json').read_text())
+    firsts = {}
+    for w in g['words'].values():
+        l = w['letters'][0]
+        firsts[l['char']] = {'d': l['d'], 'box': [round(v, 1) for v in l['bbox']], 'land': [l['landing']['x'], l['landing']['y']],
+                             'drips': [[d['x'], d['y']] for d in l.get('drips', [])]}
+    glyphs = json.dumps(firsts, separators=(',', ':')).replace("'", '&#39;')
+    return (f'<div class="pour" data-pour data-glyphs=\'{glyphs}\'>\n'
+            '          <svg class="pour__flow" aria-hidden="true"></svg>\n'
+            '          <dl class="pour__facts">\n' + rows + '\n          </dl>\n'
+            '          <div class="pour__catch" aria-hidden="true"></div>\n        </div>')
 
 
 V['POUR'] = pour()
@@ -718,7 +724,7 @@ def footer(base=''):
         <svg viewBox="{LOGO_VB}" aria-hidden="true"><use href="#lg-fill"/></svg>
       </a>
       <div class="footer__about">
-        <p class="footer__claim">Kaffee ist<br><em>eine Frucht.</em></p>
+        <p class="footer__claim">Die Kaffeekirsche<br><em>kann mehr.</em></p>
         <div class="footer__social">{V['SOCIALS']}<span>@{HANDLE}</span></div>
       </div>
       <nav class="footer__nav" aria-label="Seite">

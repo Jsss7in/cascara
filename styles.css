@@ -374,7 +374,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .hero.is-flat .hero__plant { display: none; }
 /* the paper diorama round the cherry (hero3d/diorama.js): its layers rise one after the other as the loading screen
    lifts, lean with the pointer and fly apart on the first scroll (page.js); over it the grain of the paper */
-.hero__dio { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.hero__dio { position: absolute; inset: -1px; z-index: 1; pointer-events: none; overflow: hidden; }
 .dio__ground { position: absolute; inset: 0; will-change: opacity; background: var(--grain) 0 0 / 180px 180px, var(--paper); background-blend-mode: soft-light, normal; }
 .dio__layer { position: absolute; inset: 0; transform-origin: 62% 58%; will-change: transform; }
 .dio__rise { position: absolute; inset: 0; transition: transform 1.6s cubic-bezier(.16, 1, .3, 1) calc(var(--i) * 90ms), opacity 1s var(--ease) calc(var(--i) * 90ms); }
@@ -450,8 +450,14 @@ html.has-menu, html.has-menu body { overflow: hidden; }
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;
   align-items: center;
 }
-.split__media { grid-column: 1 / span 6; border-radius: var(--radius); overflow: hidden; aspect-ratio: 4 / 5; background: var(--cream); }
-.split__media img { width: 100%; height: 100%; object-fit: cover; }
+.split__media { grid-column: 1 / span 6; overflow: hidden; aspect-ratio: 4 / 5; }
+/* no hard frame: the photograph fades into the paper over a soft, slightly uneven edge, which opens out a little as it
+   comes into view (a mask, eased once, nothing that runs on) */
+.split__media img { width: 100%; height: 100%; object-fit: cover;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-20%' y='-20%' width='140%' height='140%'%3E%3CfeGaussianBlur stdDeviation='2.6'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' fill='%23fff' d='M9 8C24 4 38 7 52 5S80 3 92 9C96 24 93 38 95 52S98 78 91 91C76 96 62 93 48 95S20 98 8 92C4 77 7 63 5 49S3 21 9 8Z'/%3E%3C/svg%3E") 50% 50% / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cfilter id='b' x='-20%' y='-20%' width='140%' height='140%'%3E%3CfeGaussianBlur stdDeviation='2.6'/%3E%3C/filter%3E%3Cpath filter='url(%23b)' fill='%23fff' d='M9 8C24 4 38 7 52 5S80 3 92 9C96 24 93 38 95 52S98 78 91 91C76 96 62 93 48 95S20 98 8 92C4 77 7 63 5 49S3 21 9 8Z'/%3E%3C/svg%3E") 50% 50% / 100% 100% no-repeat; }
+.split__media[data-reveal] img { -webkit-mask-size: 84% 86%; mask-size: 84% 86%; transform: scale(1.04);
+  transition: -webkit-mask-size 1.8s cubic-bezier(.22, .61, .36, 1), mask-size 1.8s cubic-bezier(.22, .61, .36, 1), transform 2.4s cubic-bezier(.22, .61, .36, 1); }
+.split__media.is-in img { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; transform: none; }
 .split__copy { grid-column: 8 / span 5; }
 .split__copy .display { margin-top: 26px; margin-bottom: 30px; }
 .split__copy > p { color: var(--ink-2); }
@@ -460,25 +466,29 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .facts dt { font: 400 .75rem/1.9 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
 .facts dd { font-size: 1.0625rem; line-height: 1.5; }
 
-/* Cascara, poured: the pot (a sheet of frames, one shown at a time) tips as it comes up the page; its syrup runs over
-   the rim into the first word, which fills from the bottom with a gently waving surface, then drips from word to word
-   (main.js draws the syrup; each word fills once the syrup reaches it, and its line comes in) */
-.pour { position: relative; margin-top: 26px; padding-top: calc(var(--pot-h) + 4px); }
-.pour__pot { position: absolute; left: 8px; top: 0; width: var(--pot-w); height: var(--pot-h); overflow: hidden; }
-.pour__pot img { position: absolute; left: 0; top: 0; width: calc(var(--pot-w) * 6); height: auto; max-width: none; will-change: transform; }
+/* Cascara, poured (pour.js): a glass pot of our syrup, drawn flat like the rest of the page, tips as it comes up the
+   page; the syrup inside stays level, rises to the spout, runs over it and falls into the first word, which fills –
+   the first letter from where the stream lands, the rest from the left. From each word's first letter the syrup drips
+   into the next, and from the last into a bottle of Cozy Spice, which fills. All of it follows the scroll, both ways. */
+.pour { --syrup: #51301D; position: relative; margin-top: 26px; }
+.pour.is-live { padding-top: 168px; }
 .pour__flow { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
-/* the syrup, flat, in the colour it has in the pot */
-.pour { --syrup: #51301D; }
-.pour__syrup { fill: var(--syrup); }
-.pour__facts { margin: 0; display: grid; gap: 22px; }
+.pour__facts { margin: 0; display: grid; gap: 36px; }
 .pour__fact dt { position: relative; width: fit-content; font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); letter-spacing: -.01em; color: var(--syrup); }
 .pour__ghost { display: none; }
 .pour__ink { display: block; }
-/* with the script: the word waits faintly, and fills with syrup from the left, its front rounded like running syrup */
+.pour__ink > span, .pour__ghost > span { display: inline; }
 .pour.is-live .pour__ghost { display: block; opacity: .13; }
-/* the front: it runs ahead along the bottom and rises behind, curved, as syrup spreading along a floor does */
-.pour.is-live .pour__ink { --x: calc(var(--fill, 0) * (100% + .7em)); position: absolute; inset: 0;
+.pour.is-live .pour__ink { position: absolute; inset: 0; }
+/* the first letter fills from the top, its surface tilting a little; the rest from the left, running ahead below */
+.pour.is-live .pour__ink .pour__first { --y: calc(var(--f, 0) * 135% - 20%);
+  clip-path: polygon(-30% -40%, 130% -40%, 130% calc(var(--y) - .06em), 60% calc(var(--y) + .04em), -30% calc(var(--y) - .02em)); }
+.pour.is-live .pour__ink .pour__rest { --x: calc(var(--g, 0) * (100% + .7em));
   clip-path: polygon(-20% -30%, calc(var(--x) - .7em) -30%, calc(var(--x) - .5em) 20%, calc(var(--x) - .26em) 58%, calc(var(--x) - .08em) 88%, var(--x) 130%, -20% 130%); }
+/* with the outlines (pour.js) the first letters are drawn in syrup; the type beneath only keeps their room */
+.pour.has-glyphs .pour__ink .pour__first { visibility: hidden; }
+.pour__catch { display: none; }
+.pour.is-live .pour__catch { display: block; height: 150px; }
 .pour__fact dd { margin: 8px 0 0 46px; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
 .pour__fact dd em { font-style: italic; }
 .pour.is-live .pour__fact dd { opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity .6s var(--ease) .35s, transform .6s var(--ease) .35s; }
@@ -758,9 +768,10 @@ html.has-menu, html.has-menu body { overflow: hidden; }
   padding: 26px 0 54px; -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); }
 .team__ring { perspective: 2200px; perspective-origin: 50% 40%; }
 .team__people { position: relative; list-style: none; margin: 0 auto; padding: 0; width: var(--card); height: 400px; transform-style: preserve-3d;
-  transform: translateZ(calc(-1 * var(--r))); animation: team-turn 96s linear infinite; }
-@keyframes team-turn { from { transform: translateZ(calc(-1 * var(--r))) rotateY(0deg); } to { transform: translateZ(calc(-1 * var(--r))) rotateY(360deg); } }
-.team__loop:hover .team__people, .team__loop:not(.is-near) .team__people { animation-play-state: paused; }
+  transform: translateZ(calc(-1 * var(--r))); }
+/* main.js turns it: on its own, slowly; by hand with a swipe, a drag or a sideways scroll, after which it runs on */
+.team__loop { touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.team__loop.is-held { cursor: grabbing; }
 .member { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 24px 28px; border-radius: 28px;
   background: #F1E4CF; box-shadow: 0 26px 46px -30px rgba(58, 33, 22, .55), inset 0 1px 0 rgba(255, 252, 245, .8);
   transform: rotateY(calc(var(--i) * 30deg)) translateZ(var(--r)); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
@@ -772,14 +783,14 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .member__what { margin-top: 12px; font-size: .9375rem; line-height: 1.5; color: var(--ink-2); }
 @media (max-width: 900px) {
   .team__loop { --card: 232px; --gap: 22px; margin-top: 40px; }
-  .team__people { height: 392px; animation-duration: 80s; }
+  .team__people { height: 392px; }
   .member__disc { width: 112px; }
 }
 /* without motion: the six side by side, to swipe through */
 @media (prefers-reduced-motion: reduce) {
   .team__loop { overflow-x: auto; -webkit-mask-image: none; mask-image: none; scrollbar-width: none; padding: 20px var(--gutter) 40px; }
   .team__ring { perspective: none; }
-  .team__people { display: flex; gap: 16px; width: max-content; height: auto; transform: none; animation: none; }
+  .team__people { display: flex; gap: 16px; width: max-content; height: auto; transform: none !important; }
   .member { position: relative; inset: auto; flex: 0 0 var(--card); transform: none; }
   .member[aria-hidden="true"] { display: none; }
 }
@@ -1087,8 +1098,8 @@ html:has(.is-legal) { background: var(--paper); }
   /* at its foot the stage stops short of the screen's edge (see below): the land fades into the paper there
      instead of ending on a cut line */
   .hero__stage::after {
-    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 56px; z-index: 3; pointer-events: none;
-    background: linear-gradient(rgba(230, 211, 183, 0), rgba(230, 211, 183, .7) 55%, rgb(230, 211, 183));
+    content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 57px; z-index: 3; pointer-events: none;
+    background: linear-gradient(rgba(230, 211, 183, 0), rgba(230, 211, 183, .7) 50%, rgb(230, 211, 183) 88%);
   }
   .hero__stage::before {
     content: ""; position: absolute; left: 0; right: 0; top: 0; height: 44px; z-index: 3; pointer-events: none;

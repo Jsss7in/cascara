@@ -92,7 +92,7 @@ def translate(page, lang, missing):
     return walk(page, text, attr)
 
 
-ROOTFILES = ('assets/', 'styles.css', 'main.js', 'shop.js', 'checkout.js', 'ps.js')
+ROOTFILES = ('assets/', 'styles.css', 'main.js', 'shop.js', 'checkout.js', 'ps.js', 'pour.js')
 
 
 def rebase(page):

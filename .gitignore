@@ -7,3 +7,6 @@ _build/plant/src/
 _build/label/out/
 _build/bottle/out/
 _build/bottle/props/
+
+# worktrees of helper agents
+.claude/worktrees/
