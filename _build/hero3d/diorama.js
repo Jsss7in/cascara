@@ -170,11 +170,11 @@ function cloud(x, y, w) {
 // the layers, back to front: depth (lean with the pointer), and where each flies on the first scroll (share of the
 // width, of the height, growth) – on phones the camera flies into the scene instead (flyNarrow)
 const LAYERS = [
-  { id: 'sky', depth: .06, fly: [0, -.05, .12], flyNarrow: [0, -.03, .08] },
-  { id: 'far', depth: .16, fly: [0, .16, -.03], flyNarrow: [0, 0, .14] },
-  { id: 'mid', depth: .3, fly: [0, .28, -.01], flyNarrow: [0, 0, .3] },
-  { id: 'near', depth: .46, fly: [0, .42, .02], flyNarrow: [0, 0, .45] },
-  { id: 'soil', depth: .62, fly: [0, .6, .04], flyNarrow: [0, -.02, .6] },
+  { id: 'sky', depth: .06, fly: [0, -.05, .12], flyNarrow: [0, -.02, .1] },
+  { id: 'far', depth: .16, fly: [0, .16, -.03], flyNarrow: [0, .04, .16] },
+  { id: 'mid', depth: .3, fly: [0, .28, -.01], flyNarrow: [0, .08, .3] },
+  { id: 'near', depth: .46, fly: [0, .42, .02], flyNarrow: [0, .12, .45] },
+  { id: 'soil', depth: .62, fly: [0, .6, .04], flyNarrow: [0, .16, .6] },
   { id: 'branch', depth: .82, fly: [.55, -.06, .3], flyNarrow: [.5, -.08, .3] },
   { id: 'close', depth: 1, fly: [.8, .15, .7], flyNarrow: [.8, .15, .7] },
 ];
@@ -219,8 +219,8 @@ export function createDiorama(root) {
     const rnd = seeded(1712);
     const shadow = (id, dy, blur, o) => `<filter id="${id}" x="-10%" y="-30%" width="120%" height="170%"><feDropShadow dx="0" dy="${dy}" stdDeviation="${blur}" flood-color="rgb(${C.ink})" flood-opacity="${o}"/></filter>`;
     const svgs = {};
-    // the land ends at the foot of the page on wide screens; on phones just above the words (an island)
-    const floor = narrow ? Math.max(cy + ry * 2.2, (copy ? copy.top : H * .58) - 20) : H + 20;
+    // the land runs to the foot of the page
+    const floor = H + 20;
     const clear = copy ? copy.bottom + 34 : H * .7;           // on wide screens the land stays below the words
     const free = (x, y) => narrow || !copy || x > copy.right + 40 || y > clear + 8;   // clear of the words?
     const freeClip = (id) => `<clipPath id="${id}"><path d="M${f1(copy ? copy.right + 40 : 0)} -60H${f1(W + 60)}V${f1(H + 60)}H-60V${f1(clear + 8)}H${f1(copy ? copy.right + 40 : 0)}Z"/></clipPath>`;
@@ -233,7 +233,8 @@ export function createDiorama(root) {
         + `<stop offset="0" stop-color="${C.glow[0]}"/><stop offset=".22" stop-color="${C.glow[1]}" stop-opacity=".9"/>`
         + `<stop offset=".48" stop-color="${C.glow[2]}" stop-opacity=".42"/><stop offset="1" stop-color="${C.glow[2]}" stop-opacity="0"/></radialGradient></defs>`
         + `<radialGradient id="sund" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#FCEFD2"/><stop offset=".45" stop-color="#F6D7A2"/><stop offset="1" stop-color="#ECB077"/></radialGradient>`
-        + `<rect width="${W}" height="${H}" fill="url(#glow)"/>`
+        + `<linearGradient id="sky" x1="0" y1="0" x2="0" y2="${f1(cy + ry * 1.3)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E6D3B7" stop-opacity="0"/><stop offset=".55" stop-color="#EDCDA6" stop-opacity=".5"/><stop offset="1" stop-color="#EBBE8F" stop-opacity=".75"/></linearGradient>`
+        + `<rect width="${W}" height="${H}" fill="url(#sky)"/><rect width="${W}" height="${H}" fill="url(#glow)"/>`
         + `<path filter="url(#dsky)" fill="url(#sund)" d="${disc(sx, sy, R)}"/>`;
       const H2 = R * 1.75;
       piece(byId.sky, 'dio__halo', sx - H2, sy - H2, H2 * 2, H2 * 2,
@@ -326,7 +327,7 @@ export function createDiorama(root) {
         inner += `<path filter="url(#dheap)" fill="#7A2418" d="${hp.mound}"/>${hp.cherries}`;
       }
       svgs.mid = `<defs>${shadows([2, 3])}${shadow('dheap', 3, 3, .3)}<radialGradient id="wglow"><stop offset="0" stop-color="${C.window}" stop-opacity=".45"/><stop offset="1" stop-color="${C.window}" stop-opacity="0"/></radialGradient>${narrow ? '' : freeClip('free3')}</defs>${inner}`;
-      piece(byId.mid, 'dio__mist', -W * .1, 0, W * 1.2, H, `<g transform="translate(${f1(W * .1)} 0)">${mist(c3, -ry * .02, ry * (narrow ? .1 : .14), 1)}</g>`, `--drift:${f1(-r * .6)}px;--dur:36s`);
+      piece(byId.mid, 'dio__mist', -W * .1, 0, W * 1.2, H, `<g transform="translate(${f1(W * .1)} 0)">${mist(c3, -ry * (narrow ? .12 : .3), ry * (narrow ? .1 : .13), 1)}</g>`, `--drift:${f1(-r * .6)}px;--dur:36s`);
     }
 
     // near: the last two ridges with dense rows, and fireflies over them
@@ -364,15 +365,10 @@ export function createDiorama(root) {
 
     // the soil in front, in the dusk: the darkest paper, rows dotted in terracotta (on phones the island's torn edge)
     {
-      const top = narrow ? floor - ry * .36 : H - Math.max(40, H * .075);
+      const top = H - Math.max(narrow ? 30 : 40, H * (narrow ? .05 : .075));
       const crest = [];
       for (let j = 0; j <= 48; j++) { const x = -60 + (W + 120) * j / 48; crest.push([x, top - Math.sin(x * .006 + 1) * ry * .09 - Math.sin(x * .019) * ry * .04]); }
       let d = `${curve(crest)}L${f1(W + 60)} ${f1(floor + 30)}L-60 ${f1(floor + 30)}Z`;
-      if (narrow) {
-        const edge = [];
-        for (let j = 48; j >= 0; j--) { const x = -60 + (W + 120) * j / 48; edge.push([x, floor + Math.sin(x * .05) * 2.5 + Math.sin(x * .17) * 1.2]); }
-        d = `${curve(crest)}L${f1(W + 60)} ${f1(floor)}${curve(edge).replace(/^M/, 'L')}Z`;
-      }
       const tufts = narrow ? [.12, .45, .7, .93] : [.5, .6, .71, .83, .95];
       tufts.forEach((t, i) => {
         const x = W * t + (rnd() - .5) * r * .4, y = crestAt(crest, x) + 3, sz = r * (narrow ? .42 : .38) * (.8 + rnd() * .4);
@@ -388,8 +384,8 @@ export function createDiorama(root) {
     // and on to a young tip; large leaves in pairs, a crown of them behind the fruit; and the cherries as they grow,
     // a cluster at the node – the real one, and beside it three of paper ripening from green to orange
     {
-      const pts = [[W + r * .7, cy - ry * (narrow ? .05 : .2)], [cx + r * 2, cy + ry * 1.15], [cx + r * .05, cy + ry * .97],
-        [cx - r * 1.1, cy + ry * .8], [cx - r * 1.75, cy + ry * .5]];
+      const pts = [[W + r * .7, cy - ry * (narrow ? .05 : .2)], [cx + r * 1.9, cy + ry * 1.1], [cx + r * .05, cy + ry * .97],
+        [cx - r * .75, cy + ry * .86], [cx - r * 1.2, cy + ry * .64]];
       // the twig as a smooth line, sampled evenly so leaves can sit at given shares of its length
       const dense = [];
       const P = [pts[0], ...pts, pts[pts.length - 1]];
@@ -418,7 +414,7 @@ export function createDiorama(root) {
         if (behind) back += p; else front += p;
         veins.push(lf.veins);
       };
-      const k = narrow ? .9 : .86;
+      const k = narrow ? .74 : .76;
       // the crown behind the fruit, from the node – none to its upper left, where the cherry's name stands
       put(node, 3.3 * k, .31, -1.2, 0, true);
       put(node, 2.8 * k, .3, -.75, 1, true);
@@ -426,8 +422,10 @@ export function createDiorama(root) {
       // pairs along the twig, towards the edge
       put(node * .62, 3.2 * k, .32, -1.45, 2);
       put(node * .6, 2.9 * k, .31, 1.2, 0);
-      put(node * .25, 3 * k, .31, -1.15, 3);
-      put(node * .22, 2.7 * k, .3, 1.5, 1);
+      if (!narrow) {
+        put(node * .25, 3 * k, .31, -1.15, 3);
+        put(node * .22, 2.7 * k, .3, 1.5, 1);
+      }
       // the young tip: two small, lighter leaves
       put(.97, 1.25 * k, .3, -2.55, 2);
       put(.97, 1.05 * k, .3, -1.85, 2);
@@ -459,7 +457,7 @@ export function createDiorama(root) {
       svgs.close = d ? `<defs><filter id="dclose" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${f1(Math.max(2, r * .025))}"/><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgb(${C.ink})" flood-opacity=".35"/></filter></defs><g filter="url(#dclose)">${d}</g>` : '';
     }
     for (const L of layers) {
-      L.wrap.style.transformOrigin = narrow ? `${f1(cx)}px ${f1(floor)}px` : '';
+      L.wrap.style.transformOrigin = narrow ? `${f1(cx)}px ${f1(cy)}px` : '';
       L.svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
       L.svg.setAttribute('width', W); L.svg.setAttribute('height', H);
       L.svg.innerHTML = svgs[L.id] || '';
@@ -483,5 +481,5 @@ export function createDiorama(root) {
     root.classList.toggle('is-gone', opacity <= 0);    // nothing moves where nothing is seen
   }
   const lean = (x, y) => { tpx = x; tpy = y; };
-  return { layout, update, lean, layers };
+  return { layout, update, lean, layers, ready: () => key !== '' };
 }

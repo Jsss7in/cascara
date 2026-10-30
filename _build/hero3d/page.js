@@ -146,7 +146,7 @@ import { createDiorama } from './diorama.js';
       const w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
       const end = narrow ? .05 : .072, o = Math.round((1 - smooth(narrow ? .012 : end - .028, end, p)) * 500) / 500;
       if (o > 0 || dioShown) {
-        if (p < .003) dio.layout(fruitBox(), w, h, narrow, copyBox);
+        if (p < .003 || !dio.ready()) dio.layout(fruitBox(), w, h, narrow, copyBox);   // at rest, or late if no frame came at rest
         dio.update(smooth(.004, end, p), o, performance.now() / 1000, w, h, narrow);
       }
       dioShown = o > 0;
@@ -159,7 +159,7 @@ import { createDiorama } from './diorama.js';
         // at the foot of the picture, below the cherry; on narrow screens below the words
         const copyRect = copy.getBoundingClientRect(), stageTop = stage.getBoundingClientRect().top;
         cue.style.setProperty('--x', `${(w / 2).toFixed(1)}px`);
-        cue.style.setProperty('--y', `${(narrow ? Math.min(h - 58, copyRect.bottom - stageTop + 12) : h - 82).toFixed(1)}px`);
+        cue.style.setProperty('--y', `${(narrow ? h - 72 : h - 82).toFixed(1)}px`);
       }
       if (name) {
         // beside the cherry where there is room for the words; on a phone above it, under the buttons
@@ -237,7 +237,7 @@ import { createDiorama } from './diorama.js';
     let right = 0;
     for (const el of copy.children) right = Math.max(right, el.getBoundingClientRect().right - s.left);
     three.frame = narrow
-      ? { l: 14, t: navH + 4, r: w - 14, b: c.top - s.top - 14 }
+      ? { l: 14, t: c.bottom - s.top + 8, r: w - 14, b: h - 86 }
       : { l: right + 48, t: navH + 28, r: w - 32, b: h - 104 };
     // where the words are: the diorama keeps its land clear of them
     copyBox = { left: c.left - s.left, right, top: c.top - s.top, bottom: c.bottom - s.top };
