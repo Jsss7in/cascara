@@ -58,10 +58,10 @@
       const res = await fetch(form.dataset.endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          _subject: `Partizipationsschein: ${name} möchte benachrichtigt werden`, _template: 'table',
-          _autoresponse: T('Danke! Sobald du deinen Partizipationsschein bei Cascarup online zeichnen kannst, schreiben wir dir. Fragen? info@cascarup.ch'),
+          _subject: `Warteliste Partizipationsschein: ${name}`, _template: 'table',
+          _autoresponse: T('Danke! Du bist auf der Warteliste von Cascarup. Sobald du deinen Partizipationsschein wieder online kaufen kannst, schreiben wir dir. Fragen? info@cascarup.ch'),
           Vorname: v('vorname'), Name: v('nachname'), email: v('email'),
-          Anliegen: T('Benachrichtigen, sobald die Partizipationsscheine online erhältlich sind'),
+          Anliegen: 'Warteliste: schreiben, sobald die Partizipationsscheine wieder online erhältlich sind',
         }),
       });
       // FormSubmit answers 200 with success "false" when something is off, so read the body too
@@ -70,7 +70,15 @@
       status.textContent = '';
       finish();
     } catch {
-      status.textContent = T('Die Anmeldung ist nicht angekommen. Bitte versuch es gleich noch einmal oder schreib uns an info@cascarup.ch.');
+      // FormSubmit cannot be reached: the sign-up as a ready e-mail, so no one is lost
+      status.textContent = '';
+      const subject = `Warteliste Partizipationsschein: ${name}`;
+      const body = `Vorname: ${v('vorname')}\nName: ${v('nachname')}\nE-Mail: ${v('email')}\nAnliegen: Warteliste Partizipationsschein`;
+      const box = form.querySelector('[data-notify-mail]'), link = form.querySelector('[data-notify-mail-link]');
+      link.href = `mailto:info@cascarup.ch?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      link.onclick = () => setTimeout(() => finish(T('Schick die E-Mail ab, dann bist du auf der Warteliste.')), 600);
+      box.hidden = false;
+      box.scrollIntoView({ block: 'center', behavior: 'smooth' });
     } finally {
       button.disabled = false;
     }
@@ -137,7 +145,7 @@
   form.addEventListener('change', clearOn);
 
   // the e-mail the buyer gets from FormSubmit: everything needed to pay, also on a second screen
-  const confirmation = (k, total, payCode) => T('Danke, dass du Teil von Cascarup wirst! Deine Bestellung: {n} Partizipationsschein(e) für {betrag}. Dein Code: {code}. So bezahlst du: Öffne die TWINT-App, tippe auf «Scannen» und scanne unseren QR-Code ({qr}). Gib genau {betrag} ein und schreib {code} in die Mitteilung. Sobald deine Zahlung bei uns ist, ist dein Schein gezeichnet. Wegen deines Zertifikats melden wir uns bald bei dir. Fragen? info@cascarup.ch')
+  const confirmation = (k, total, payCode) => T('Danke, dass du Teil von Cascarup wirst! Deine Bestellung: {n} Partizipationsschein(e) für {betrag}. Dein Code: {code}. So bezahlst du: Öffne die TWINT-App, tippe auf «Scannen» und scanne unseren QR-Code ({qr}). Gib genau {betrag} ein und schreib {code} in die Mitteilung. Sobald deine Zahlung bei uns ist, gehört dein Schein dir. Wegen deines Zertifikats melden wir uns bald bei dir. Fragen? info@cascarup.ch')
     .replaceAll('{n}', k).replaceAll('{betrag}', C.fmt(total)).replaceAll('{code}', payCode)
     .replaceAll('{qr}', new URL(`${document.documentElement.dataset.root || ''}assets/twint/twint-qr.png`, location.href).href);
 

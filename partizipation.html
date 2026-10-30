@@ -52,8 +52,8 @@
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>
-  <link rel="stylesheet" href="assets/fonts.css?v=20261030105531">
-  <link rel="stylesheet" href="styles.css?v=20261030105531">
+  <link rel="stylesheet" href="assets/fonts.css?v=20261030105943">
+  <link rel="stylesheet" href="styles.css?v=20261030105943">
 </head>
 <body class="is-ps">
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -124,10 +124,10 @@
           <li><svg viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M18 58V8"/><path pathLength="1" d="M18 11h30l-7 9 7 9H18"/></svg><div><h3>Von Anfang an dabei</h3><p>Du bist dabei, wenn aus einer Kaffeekirsche ein Produkt wird.</p></div></li>
         </ul>
         <div class="hero__actions" data-reveal style="--d:4">
-          <a class="button button--solid" href="#zeichnen">Bald wieder erhältlich</a>
+          <a class="button button--solid" href="#schein">Bald wieder erhältlich</a>
           <a class="hero__more" href="#so-gehts">So funktioniert es</a>
         </div>
-        
+        <p class="ps-stock" data-reveal style="--d:5"><a href="#schein">Bis dahin kannst du dich auf die Warteliste setzen.</a></p>
       </div>
       <div class="ps-hero__cert" data-reveal style="--d:2">
         <div class="cert">
@@ -162,7 +162,7 @@
       <div class="ps-choice__head">
         <p class="eyebrow" data-reveal>Kein unnötiges Risiko</p>
         <h2 class="display" id="ps-choice-title" data-reveal style="--d:1">Du wählst,<br>wie es <em>endet.</em></h2>
-        <p data-reveal style="--d:2">Beim Zeichnen wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert: zurück zu dir oder als Andenken bei uns.</p>
+        <p data-reveal style="--d:2">Beim Kauf wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert: zurück zu dir oder als Andenken bei uns.</p>
       </div>
       <div class="ps-ways">
         <div class="ps-way" data-reveal style="--d:0"><svg viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="26" r="14"/><circle pathLength="1" cx="32" cy="26" r="8"/><path pathLength="1" d="M24 38l-5 19 13-7 13 7-5-19"/></svg><span class="ps-way__tag">Hilft uns am meisten</span><h3>Behalten</h3><p>Dein Schein bleibt dir als Andenken, dein Beitrag bleibt bei Cascarup.</p></div>
@@ -176,20 +176,44 @@
       <ol class="ps-steps__list">
         <li data-reveal style="--d:0"><span class="ps-steps__no">1</span><h3>Schein wählen</h3><p>Wie viele Scheine, deine Angaben und was am Ende mit deinem Geld passiert.</p></li>
         <li data-reveal style="--d:1"><span class="ps-steps__no">2</span><h3>Bezahlen</h3><p>Mit TWINT. Der Kauf ist gerade pausiert und bald wieder möglich.</p></li>
-        <li data-reveal style="--d:2"><span class="ps-steps__no">3</span><h3>Bestätigung</h3><p>Du bekommst eine Bestätigung per E-Mail. Sobald deine Zahlung da ist, ist dein Schein gezeichnet, und wir melden uns wegen deines Zertifikats.</p></li>
+        <li data-reveal style="--d:2"><span class="ps-steps__no">3</span><h3>Bestätigung</h3><p>Du bekommst eine Bestätigung per E-Mail. Sobald deine Zahlung da ist, gehört dein Schein dir, und wir melden uns wegen deines Zertifikats.</p></li>
         <li data-reveal style="--d:3"><span class="ps-steps__no">4</span><h3>Am Ende des Jahres</h3><p>Geld zurück oder Andenken, so wie du es gewählt hast.</p></li>
       </ol>
       <p class="ps-steps__cash" data-reveal>Lieber bar? Sprich uns <a href="index.html#staende">an einem unserer Stände</a> an oder frag ein Teammitglied.</p>
     </section>
 
     <!-- the form, with the certificate beside it, filling in as you type -->
-    <section class="ps-form" data-tone="paper" id="zeichnen" aria-labelledby="ps-form-title">
+    <section class="ps-form" data-tone="paper" id="schein" aria-labelledby="ps-form-title">
       <div class="ps-form__grid">
         <div class="ps-form__main">
           <p class="eyebrow">Dein Schein</p>
           <h2 class="display" id="ps-form-title">Bald wieder <em>erhältlich.</em></h2>
-          <p class="ps-soon">Der Kauf mit TWINT ist gerade pausiert. Bald kannst du deinen Schein hier wieder online zeichnen.</p>
-          <p class="ps-soon">Fragen? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
+          <p class="ps-soon">Der Kauf mit TWINT ist gerade pausiert. Trag dich in die Warteliste ein: Sobald du deinen Schein wieder online kaufen kannst, schreiben wir dir.</p>
+          <form class="order ps-order" data-notify data-endpoint="https://formsubmit.co/ajax/info@cascarup.ch" novalidate>
+            <fieldset class="order__group">
+              <legend>Warteliste</legend>
+              <div class="fields"><label class="field"><span>Vorname</span><input name="vorname" autocomplete="given-name" required aria-describedby="err-vorname"><span class="order__error" id="err-vorname" data-error="vorname" hidden></span></label><label class="field"><span>Name</span><input name="nachname" autocomplete="family-name" required aria-describedby="err-nachname"><span class="order__error" id="err-nachname" data-error="nachname" hidden></span></label></div>
+              <label class="field field--wide"><span>E-Mail</span><input name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="err-email"><span class="order__error" id="err-email" data-error="email" hidden></span></label>
+            </fieldset>
+            <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
+              <span>Ich bin einverstanden, dass Cascarup meinen Namen und meine E-Mail-Adresse für die Warteliste speichert und dafür über den Dienst FormSubmit ins Ausland übermittelt. Mehr in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
+            <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
+            <button class="button button--solid order__submit" type="submit" data-pay>Auf die Warteliste</button>
+            <p class="order__status" role="status" aria-live="polite"></p>
+            <div class="twint-pay__mail" data-notify-mail hidden>
+              <p><strong>Unser Formular ist gerade nicht erreichbar.</strong> Trag dich per E-Mail ein: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.</p>
+              <a class="button button--solid" data-notify-mail-link href="mailto:info@cascarup.ch">Per E-Mail eintragen</a>
+            </div>
+          </form>
+          <div class="ps-done" data-ps-done hidden tabindex="-1">
+            <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
+            <p class="eyebrow">Danke!</p>
+            <p class="cart__done-title">Du bist auf der Warteliste.</p>
+            <p class="cart__done-text">Sobald du deinen Partizipationsschein wieder online kaufen kannst, schreiben wir dir eine E-Mail.</p>
+            <p class="cart__done-note" data-done-note hidden></p>
+            <a class="button button--solid" href="index.html#shop">Zum Shop</a>
+          </div>
         <div class="ps-form__aside" aria-hidden="true">
           <div class="cert" data-cert>
           <img class="cert__rosette" src="assets/ps/rosette.svg" alt="" width="1200" height="1200" decoding="async">
@@ -208,10 +232,10 @@
       <details class="ps-terms" id="bedingungen">
         <summary>Die Bedingungen</summary>
         <ul>
-            <li>Ein Partizipationsschein kostet CHF 15.–. Online kannst du bis zu 20 Scheine auf einmal zeichnen.</li>
+            <li>Ein Partizipationsschein kostet CHF 15.–. Online kannst du bis zu 20 Scheine auf einmal kaufen.</li>
             <li>Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.</li>
             <li>Herausgeber ist Cascarup, ein Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Fribourg.</li>
-            <li>Bezahlt wird mit TWINT, mit deinem persönlichen Code in der Mitteilung. Dein Schein ist gezeichnet, sobald deine Zahlung bei uns ist.</li>
+            <li>Bezahlt wird mit TWINT, mit deinem persönlichen Code in der Mitteilung. Dein Schein gehört dir, sobald deine Zahlung bei uns ist.</li>
             <li>Der Schein gilt für unser Unternehmungsjahr 2026/27.</li>
             <li>Wählst du «Geld zurück», zahlen wir dir am Ende des Unternehmungsjahres deinen Betrag zurück. Wie und wann genau, schreiben wir dir rechtzeitig per E-Mail.</li>
             <li>Wählst du «Behalten», bleibt dein Beitrag bei Cascarup, und der Schein bleibt dir als Andenken.</li>
@@ -255,8 +279,8 @@
 
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden><img class="menu-btn__bottle" src="assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async"><span>Menü</span><i aria-hidden="true"></i></button>
 
-  <script src="main.js?v=20261030105531" defer></script>
-  <script src="checkout.js?v=20261030105531" defer></script>
-  <script src="ps.js?v=20261030105531" defer></script>
+  <script src="main.js?v=20261030105943" defer></script>
+  <script src="checkout.js?v=20261030105943" defer></script>
+  <script src="ps.js?v=20261030105943" defer></script>
 </body>
 </html>

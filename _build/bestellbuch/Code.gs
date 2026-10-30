@@ -138,7 +138,7 @@ const KUNDE = {
       `So bezahlst du mit TWINT:`, `1. Öffne die TWINT-App und tippe auf «Scannen».`,
       `2. Scanne unseren QR-Code: https://cascarup.ch/twint/`, `3. Gib genau ${chf(o.betrag)} ein.`,
       `4. Schreib deinen Code ${o.code} in die Mitteilung.`, '',
-      `Sobald deine Zahlung bei uns ist, ist dein Schein gezeichnet. Wegen deines Zertifikats melden wir uns bald bei dir.`, '',
+      `Sobald deine Zahlung bei uns ist, gehört dein Schein dir. Wegen deines Zertifikats melden wir uns bald bei dir.`, '',
       `Fragen? Antworte einfach auf diese E-Mail.`, `Cascarup, Fribourg`,
     ].join('\n'),
   }),

@@ -51,5 +51,8 @@
  "Mit TWINT bezahlen",
  "Bestellung kopieren",
  "Zur Sicherheit: Schreib in die TWINT-Mitteilung deinen Code und deine E-Mail-Adresse, also «{code} {email}».",
- "Wird gespeichert …"
+ "Wird gespeichert …",
+ "Danke! Du bist auf der Warteliste von Cascarup. Sobald du deinen Partizipationsschein wieder online kaufen kannst, schreiben wir dir. Fragen? info@cascarup.ch",
+ "Schick die E-Mail ab, dann bist du auf der Warteliste.",
+ "Danke, dass du Teil von Cascarup wirst! Deine Bestellung: {n} Partizipationsschein(e) für {betrag}. Dein Code: {code}. So bezahlst du: Öffne die TWINT-App, tippe auf «Scannen» und scanne unseren QR-Code ({qr}). Gib genau {betrag} ein und schreib {code} in die Mitteilung. Sobald deine Zahlung bei uns ist, gehört dein Schein dir. Wegen deines Zertifikats melden wir uns bald bei dir. Fragen? info@cascarup.ch"
 ]

@@ -770,14 +770,14 @@ PS_FAV = 'Hilft uns am meisten'
 PS_STEPS = [
  ('Schein wählen', 'Wie viele Scheine, deine Angaben und was am Ende mit deinem Geld passiert.'),
  ('Bezahlen', 'Mit TWINT: Wir zeigen dir unseren QR-Code, den Betrag und deinen persönlichen Code für die Mitteilung.' if PS_OPEN else 'Mit TWINT. Der Kauf ist gerade pausiert und bald wieder möglich.'),
- ('Bestätigung', 'Du bekommst eine Bestätigung per E-Mail. Sobald deine Zahlung da ist, ist dein Schein gezeichnet, und wir melden uns wegen deines Zertifikats.'),
+ ('Bestätigung', 'Du bekommst eine Bestätigung per E-Mail. Sobald deine Zahlung da ist, gehört dein Schein dir, und wir melden uns wegen deines Zertifikats.'),
  ('Am Ende des Jahres', 'Geld zurück oder Andenken, so wie du es gewählt hast.'),
 ]
 PS_TERMS = [
- f'Ein Partizipationsschein kostet CHF {PS_PRICE}.–. Online kannst du bis zu {PS_MAX} Scheine auf einmal zeichnen.',
+ f'Ein Partizipationsschein kostet CHF {PS_PRICE}.–. Online kannst du bis zu {PS_MAX} Scheine auf einmal kaufen.',
  'Die Anzahl Scheine ist begrenzt: Erhältlich, solange der Vorrat reicht. Sind alle vergeben, bevor deine Zahlung eingeht, zahlen wir dir deinen Betrag sofort zurück.',
  'Herausgeber ist Cascarup, ein Schülerunternehmen im Company Programme von Young Enterprise Switzerland, c/o Collège Saint-Michel, Fribourg.',
- 'Bezahlt wird mit TWINT, mit deinem persönlichen Code in der Mitteilung. Dein Schein ist gezeichnet, sobald deine Zahlung bei uns ist.',
+ 'Bezahlt wird mit TWINT, mit deinem persönlichen Code in der Mitteilung. Dein Schein gehört dir, sobald deine Zahlung bei uns ist.',
  'Der Schein gilt für unser Unternehmungsjahr 2026/27.',
  'Wählst du «Geld zurück», zahlen wir dir am Ende des Unternehmungsjahres deinen Betrag zurück. Wie und wann genau, schreiben wir dir rechtzeitig per E-Mail.',
  'Wählst du «Behalten», bleibt dein Beitrag bei Cascarup, und der Schein bleibt dir als Andenken.',
@@ -826,7 +826,7 @@ def twint_pay():
               <button type="button" class="button button--solid twint-pay__paid" data-paid>Ich habe bezahlt</button>
               <p class="order__status" data-paid-status role="status" aria-live="polite"></p>
               <p class="cart__done-note" data-done-note hidden></p>
-              <button type="button" class="hero__more twint-pay__again" data-ps-again>Weitere Scheine zeichnen</button>
+              <button type="button" class="hero__more twint-pay__again" data-ps-again>Weitere Scheine kaufen</button>
             </div>
             <div class="twint-pay__thanks" data-pay-thanks hidden>
               <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
@@ -853,7 +853,7 @@ def ps_main():
         for k, t, p, svg in PS_CHOICE)
     terms = '\n'.join(f'            <li>{t}</li>' for t in PS_TERMS)
     buy = f'''          <p class="eyebrow">Dein Schein</p>
-          <h2 class="display" id="ps-form-title">Jetzt <em>zeichnen.</em></h2>
+          <h2 class="display" id="ps-form-title">Jetzt <em>sichern.</em></h2>
           <form class="order ps-order" data-ps data-endpoint="{NOTIFY_ENDPOINT}" data-sheet="{PS_SHEET}" data-price="{PS_PRICE}" data-max="{PS_MAX}" novalidate>
             <fieldset class="order__group">
               <legend>Anzahl</legend>
@@ -897,11 +897,36 @@ def ps_main():
         </div>
 '''
     # until the certificates can be bought online: a name and an e-mail, so we can write once they can
-    # while buying is paused: no form, only the word that it comes back (the old sign-up ran through FormSubmit)
+    # while buying is paused: the waiting list (a name and an e-mail through FormSubmit, or as a ready e-mail if that
+    # cannot be reached), so we can write once the certificates can be bought again
     notify = f'''          <p class="eyebrow">Dein Schein</p>
           <h2 class="display" id="ps-form-title">Bald wieder <em>erhältlich.</em></h2>
-          <p class="ps-soon">Der Kauf mit TWINT ist gerade pausiert. Bald kannst du deinen Schein hier wieder online zeichnen.</p>
-          <p class="ps-soon">Fragen? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
+          <p class="ps-soon">Der Kauf mit TWINT ist gerade pausiert. Trag dich in die Warteliste ein: Sobald du deinen Schein wieder online kaufen kannst, schreiben wir dir.</p>
+          <form class="order ps-order" data-notify data-endpoint="{NOTIFY_ENDPOINT}" novalidate>
+            <fieldset class="order__group">
+              <legend>Warteliste</legend>
+              <div class="fields">{field('vorname', 'Vorname', ' autocomplete="given-name"')}{field('nachname', 'Name', ' autocomplete="family-name"')}</div>
+              {field('email', 'E-Mail', ' type="email" autocomplete="email" inputmode="email"', wide=True)}
+            </fieldset>
+            <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
+              <span>Ich bin einverstanden, dass Cascarup meinen Namen und meine E-Mail-Adresse für die Warteliste speichert und dafür über den Dienst FormSubmit ins Ausland übermittelt. Mehr in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
+            <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
+            <button class="button button--solid order__submit" type="submit" data-pay>Auf die Warteliste</button>
+            <p class="order__status" role="status" aria-live="polite"></p>
+            <div class="twint-pay__mail" data-notify-mail hidden>
+              <p><strong>Unser Formular ist gerade nicht erreichbar.</strong> Trag dich per E-Mail ein: Sie ist schon fertig ausgefüllt, du musst sie nur noch abschicken.</p>
+              <a class="button button--solid" data-notify-mail-link href="mailto:info@cascarup.ch">Per E-Mail eintragen</a>
+            </div>
+          </form>
+          <div class="ps-done" data-ps-done hidden tabindex="-1">
+            <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
+            <p class="eyebrow">Danke!</p>
+            <p class="cart__done-title">Du bist auf der Warteliste.</p>
+            <p class="cart__done-text">Sobald du deinen Partizipationsschein wieder online kaufen kannst, schreiben wir dir eine E-Mail.</p>
+            <p class="cart__done-note" data-done-note hidden></p>
+            <a class="button button--solid" href="index.html#shop">Zum Shop</a>
+          </div>
 '''
     return f'''  <main id="main" class="ps">
     <!-- the way in: what a certificate is, beside the certificate itself -->
@@ -914,10 +939,10 @@ def ps_main():
 {why}
         </ul>
         <div class="hero__actions" data-reveal style="--d:4">
-          <a class="button button--solid" href="#zeichnen">{'Schein sichern' if PS_OPEN else 'Bald wieder erhältlich'}</a>
+          <a class="button button--solid" href="#schein">{'Schein sichern' if PS_OPEN else 'Bald wieder erhältlich'}</a>
           <a class="hero__more" href="#so-gehts">So funktioniert es</a>
         </div>
-        {'<p class="ps-stock" data-reveal style="--d:5">Solange der Vorrat reicht.</p>' if PS_OPEN else ''}
+        {'<p class="ps-stock" data-reveal style="--d:5">Solange der Vorrat reicht.</p>' if PS_OPEN else '<p class="ps-stock" data-reveal style="--d:5"><a href="#schein">Bis dahin kannst du dich auf die Warteliste setzen.</a></p>'}
       </div>
       <div class="ps-hero__cert" data-reveal style="--d:2">
         {certificate()}
@@ -938,7 +963,7 @@ def ps_main():
       <div class="ps-choice__head">
         <p class="eyebrow" data-reveal>Kein unnötiges Risiko</p>
         <h2 class="display" id="ps-choice-title" data-reveal style="--d:1">Du wählst,<br>wie es <em>endet.</em></h2>
-        <p data-reveal style="--d:2">Beim Zeichnen wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert: zurück zu dir oder als Andenken bei uns.</p>
+        <p data-reveal style="--d:2">Beim Kauf wählst du, was am Ende unseres Unternehmungsjahres mit deinem Geld passiert: zurück zu dir oder als Andenken bei uns.</p>
       </div>
       <div class="ps-ways">
 {choice}
@@ -955,7 +980,7 @@ def ps_main():
     </section>
 
     <!-- the form, with the certificate beside it, filling in as you type -->
-    <section class="ps-form" data-tone="paper" id="zeichnen" aria-labelledby="ps-form-title">
+    <section class="ps-form" data-tone="paper" id="schein" aria-labelledby="ps-form-title">
       <div class="ps-form__grid">
         <div class="ps-form__main">
 {buy if PS_OPEN else notify}        <div class="ps-form__aside" aria-hidden="true">
