@@ -467,21 +467,18 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .pour__pot { position: absolute; left: 8px; top: 0; width: var(--pot-w); height: var(--pot-h); overflow: hidden; }
 .pour__pot img { position: absolute; left: 0; top: 0; width: calc(var(--pot-w) * 6); height: auto; max-width: none; will-change: transform; }
 .pour__flow { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
-/* the syrup: a shadow on the paper, the dark body, a warmer core where it is thick, a gleam along it */
-.pour__shadow { fill: rgba(43, 24, 16, .2); }
-.pour__syrup { fill: #5b1d0a; }
-.pour__core { fill: #91381a; }
-.pour__shine { fill: none; stroke: rgba(255, 214, 176, .72); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
-.pour__ink { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.pour__ink--shadow { stroke: rgba(43, 24, 16, .2); }
-.pour__ink--body { stroke: #5b1d0a; }
-.pour__ink--core { stroke: #94391a; }
-.pour__ink--gloss { stroke: rgba(255, 220, 186, .8); }
+/* the syrup, flat, in the colour it has in the pot */
+.pour { --syrup: #51301D; }
+.pour__syrup { fill: var(--syrup); }
 .pour__facts { margin: 0; display: grid; gap: 22px; }
-.pour__fact dt { position: relative; font: 600 clamp(2.15rem, 3.3vw, 2.85rem)/1.1 var(--brand); letter-spacing: -.01em; color: var(--terra-ink); }
-/* with the script the label is written in syrup (main.js); its words stay for screen readers and keep the room */
-.pour.is-live .pour__fact dt { height: 1.25em; }
-.pour.is-live .pour__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pour__fact dt { position: relative; width: fit-content; font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); letter-spacing: -.01em; color: var(--syrup); }
+.pour__ghost { display: none; }
+.pour__ink { display: block; }
+/* with the script: the word waits faintly, and fills with syrup from the left, its front rounded like running syrup */
+.pour.is-live .pour__ghost { display: block; opacity: .13; }
+/* the front: it runs ahead along the bottom and rises behind, curved, as syrup spreading along a floor does */
+.pour.is-live .pour__ink { --x: calc(var(--fill, 0) * (100% + .7em)); position: absolute; inset: 0;
+  clip-path: polygon(-20% -30%, calc(var(--x) - .7em) -30%, calc(var(--x) - .5em) 20%, calc(var(--x) - .26em) 58%, calc(var(--x) - .08em) 88%, var(--x) 130%, -20% 130%); }
 .pour__fact dd { margin: 8px 0 0 46px; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
 .pour__fact dd em { font-style: italic; }
 .pour.is-live .pour__fact dd { opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity .6s var(--ease) .35s, transform .6s var(--ease) .35s; }

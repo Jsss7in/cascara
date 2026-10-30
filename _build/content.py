@@ -587,8 +587,8 @@ V['SHOP'] = shop()
 V['CART'] = cart()
 # ---------------------------------------------------------------------------
 # Cascara in four facts, poured: a pot of our syrup with cinnamon and star anise tips as it comes up the page; its
-# syrup runs over the rim and, falling, writes the first word in a single line of syrup; from that word it drips on
-# and writes the next, and each fact comes in as its word is written. The pot is 36 frames rendered from the
+# syrup runs over the rim and falls into the first word, which fills with it from left to right; from that word it
+# drips on into the next, and each fact comes in as its word is full. The pot is 36 frames rendered from the
 # opening's own 3D pot (_build/pour/render.mjs → assets/pour/pot.webp, 6 to a row); meta.json: where its lip is.
 CASCARA_FACTS = [
     ('Was', 'Haut und Fruchtfleisch der Kaffeekirsche, getrocknet'),
@@ -598,43 +598,19 @@ CASCARA_FACTS = [
 ]
 
 
-def script_glyphs(words):
-    """The letters of the labels, in «EMS Allure» (a single-line script after Allura by Rob Leuschke, by Sheldon B.
-    Michaels; SIL Open Font License, _build/pour/EMSAllure.svg): the syrup writes them stroke by stroke. Only the
-    letters the labels need, in every language; é and û get their accents drawn on in the same hand."""
-    import html, pathlib, re
-    src = (pathlib.Path(__file__).parent / 'pour' / 'EMSAllure.svg').read_text(encoding='utf-8')
-    g = {}
-    for m in re.finditer(r'<glyph\b([^>]*)/?>', src):
-        a = m.group(1); u = re.search(r'unicode="([^"]*)"', a)
-        if not u:
-            continue
-        adv = re.search(r'horiz-adv-x="([-\d.]+)"', a); d = re.search(r'\sd="([^"]*)"', a)
-        g[html.unescape(u.group(1))] = [round(float(adv.group(1))) if adv else 500, d.group(1) if d else '']
-    g['é'] = [g['e'][0], g['e'][1] + ' M 120 420 L 230 530']
-    g['û'] = [g['u'][0], g['u'][1] + ' M 70 400 L 170 490 L 270 400']
-    chars = sorted(set(''.join(words)) - {' '})
-    return {c: g[c] for c in chars if c in g}
-
-
 def pour():
     import json, pathlib
-    here = pathlib.Path(__file__).parent
-    m = json.loads((here / 'pour' / 'meta.json').read_text())
-    labels = [a for a, _ in CASCARA_FACTS]
-    for lang in ('fr', 'en'):
-        t = json.loads((here / 'i18n' / f'{lang}.json').read_text())
-        labels += [t.get(a, a) for a, _ in CASCARA_FACTS]
-    script = json.dumps({'em': 1000, 'g': script_glyphs(labels)}, ensure_ascii=False, separators=(',', ':'))
+    m = json.loads((pathlib.Path(__file__).parent / 'pour' / 'meta.json').read_text())
     lips = ' '.join(f'{x:.4f},{y:.4f}' for x, y, _ in m['lips'])
-    # the label stays as words (screen readers, no script); with the script it is written in syrup over them
-    rows = '\n'.join(f'          <div class="pour__fact"><dt><span class="pour__label">{a}</span></dt><dd>{b}</dd></div>'
+    # each label in our type, in the syrup's own colour: a faint word waiting, and over it the same word, which the
+    # syrup fills as it runs in
+    rows = '\n'.join(f'          <div class="pour__fact"><dt><span class="pour__ghost" aria-hidden="true">{a}</span><span class="pour__ink">{a}</span></dt><dd>{b}</dd></div>'
                      for a, b in CASCARA_FACTS)
-    return (f'<div class="pour" data-pour data-frames="{m["n"]}" data-cols="{m["cols"]}" data-pour-at="{m["pour"]}" data-lips="{lips}" data-script=\'{script}\' '
+    return (f'<div class="pour" data-pour data-frames="{m["n"]}" data-cols="{m["cols"]}" data-pour-at="{m["pour"]}" data-lips="{lips}" '
             f'style="--pot-w:{m["w"]}px;--pot-h:{m["h"]}px">\n'
             '          <div class="pour__pot" aria-hidden="true"><img src="assets/pour/pot.webp" alt="" '
             f'width="{m["w"] * m["cols"]}" height="{m["h"] * -(-m["n"] // m["cols"])}" loading="lazy" decoding="async"></div>\n'
-            '          <svg class="pour__flow" aria-hidden="true"><path class="pour__shadow"/><path class="pour__syrup"/><path class="pour__core"/><path class="pour__shine"/></svg>\n'
+            '          <svg class="pour__flow" aria-hidden="true"><path class="pour__syrup"/></svg>\n'
             '          <dl class="pour__facts">\n' + rows + '\n          </dl>\n        </div>')
 
 
