@@ -201,29 +201,53 @@ const LAYERS = [
   { id: 'close', depth: 1, fly: [.8, .15, .7], flyNarrow: [.8, .15, .7] },
 ];
 
-// The way from the first picture to the cherry alone: the thrown-away cherries lift off their heaps and whirl round
-// the real one in a tilted ring – in front of it and behind it – and are drawn into it, as if we were about to need
-// them (we are: their skins become the syrup). It follows the scroll, so it plays backwards too.
-export function createDiorama(root, swirlRoot = null) {
+// The grain of paper, laid onto every layer once as it is painted (light and dark specks, only where there is paper)
+let grainTile = null;
+function grainOn(ctx, w, h) {
+  if (!grainTile) {
+    grainTile = document.createElement('canvas'); grainTile.width = grainTile.height = 128;
+    const g = grainTile.getContext('2d'), im = g.createImageData(128, 128), rnd = seeded(99);
+    for (let i = 0; i < im.data.length; i += 4) {
+      const v = rnd(), light = v > .5, a = Math.abs(v - .5) * 2;
+      im.data[i] = light ? 255 : 58; im.data[i + 1] = light ? 246 : 33; im.data[i + 2] = light ? 232 : 22; im.data[i + 3] = Math.round(a * a * 30);
+    }
+    g.putImageData(im, 0, 0);
+  }
+  ctx.save(); ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = ctx.createPattern(grainTile, 'repeat'); ctx.fillRect(0, 0, w, h); ctx.restore();
+}
+// how sharp each layer is painted (device pixels per CSS pixel, at most): the far, soft ones need less
+const SHARP = { sky: 1, far: 1, mid: 1.5, near: 1.5, soil: 1.5, branch: 2, close: 1 };
+
+// Every layer is drawn once as a picture (the SVG painted onto a canvas, while the loading screen still shows), so
+// what moves afterwards are finished pictures: nothing is drawn again while the page runs, only moved and faded.
+export function createDiorama(root) {
   root.innerHTML = '';
+  // the paper under it all, with its grain: a layer of its own, so the diorama fades layer by layer (one opacity on
+  // the whole would have the browser paint all of it again, off screen, in every frame of the fade)
+  const ground = document.createElement('div');
+  ground.className = 'dio__ground';
+  root.append(ground);
   const layers = LAYERS.map((L, i) => {
     const wrap = document.createElement('div');
     wrap.className = `dio__layer dio__layer--${L.id}`;
     wrap.style.setProperty('--i', i);
     const rise = document.createElement('div');
     rise.className = 'dio__rise';
-    const svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('aria-hidden', 'true');
-    const fx = document.createElement('div');     // what moves on its own (clouds, mist, birds, fireflies)
+    const paint = document.createElement('canvas');
+    paint.className = 'dio__paint';
+    const svg = document.createElementNS(NS, 'svg');   // used only if painting into the canvas fails
+    svg.setAttribute('aria-hidden', 'true'); svg.style.display = 'none';
+    const fx = document.createElement('div');     // what moves on its own (clouds, mist, birds, the farmer)
     fx.className = 'dio__fx';
     const back = document.createElement('div');   // what moves behind the drawing (the sun's halo)
     back.className = 'dio__fx';
-    rise.append(back, svg, fx); wrap.append(rise); root.append(wrap);
-    return { ...L, wrap, svg, fx, back };
+    rise.append(back, paint, svg, fx); wrap.append(rise); root.append(wrap);
+    return { ...L, wrap, paint, svg, fx, back, tf: '' };
   });
   const byId = Object.fromEntries(layers.map((L) => [L.id, L]));
   let key = '', px = 0, py = 0, tpx = 0, tpy = 0;
-  let heaps = [], swirl = [], centre = null, swirlShown = false, walker = null;
+  let heaps = [], walker = null, gen = 0, lastOpacity = -1, gone = null, fades = [];
+  let markDrawn; const drawn = new Promise((res) => { markDrawn = res; });
 
   // a small drawing that moves on its own: an SVG in its own element (CSS animates the element, never the drawing)
   const piece = (layer, cls, x, y, w, h, inner, style = '', behind = false) => {
@@ -232,6 +256,8 @@ export function createDiorama(root, swirlRoot = null) {
     el.style.cssText = `left:${f1(x)}px;top:${f1(y)}px;width:${f1(w)}px;height:${f1(h)}px;${style}`;
     el.innerHTML = inner ? `<svg viewBox="0 0 ${f1(w)} ${f1(h)}" width="${f1(w)}" height="${f1(h)}" aria-hidden="true">${inner}</svg>` : '';
     (behind ? layer.back : layer.fx).append(el);
+    // what fades with the diorama: the piece itself, or for a bird (whose flight already sets its opacity) its wings
+    fades.push(cls === 'dio__bird' ? el.firstElementChild : el);
     return el;
   };
 
@@ -241,6 +267,7 @@ export function createDiorama(root, swirlRoot = null) {
     if (k === key || !W || !H || !box.rx) return;
     key = k;
     for (const L of layers) { L.fx.innerHTML = ''; L.back.innerHTML = ''; }
+    fades = []; lastOpacity = -1;
     heaps = []; walker = null;
     // the fruit (fr, fry) is smaller at rest than in the story; the scene is drawn at the story's size of it (r, ry)
     const { x: cx, y: cy } = box, fr = box.rx, fry = box.ry || box.rx * 1.27, r = fr / FRUIT_AT_REST, ry = fry / FRUIT_AT_REST;
@@ -285,7 +312,7 @@ export function createDiorama(root, swirlRoot = null) {
       for (let i = 0; i < birds; i++) {
         const s = r * (narrow ? .26 : .22) * (1 - i * .06);
         piece(byId.sky, 'dio__bird', W * 1.04, top + i * r * .22 + (i % 2) * r * .12, s * 2, s,
-          `<path class="dio__wing" fill="none" stroke="${C.bird}" stroke-width="${f1(Math.max(1.2, s * .12))}" stroke-linecap="round" stroke-linejoin="round" d="M${f1(s * .05)} ${f1(s * .55)}Q${f1(s * .55)} ${f1(s * .05)} ${f1(s)} ${f1(s * .62)}Q${f1(s * 1.45)} ${f1(s * .05)} ${f1(s * 1.95)} ${f1(s * .55)}"/>`,
+          `<path fill="none" stroke="${C.bird}" stroke-width="${f1(Math.max(1.2, s * .12))}" stroke-linecap="round" stroke-linejoin="round" d="M${f1(s * .05)} ${f1(s * .55)}Q${f1(s * .55)} ${f1(s * .05)} ${f1(s)} ${f1(s * .62)}Q${f1(s * 1.45)} ${f1(s * .05)} ${f1(s * 1.95)} ${f1(s * .55)}"/>`,
           `--fly:${f1(-W * 1.25)}px;--rise:${f1(-ry * (.3 + i * .05))}px;--dur:${26 + i * 1.6}s;--delay:${f1(i * .9 + 2.5)}s;--flap:${f1(.55 + i * .07)}s`);
       }
     }
@@ -322,7 +349,11 @@ export function createDiorama(root, swirlRoot = null) {
 
     // far: the hazy mountains and the first terraces; tracing-paper mist drifting between them
     svgs.far = `<defs>${shadows([0, 1])}</defs>` + ridgeSvg(0) + ridgeSvg(1, terr(R6[1].crest, ry * .075, 4, 1));
-    piece(byId.far, 'dio__mist', -W * .1, 0, W * 1.2, H, `<g transform="translate(${f1(W * .1)} 0)">${mist(R6[1].crest, ry * .05, ry * (narrow ? .14 : .2), 0)}</g>`, `--drift:${f1(r * .7)}px;--dur:28s`);
+    const strip = (layer, crest, dy, th, i, drift, dur) => {
+      const ys = crest.map(([, y]) => y), top = Math.min(...ys) + dy - th * 1.3, bot = Math.max(...ys) + dy + th * 1.3;
+      piece(layer, 'dio__mist', -W * .1, top, W * 1.2, bot - top, `<g transform="translate(${f1(W * .1)} ${f1(-top)})">${mist(crest, dy, th, i)}</g>`, `--drift:${f1(drift)}px;--dur:${dur}s`);
+    };
+    strip(byId.far, R6[1].crest, ry * .05, ry * (narrow ? .14 : .2), 0, r * .7, 28);
 
     // middle: the plantation proper – terraces, rows of shrubs, shade trees, the farm with its drying beds
     {
@@ -359,7 +390,7 @@ export function createDiorama(root, swirlRoot = null) {
         inner += `<path filter="url(#dheap)" fill="#7A2418" d="${hp.mound}"/>${hp.cherries}`;
       }
       svgs.mid = `<defs>${shadows([2, 3])}${shadow('dheap', 3, 3, .3)}<radialGradient id="wglow"><stop offset="0" stop-color="${C.window}" stop-opacity=".45"/><stop offset="1" stop-color="${C.window}" stop-opacity="0"/></radialGradient>${narrow ? '' : freeClip('free3')}</defs>${inner}`;
-      piece(byId.mid, 'dio__mist', -W * .1, 0, W * 1.2, H, `<g transform="translate(${f1(W * .1)} 0)">${mist(c3, -ry * (narrow ? .12 : .3), ry * (narrow ? .1 : .13), 1)}</g>`, `--drift:${f1(-r * .6)}px;--dur:36s`);
+      strip(byId.mid, c3, -ry * (narrow ? .12 : .3), ry * (narrow ? .1 : .13), 1, -r * .6, 36);
     }
 
     // near: the last two ridges with dense rows, and fireflies over them
@@ -489,76 +520,85 @@ export function createDiorama(root, swirlRoot = null) {
       spots.forEach(([x, y, len, wid, a], i) => { d += `<path fill="${C.close[i % 2]}" d="${leaf(x, y, len * r, wid * r, a, rr).shape}"/>`; });
       svgs.close = d ? `<defs><filter id="dclose" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${f1(Math.max(2, r * .025))}"/><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgb(${C.ink})" flood-opacity=".35"/></filter></defs><g filter="url(#dclose)">${d}</g>` : '';
     }
-    // the whirl: cherries that start on the heaps, each with its own way round the real cherry
-    centre = { x: cx, y: cy, r, ry };
-    swirl = [];
-    if (swirlRoot) {
-      swirlRoot.innerHTML = '';
-      const sr = seeded(4242), per = narrow ? 10 : 14;
-      for (const [hx, hy, hw] of heaps) for (let i = 0; i < per; i++) {
-        const t = sr() * 2 - 1, up = sr() * Math.pow(Math.max(0, 1 - t * t), .7) * .85;
-        const x0 = hx + t * hw * .42, y0 = hy - hw * .42 * up - hw * .03;
-        const size = r * (narrow ? .34 : .26) * (.8 + sr() * .4);
-        const el = document.createElement('i');
-        el.className = 'swirl__c';
-        el.style.width = `${f1(size)}px`; el.style.height = `${f1(size * 1.12)}px`;
-        el.style.marginLeft = `${f1(-size / 2)}px`; el.style.marginTop = `${f1(-size * .56)}px`;
-        swirlRoot.append(el);
-        swirl.push({ el, x0, y0, a0: Math.atan2(y0 - cy, x0 - cx), d0: Math.hypot(x0 - cx, y0 - cy),
-          ring: r * (1.25 + sr() * .45), turns: 1 + sr() * .55, delay: sr() * .22, spin: (sr() - .5) * 720, z: -1, lift: size * (1.5 + sr()) });
+    for (const L of layers) L.wrap.style.transformOrigin = narrow ? `${f1(cx)}px ${f1(cy)}px` : '';
+    paintAll(svgs, W, H, ++gen).then(() => markDrawn(), () => markDrawn());
+  }
+
+  // each layer's drawing becomes a picture: the SVG through an image into the layer's canvas, with the grain
+  // where a drawing has paint: looked for on a small copy, with a margin; the whole screen if the browser won't say
+  function bounds(img, W, H, margin) {
+    const q = 8, w = Math.ceil(W / q), h = Math.ceil(H / q);
+    try {
+      const probe = document.createElement('canvas'); probe.width = w; probe.height = h;
+      const pc = probe.getContext('2d', { willReadFrequently: true });
+      pc.drawImage(img, 0, 0, w, h);
+      const a = pc.getImageData(0, 0, w, h).data;
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        if (a[(y * w + x) * 4 + 3] > 2) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
       }
-    }
-    for (const L of layers) {
-      L.wrap.style.transformOrigin = narrow ? `${f1(cx)}px ${f1(cy)}px` : '';
-      L.svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-      L.svg.setAttribute('width', W); L.svg.setAttribute('height', H);
-      L.svg.innerHTML = svgs[L.id] || '';
-    }
+      if (x1 < 0) return { x: 0, y: 0, w: W, h: H };
+      const x = Math.max(0, x0 * q - margin), y = Math.max(0, y0 * q - margin);
+      return { x, y, w: Math.min(W, (x1 + 1) * q + margin) - x, h: Math.min(H, (y1 + 1) * q + margin) - y };
+    } catch { return { x: 0, y: 0, w: W, h: H }; }
+  }
+  async function paintAll(svgs, W, H, g) {
+    const dpr = window.devicePixelRatio || 1;
+    await Promise.all(layers.map(async (L) => {
+      const inner = svgs[L.id] || '', c = L.paint, k = Math.min(dpr, SHARP[L.id] || 1);
+      if (!inner) { c.width = c.height = 0; return; }
+      const doc = `<svg xmlns="${NS}" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${inner}</svg>`;
+      const url = URL.createObjectURL(new Blob([doc], { type: 'image/svg+xml' }));
+      try {
+        const img = new Image();
+        img.src = url;
+        await img.decode();
+        if (g !== gen) return;                                   // laid out anew meanwhile
+        // only as large as what is drawn on it (the land lies low, the branch to one side): every layer is laid over
+        // the screen in every frame, and empty canvas costs as much as painted
+        const b = bounds(img, W, H, L.id === 'branch' ? 24 : 8);
+        c.width = Math.round(b.w * k); c.height = Math.round(b.h * k);
+        Object.assign(c.style, { left: `${b.x}px`, top: `${b.y}px`, width: `${b.w}px`, height: `${b.h}px` });
+        // the branch sways about where it enters, at the right edge
+        if (L.id === 'branch') c.style.transformOrigin = `${W - b.x}px ${H * .45 - b.y}px`;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, -b.x * k, -b.y * k, W * k, H * k);
+        grainOn(ctx, c.width, c.height);
+        c.style.display = ''; L.svg.style.display = 'none';
+      } catch {
+        // this browser cannot paint the drawing into a canvas: it goes in as a drawing
+        if (g !== gen) return;
+        L.svg.setAttribute('viewBox', `0 0 ${W} ${H}`); L.svg.setAttribute('width', W); L.svg.setAttribute('height', H);
+        L.svg.innerHTML = inner; L.svg.style.display = ''; c.style.display = 'none';
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }));
   }
 
   // ---- every frame: the lean with the pointer, a breath of wind, and the flight on the first scroll ----------------
-  function update(go, opacity, t, W, H, narrow = false) {
+  function update(go, opacity, t, W, H, narrow = false, away = opacity <= 0) {
     px += (tpx - px) * .06; py += (tpy - py) * .06;
+    if (Math.abs(tpx - px) < .001) px = tpx;
+    if (Math.abs(tpy - py) < .001) py = tpy;
     const e = go * go * (3 - 2 * go);
     for (const L of layers) {
-      const sway = L.id === 'branch' || L.id === 'close' ? Math.sin(t * .7 + L.depth * 3) * L.depth * 2.2 : 0;
       const f = narrow ? L.flyNarrow : L.fly;
-      const x = -px * L.depth * 26 + f[0] * e * W;
-      const y = -py * L.depth * 16 + f[1] * e * H + sway;
-      const s = 1 + f[2] * e;
-      L.wrap.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
+      const x = -px * L.depth * 26 + f[0] * e * W, y = -py * L.depth * 16 + f[1] * e * H, s = 1 + f[2] * e;
+      const tf = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
+      if (tf !== L.tf) { L.tf = tf; L.wrap.style.transform = tf; }
     }
-    root.style.opacity = opacity.toFixed(3);
-    root.style.visibility = opacity > 0 ? 'visible' : 'hidden';
-    whirl(e);
-    walk(t);
-    root.classList.toggle('is-gone', opacity <= 0);    // nothing moves where nothing is seen
-  }
-  // each cherry: lifts off its heap, swings out onto a tilted ring round the fruit (in front of it on the near half,
-  // behind it on the far one), turns once or twice and is drawn in; only transforms, opacity and its layer change
-  const sm = (a, b, v) => { const u = Math.min(1, Math.max(0, (v - a) / (b - a))); return u * u * (3 - 2 * u); };
-  function whirl(e) {
-    if (!swirl.length || !centre) return;
-    const on = e > 0 && e < 1;
-    if (!on && !swirlShown) return;
-    swirlShown = on;
-    swirlRoot.style.visibility = on ? 'visible' : 'hidden';
-    for (const c of swirl) {
-      const t = Math.min(1, Math.max(0, (e - c.delay) / (1 - c.delay)));
-      const alpha = on ? sm(0, .08, t) * (1 - sm(.84, 1, t)) : 0;
-      if (alpha <= 0) { if (c.el.style.opacity !== '0') c.el.style.opacity = '0'; continue; }
-      const u = sm(.08, .92, t), lift = sm(0, .14, t) * (1 - u) * c.lift;
-      const a = c.a0 - c.turns * Math.PI * 2 * u;                   // round, anticlockwise
-      const d = (c.d0 + (c.ring - c.d0) * sm(0, .55, u)) * (1 - .78 * sm(.72, 1, t));
-      const squash = 1 + (.42 - 1) * sm(0, .4, u);                   // the ring tilts away from the eye
-      const x = centre.x + Math.cos(a) * d, y = centre.y + Math.sin(a) * d * squash - lift;
-      const near = Math.sin(a) > 0;                                  // the lower half of the ring is the near one
-      const s = (1 + .22 * Math.sin(a) * sm(0, .4, u)) * (1 - .55 * sm(.78, 1, t));
-      c.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(c.spin * u).toFixed(0)}deg) scale(${s.toFixed(3)})`;
-      c.el.style.opacity = alpha.toFixed(3);
-      const z = near ? 3 : 1;
-      if (z !== c.z) { c.z = z; c.el.style.zIndex = z; }
+    if (opacity !== lastOpacity) {
+      lastOpacity = opacity;
+      const o = opacity.toFixed(3);
+      // on each thing itself, never on a group (a group's opacity is painted again off screen, frame by frame)
+      ground.style.opacity = o;
+      for (const L of layers) { L.paint.style.opacity = o; L.svg.style.opacity = o; }
+      for (const el of fades) el.style.opacity = o;
     }
+    const isGone = away && opacity <= 0;
+    if (isGone !== gone) { gone = isGone; root.classList.toggle('is-gone', isGone); }   // nothing moves unseen
+    if (!isGone) walk(t);
   }
   // the farmer: there and back along the terrace in about forty seconds each way, facing the way she goes
   let lastFace = 0;
@@ -571,5 +611,5 @@ export function createDiorama(root, swirlRoot = null) {
     if (face !== lastFace) { lastFace = face; walker.el.style.setProperty('--face', face); }
   }
   const lean = (x, y) => { tpx = x; tpy = y; };
-  return { layout, update, lean, layers, ready: () => key !== '' };
+  return { layout, update, lean, layers, ready: () => key !== '', whenDrawn: () => drawn };
 }

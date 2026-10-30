@@ -449,7 +449,12 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   // the model takes the photograph's proportions, so the photo and the model are one fruit
   if (photo) { RX = 1; RY = photo.aspect || RY; RZ = .94; }
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // how sharp: at most twice the screen's pixels; a device that cannot draw the story that sharp in time draws it
+  // with fewer (tune() measures it before the page shows, frame() watches on) – softer by a little, never jerky
+  let ratio = Math.min(window.devicePixelRatio || 1, 2), cost = 0;
+  renderer.setPixelRatio(ratio);
+  // what shows through the pulp and the glass is soft anyway: drawn at half size, a quarter of the pixels
+  renderer.transmissionResolutionScale = .5;
   renderer.toneMapping = NeutralToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.localClippingEnabled = true;
@@ -944,12 +949,24 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     return { x: c.x, y: c.y, rx: c.x - l.x, ry: c.y - t.y };
   }
 
-  let frames = 0, lastError = '';
-  let lastTarget = 0;
+  let frames = 0, lastError = '', covered = false;
+  let lastTarget = 0, gaps = [], drawn = 0;
+  const sharpness = (r) => { ratio = Math.max(1, r); renderer.setPixelRatio(ratio); };
   function frame(now) {
     if (!running) return;
     frames++;
-    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const gap = now - last;
+    const dt = Math.min(.05, gap / 1000); last = now;
+    // still too slow while drawing (under 25 frames a second for a while, so not a phone saving power at 30):
+    // fewer pixels
+    if (!covered && gap < 200) {
+      gaps.push(gap);
+      if (gaps.length === 45) {
+        const mid = gaps.sort((a, b) => a - b)[22];
+        if (mid > 40 && ratio > 1) sharpness(ratio * .8);
+        gaps = [];
+      }
+    }
     // a soft follow, so the scroll never jerks; on phones softer still, and never faster than a calm pace, so a
     // quick flick of the thumb glides through the story instead of flinging it past
     let step = (target - progress) * (1 - Math.pow(gentle ? .02 : .0009, dt));
@@ -961,7 +978,9 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     if (Math.abs(target - progress) < 1e-4) progress = target;
     try {
       apply(progress, dt);
-      renderer.render(scene, camera);
+      // under the page's own first picture there is nothing to draw – but a picture now and then keeps the drawing
+      // warm, or the first frame of the first scroll comes late
+      if (!covered || now - drawn > 400) { renderer.render(scene, camera); drawn = now; }
       onFrame?.(progress, labels, fruitBox);
     } catch (err) { lastError = String(err && err.stack || err).slice(0, 300); }
     requestAnimationFrame(frame);
@@ -971,6 +990,7 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
     resize: layout,
     set background(css) { scene.background.set(css); },
     set progress(p) { target = clamp(p); },
+    set cover(v) { covered = !!v; if (!covered) renderer.render(scene, camera); },
     set frame(f) { frame0 = f; fitFirst(); if (!running) { apply(progress, 0); renderer.render(scene, camera); } },
     get progress() { return progress; },
     jump(p) { target = progress = clamp(p); apply(progress, 0); renderer.render(scene, camera); onFrame?.(progress, labels, fruitBox); },
@@ -991,9 +1011,25 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
       }
       apply(keep, 0); renderer.render(scene, camera);
     },
+    // How sharp this device can draw the story in time: the heaviest moments (the pulp, the pot, the bottles), drawn
+    // and waited for, once the page has nothing else to do behind the loading screen. Over the budget, fewer pixels –
+    // down to one and a half per point here (softer by a little); frame() goes further only if it still can't keep up.
+    tune() {
+      if (!document.documentElement.classList.contains('is-loading')) return;
+      const keep = progress, floor = Math.min(ratio, 1.5);
+      const gl = renderer.getContext(), px = new Uint8Array(4), BUDGET = 8;   // ms of the frame; the rest is the page's
+      const measure = (p) => { apply(p, 0); const t = performance.now(); renderer.render(scene, camera); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); return performance.now() - t; };
+      for (let round = 0; round < 3; round++) {
+        cost = 0;
+        for (const p of [.3, .66, .95]) { measure(p); cost = Math.max(cost, Math.min(measure(p), measure(p), measure(p))); }   // best of three: a hiccup is not the cost
+        if (cost <= BUDGET || ratio <= floor) break;
+        sharpness(Math.max(floor, ratio * Math.sqrt(BUDGET / cost)));     // the cost goes with the pixels, the pixels with the square
+      }
+      apply(keep, 0); renderer.render(scene, camera);
+    },
     labels, fruitBox,
     get photoReady() { return hasPhoto; },
     renderer,
-    state: () => ({ frames, running, target: +target.toFixed(3), progress: +progress.toFixed(3), lastError }),
+    state: () => ({ frames, running, target: +target.toFixed(3), progress: +progress.toFixed(3), ratio: +ratio.toFixed(2), cost: +cost.toFixed(1), lastError }),
   };
 }

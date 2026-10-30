@@ -56,12 +56,30 @@ import { createDiorama } from './diorama.js';
   }
   const ready = () => document.dispatchEvent(new Event('cascarup:ready'));   // the loading screen may lift
   if (!three) { hero.classList.add('is-flat'); if (out) out.textContent = 'kein WebGL'; ready(); return; }
+  // and the frame rate over the last second, the frames that took too long and the longest (jank shows here)
+  const gaps = [];
+  // and, for the last glide alone, its frames: how many, how many too slow, the longest
+  if (out) {
+    let last = 0, during = [], slowAt = [];
+    const tick = (t) => {
+      if (last) { gaps.push(t - last); if (glide) { during.push(t - last); if (t - last > 25) slowAt.push(`${three.progress.toFixed(3)}:${Math.round(t - last)}`); } }
+      if (!glide && during.length) { out.dataset.g = `glide ${during.length}f slow=${during.filter((g) => g > 25).length} max=${Math.round(Math.max(...during))}ms @ ${slowAt.join(' ')}`; during = []; slowAt = []; }
+      if (gaps.length > 240) gaps.shift(); last = t; requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
   if (out) setInterval(() => {
-    out.textContent = JSON.stringify(three.state()) + ` reduce=${reduce} y=${Math.round(scrollY)} cls=${hero.className}\n${out.dataset.taps || ''}`;
+    const sec = []; let sum = 0;
+    for (let i = gaps.length - 1; i >= 0 && sum < 1000; i--) { sum += gaps[i]; sec.push(gaps[i]); }
+    const fps = `fps=${sec.length} slow=${sec.filter((g) => g > 25).length} max=${Math.round(Math.max(0, ...sec))}ms`;
+    const st = three.state();
+    // the worst second while the story moved (a glide is over before anyone could read it)
+    if (st.progress !== st.target || glide) out.dataset.low = Math.min(+(out.dataset.low || 99), sec.length);
+    out.textContent = `${out.dataset.g || ''}\n${fps} low=${out.dataset.low || '-'} px=${st.ratio} cost=${st.cost}ms p=${st.progress}→${st.target}\n` + JSON.stringify(st) + ` reduce=${reduce} y=${Math.round(scrollY)} cls=${hero.className}\n${out.dataset.taps || ''}`;
   }, 400);
   hero.classList.add('is-3d');
   // the diorama: its layers rise as the loading screen lifts, and lean with the pointer on screens that have one
-  const dio = dioEl ? createDiorama(dioEl, hero.querySelector('[data-hero-swirl]')) : null;
+  const dio = dioEl ? createDiorama(dioEl) : null;
   if (dio) {
     const up = () => dioEl.classList.add('is-up');
     document.addEventListener('cascarup:shown', up, { once: true });
@@ -87,24 +105,32 @@ import { createDiorama } from './diorama.js';
   }
 
   // ---- the glide between chapters ------------------------------------------------------------------------
-  let lastY = window.scrollY, dir = 0, idle = 0, glide = 0, opening = false, touching = false;
+  // moved: the reader has scrolled since the last glide (only then may the page carry on by itself)
+  let lastY = window.scrollY, dir = 0, idle = 0, glide = 0, opening = false, touching = false, moved = false;
+  const root = document.documentElement;
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const loose = () => { root.style.scrollBehavior = ''; root.style.overflow = ''; opening = false; };
   const stopGlide = () => {
     if (!glide) return;
-    cancelAnimationFrame(glide); glide = 0; opening = false;
-    document.documentElement.style.scrollBehavior = '';
+    cancelAnimationFrame(glide); glide = 0; loose();
   };
-  function glideTo(y, ms0 = 0) {
+  function glideTo(y, ms0 = 0, hold = false) {
     stopGlide();
+    moved = false;
     const from = window.scrollY, dist = y - from;
     if (Math.abs(dist) < 2) return;
     const ms = ms0 || clamp(Math.abs(dist) / Math.max(1, run()) * 5200, 700, 1700);   // a chapter takes about a second
     const t0 = performance.now();
-    document.documentElement.style.scrollBehavior = 'auto';        // the page's smooth scrolling would fight it
+    root.style.scrollBehavior = 'auto';        // the page's smooth scrolling would fight it
+    // a glide that starts as the finger lets go (the opening): on touch screens the swing of the finger would run on
+    // under it and tug against it (the jolt, and the page drifting past the chapter afterwards), so the page is held
+    // while it glides; a touch frees it at once
+    if (hold && coarse) root.style.overflow = 'hidden';
     const step = (now) => {
       const t = clamp((now - t0) / ms), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       window.scrollTo(0, from + dist * e);
       glide = t < 1 ? requestAnimationFrame(step) : 0;
-      if (!glide) { document.documentElement.style.scrollBehavior = ''; opening = false; }
+      if (!glide) loose();
     };
     glide = requestAnimationFrame(step);
   }
@@ -114,7 +140,9 @@ import { createDiorama } from './diorama.js';
   let jumping = 0;
   document.addEventListener('click', (e) => { if (e.target.closest?.('a[href^="#"]')) jumping = performance.now() + 2500; }, true);
   function settle() {
-    if (reduce || glide || noGlide || performance.now() < jumping) return;
+    // only after the reader's own scroll: never because Safari's bars came or went, a glide's swing died down or
+    // the browser put the page back where it was
+    if (reduce || glide || noGlide || !moved || performance.now() < jumping) return;
     const r = run(), top = heroTop(), y = window.scrollY;
     if (r <= 0 || y < top - 1 || y > top + r + 1) return;           // outside the story: the page is the reader's
     const p = clamp((y - top) / r);
@@ -127,18 +155,33 @@ import { createDiorama } from './diorama.js';
   }
   // a hand on the page stops a glide – except a wheel turning on the way the opening glide already goes
   for (const ev of ['touchstart', 'keydown', 'pointerdown']) window.addEventListener(ev, stopGlide, { passive: true });
-  addEventListener('wheel', (e) => { if (!(opening && e.deltaY > 0)) stopGlide(); }, { passive: true });
-  addEventListener('touchstart', () => { touching = true; }, { passive: true });
-  addEventListener('touchend', () => { touching = false; openingMove(); }, { passive: true });
+  // the wheel: a turn against the opening glide stops it; one with it (a trackpad's swing runs on for a second or
+  // more) is swallowed while the glide runs and until the swing has died down, so it cannot carry the page on past
+  // the chapter by itself
+  let swallow = false, lastWheel = 0, gesture = 0;
+  addEventListener('wheel', (e) => {
+    const now = performance.now(), quiet = now - lastWheel > 180;
+    lastWheel = now; gesture = now;
+    if (opening && glide && e.deltaY > 0) { swallow = true; e.preventDefault(); return; }
+    if (swallow && !quiet && e.deltaY > 0) { e.preventDefault(); return; }
+    swallow = false; moved = true;
+    stopGlide();
+  }, { passive: false });
+  addEventListener('touchstart', () => { touching = true; gesture = performance.now(); }, { passive: true });
+  addEventListener('touchmove', () => { gesture = performance.now(); moved = true; }, { passive: true });
+  addEventListener('keydown', () => { gesture = performance.now(); moved = true; }, { passive: true });
+  addEventListener('touchend', () => { touching = false; gesture = performance.now(); openingMove(); }, { passive: true });
   addEventListener('touchcancel', () => { touching = false; }, { passive: true });
   // the first scroll down from the start: the landscape flies, the cherries whirl in, and the page carries on by
   // itself to the opened fruit (the first chapter), however little was scrolled, with no stop on the way
   function openingMove() {
     if (reduce || noGlide || glide || touching || performance.now() < jumping) return;
+    // only the reader's own scroll starts it – not the page settling, Safari's bars or a restored position
+    if (performance.now() - gesture > 900 || document.documentElement.classList.contains('is-loading')) return;
     const r = run(), top = heroTop(), y = window.scrollY;
     if (r <= 0) return;
     const p = (y - top) / r;
-    if (dir > 0 && p > .002 && p < CHAPTERS[1] - .01) { opening = true; glideTo(top + CHAPTERS[1] * r, 2100); }
+    if (dir > 0 && p > .003 && p < CHAPTERS[1] - .01) { opening = true; glideTo(top + CHAPTERS[1] * r, 2100, true); }
   }
 
   function onScroll() {
@@ -154,25 +197,29 @@ import { createDiorama } from './diorama.js';
 
   // Words follow the 3D scene's own (softly following) progress, so they never run ahead of the picture.
   // Only what changes is written, and only on these few elements.
-  let photoShown = -1, introShown = -1, plantShown = -1, dioShown = true, copyBox = null;
+  let photoShown = -1, introShown = -1, plantShown = -1, dioShown = true, dioAway = false, copyBox = null, stageW = 1, stageH = 1, covered = false, picW = 0;
   function onFrame(p, labels, fruitBox) {
     // the paper diorama: laid out round the cherry while the story rests at its start, flown apart by the first move
     if (dio) {
-      const w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
+      const w = stageW, h = stageH, narrow = w / h <= 1.05;
       const end = narrow ? .05 : .072, o = Math.round((1 - smooth(narrow ? .012 : end - .028, end, p)) * 500) / 500;
-      if (o > 0 || dioShown) {
+      // put away (hidden, its life paused) only well past its fade, and so brought back well before it shows again:
+      // bringing it back costs a frame, which then falls where nothing of it is on screen yet
+      const away = p > end + .025;
+      if (o > 0 || dioShown || away !== dioAway) {
         if (p < .003 || !dio.ready()) dio.layout(fruitBox(), w, h, narrow, copyBox);   // at rest, or late if no frame came at rest
-        dio.update(smooth(.004, end, p), o, performance.now() / 1000, w, h, narrow);
+        dio.update(smooth(.004, end, p), o, performance.now() / 1000, w, h, narrow, away);
       }
-      dioShown = o > 0;
+      dioShown = o > 0; dioAway = away;
+      const cover = o >= 1 && !document.documentElement.classList.contains('is-loading');
+      if (cover !== covered) { covered = cover; three.cover = cover; }
     }
     // the first screen: the cherry is named, and beneath it the invitation to scroll; both go with the first move
     const intro = Math.round((1 - smooth(.012, .05, p)) * 500) / 500;
     if (intro > 0 && (cue || name)) {
-      const b = fruitBox(), w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
+      const b = fruitBox(), w = stageW, h = stageH, narrow = w / h <= 1.05;
       if (cue) {
         // at the foot of the picture, below the cherry; on narrow screens below the words
-        const copyRect = copy.getBoundingClientRect(), stageTop = stage.getBoundingClientRect().top;
         cue.style.setProperty('--x', `${(w / 2).toFixed(1)}px`);
         cue.style.setProperty('--y', `${(narrow ? h - 72 : h - 82).toFixed(1)}px`);
       }
@@ -186,7 +233,7 @@ import { createDiorama } from './diorama.js';
     // The branch: it holds the cherry until the first move, then springs back and away, down to the right, while
     // the cherry stays where it was picked.
     if (pl) {
-      const w = stage.clientWidth, h = stage.clientHeight, narrow = w / h <= 1.05;
+      const w = stageW, h = stageH, narrow = w / h <= 1.05;
       const go = smooth(.006, narrow ? .055 : .07, p), o = Math.round((1 - smooth(narrow ? .03 : .048, narrow ? .052 : .07, p)) * 500) / 500;
       if (o > 0) {
         const b = fruitBox(), k = b.rx / pl.rx;
@@ -233,8 +280,10 @@ import { createDiorama } from './diorama.js';
       if (o > 0) {
         const b = fruitBox();
         const w = b.rx / pic.rx, h = w * photo.naturalHeight / Math.max(1, photo.naturalWidth);
-        photo.style.width = `${w.toFixed(1)}px`;
-        photo.style.transform = `translate3d(${(b.x - pic.cx * w).toFixed(1)}px, ${(b.y - pic.cy * h).toFixed(1)}px, 0)`;
+        // laid out at a width only now and then, scaled in between: a new width in every frame had the browser lay
+        // the photograph out and paint it again, shadow and all, frame by frame
+        if (!picW || w > picW * 1.04 || w < picW * .5) { picW = Math.ceil(w * 1.2); photo.style.width = `${picW}px`; }
+        photo.style.transform = `translate3d(${(b.x - pic.cx * w).toFixed(1)}px, ${(b.y - pic.cy * h).toFixed(1)}px, 0) scale(${(w / picW).toFixed(4)})`;
       }
       if (o !== photoShown) {
         photoShown = o;
@@ -262,7 +311,7 @@ import { createDiorama } from './diorama.js';
     copyBox = { left: c.left - s.left, right, top: c.top - s.top, bottom: c.bottom - s.top };
   }
   // size and pause: render only while the hero is on screen
-  const size = () => { const r = stage.getBoundingClientRect(); three.resize(Math.round(r.width), Math.round(r.height)); frameIt(); };
+  const size = () => { const r = stage.getBoundingClientRect(); stageW = Math.round(r.width); stageH = Math.round(r.height); three.resize(stageW, stageH); frameIt(); };
   document.fonts?.ready.then(() => frameIt());
   new ResizeObserver(size).observe(stage);
   size();
@@ -295,7 +344,7 @@ import { createDiorama } from './diorama.js';
   const arrive = () => {
     if (arrived) return; arrived = true;
     hero.classList.add('has-plant');
-    (reduce ? Promise.resolve() : three.warm()).then(smoothFrames).then(ready, ready);
+    (reduce ? Promise.resolve() : three.warm()).then(() => (dio ? dio.whenDrawn() : null)).then(() => reduce || three.tune()).then(smoothFrames).then(ready, ready);
     setTimeout(() => hero.classList.add('is-settled'), 1000);
   };
   // loaded is not enough: a large picture is painted only once it is decoded

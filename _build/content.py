@@ -385,12 +385,12 @@ def shop():
 # ---------------------------------------------------------------------------
 # The team (Management Summary, autumn 2026). The portraits come from it, cut out as in the document.
 TEAM = [
- ('joel', 'Joël Schaller', 'CEO', (110, 131)),
- ('luis', 'Luis Brülhart', 'CMO / stv. CEO', (95, 123)),
- ('lucile', 'Lucile Bapst', 'CAO', (124, 123)),
- ('jaelle', 'Jaëlle Brügger', 'CFO', (124, 118)),
- ('justin', 'Justin Meissner', 'CTO', (106, 118)),
- ('niklas', 'Niklas Broch', 'CPO', (110, 117)),
+ ('joel', 'Joël Schaller', 'CEO', (110, 131), 'Führt das Team, setzt die Prioritäten und behält alle Bereiche im Blick.'),
+ ('luis', 'Luis Brülhart', 'CMO / stv. CEO', (95, 123), 'Kümmert sich um Marketing, Social Media und unseren Auftritt. Vertritt den CEO.'),
+ ('lucile', 'Lucile Bapst', 'CAO', (124, 123), 'Organisiert Termine, Protokolle und Verträge, damit im Hintergrund alles läuft.'),
+ ('jaelle', 'Jaëlle Brügger', 'CFO', (124, 118), 'Plant das Budget, führt die Buchhaltung und betreut die Partizipationsscheine.'),
+ ('justin', 'Justin Meissner', 'CTO', (106, 118), 'Baut die Website, den Shop und alles Digitale rund um Cascarup.'),
+ ('niklas', 'Niklas Broch', 'CPO', (110, 117), 'Verantwortet unseren Sirup: vom Rezept über die Herstellung bis in die Flasche.'),
 ]
 V['TEAM_P'] = ('Wir sind sechs Schülerinnen und Schüler des Collège Saint-Michel in Freiburg und haben Cascarup im '
                'Rahmen unserer Maturaarbeit gegründet. Jede und jeder von uns führt einen eigenen Bereich.')
@@ -402,17 +402,16 @@ V['TEAM_P2'] = ('Im Company Programme von Young Enterprise Switzerland gründen 
 
 
 def team():
-    # as in our summary: an organisation chart – the CEO on top, the deputy and administration beside, three below
-    def member(i, extra=''):
-        key, name, role, (w, h) = TEAM[i]
-        return (f'          <li class="member{extra}">\n'
-                f'            <img class="member__pic" src="assets/team/{key}.webp" alt="{name}" width="{w}" height="{h}" loading="lazy" decoding="async">\n'
-                f'            <p class="member__role">{role}</p>\n'
+    # side by side like the stands: the portrait on a disc, the name, the role and what each of us does
+    def member(n, person):
+        key, name, role, (w, h), what = person
+        return (f'          <li class="member" data-reveal style="--d:{n}">\n'
+                f'            <span class="member__disc"><img class="member__pic" src="assets/team/{key}.webp" alt="{name}" width="{w}" height="{h}" loading="lazy" decoding="async"></span>\n'
                 f'            <h3 class="member__name">{name}</h3>\n'
+                f'            <p class="member__role">{role}</p>\n'
+                f'            <p class="member__what">{what}</p>\n'
                 '          </li>')
-    people = ('        <ul class="org__lead">\n' + member(0, ' member--lead') + '\n        </ul>\n'
-              '        <ul class="org__pair">\n' + member(1, ' member--deputy') + '\n' + member(2) + '\n        </ul>\n'
-              '        <ul class="org__team">\n' + member(3) + '\n' + member(4) + '\n' + member(5) + '\n        </ul>')
+    people = '        <ul class="team__people">\n' + '\n'.join(member(n, t) for n, t in enumerate(TEAM)) + '\n        </ul>'
     return (
         '    <!-- The team: six students, one company -->\n'
         '    <section class="team" data-tone="paper" id="team" aria-labelledby="team-title">\n'
@@ -427,8 +426,7 @@ def team():
         f'          <dl class="team__facts" data-reveal style="--d:2">\n            {V["PROJECT_FACTS"]}\n          </dl>\n'
         '        </div>\n'
         '        <span class="ranke" aria-hidden="true"></span>\n'
-        # the chart comes in as one piece, so no line ever shows without the people it joins
-        '        <div class="org" data-reveal aria-label="Organigramm">\n' + people + '\n        </div>\n'
+        + people + '\n'
         f'        <div class="team__social">{V["SOCIALS"]}</div>\n'
         f'        {ig_feed()}\n'
         '      </div>\n'

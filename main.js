@@ -17,6 +17,20 @@
   const WARM = [156, 106, 74];
   const fadeMix = (own, t) => (own === RGB.night ? (t < .45 ? mix(RGB.paper, WARM, t / .45) : mix(WARM, own, (t - .45) / .55)) : mix(RGB.paper, own, t));
   const toned = [...document.querySelectorAll('main [data-tone], footer[data-tone]')];
+  // Where the sections and the elements still to come in sit on the page: measured once, and again only when the
+  // page's height or the window changes, so a scroll just compares numbers. Measuring them on every scroll (dozens of
+  // elements, several times over) made the opening stutter.
+  let geo = null;
+  const spot = (el) => {
+    if (!geo) {
+      geo = new Map(); const y = window.scrollY;
+      for (const e of [...toned, ...reveals]) { const r = e.getBoundingClientRect(); geo.set(e, { top: r.top + y, bottom: r.bottom + y }); }
+    }
+    const g = geo.get(el), y = window.scrollY;
+    return g ? { top: g.top - y, bottom: g.bottom - y } : el.getBoundingClientRect();
+  };
+  if ('ResizeObserver' in window) new ResizeObserver(() => { geo = null; }).observe(document.body);
+  window.addEventListener('resize', () => { geo = null; });
   // A section with data-fade blends into the paper over --fade px at the edges named (as its CSS gradient does).
   const fades = new Map();
   const fadeOf = (el) => {
@@ -28,7 +42,7 @@
     if (el !== hero) {
       const own = RGB[el.dataset.tone], f = fadeOf(el);
       if (!f) return own;
-      const r = el.getBoundingClientRect(), edges = el.dataset.fade;
+      const r = spot(el), edges = el.dataset.fade;
       if (edges.includes('top') && y - r.top < f) return fadeMix(own, Math.max(0, y - r.top) / f);
       if (edges.includes('bottom') && r.bottom - y < f) return fadeMix(own, Math.max(0, r.bottom - y) / f);
       return own;
@@ -40,23 +54,33 @@
   };
   const sectionAt = (y) => {
     let found = toned[0];
-    for (const el of toned) if (el.getBoundingClientRect().top <= y) found = el;
+    for (const el of toned) if (spot(el).top <= y) found = el;
     return found;
   };
   const light = (c) => (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 > 0.6;
+  // written only when it changes: the bar is repainted on every scroll, and an unchanged write still costs a frame
+  const put = (k, v) => { if (nav.style.getPropertyValue(k) !== v) nav.style.setProperty(k, v); };
+  const ink = (v) => { if (nav.dataset.ink !== v) nav.dataset.ink = v; };
 
+  // the bar's height and where its links' line runs: they change only with the window or the bar's own size
+  let bar = null;
+  const barBox = () => {
+    if (!bar) { const inner = nav.firstElementChild; bar = { h: nav.offsetHeight, mid: inner.offsetTop + inner.offsetHeight / 2 }; }
+    return bar;
+  };
+  if (nav && 'ResizeObserver' in window) new ResizeObserver(() => { bar = null; }).observe(nav);
+  window.addEventListener('resize', () => { bar = null; });
   function paintNav() {
-    const h = nav.offsetHeight;
+    const { h, mid } = barBox();
     const above = sectionAt(0), below = sectionAt(h);
     // over a fade the bar is a gradient itself, from the colour at its top to the colour at its foot
     const fading = !!(above.dataset.fade || below.dataset.fade);
     nav.classList.toggle('is-fading', fading);
     if (fading) {
       const c0 = colourOf(above, 0), c1 = colourOf(below, h), c = (v) => `rgb(${v})`;
-      nav.style.setProperty('--nav-c', c(c0)); nav.style.setProperty('--nav-c2', c(c1));
-      nav.style.setProperty('--nav-main', c(colourOf(sectionAt(h * .25), h * .25)));
-      const inner = nav.firstElementChild, mid = inner.offsetTop + inner.offsetHeight / 2;
-      nav.dataset.ink = light(colourOf(sectionAt(mid), mid)) ? 'dark' : 'light';
+      put('--nav-c', c(c0)); put('--nav-c2', c(c1));
+      put('--nav-main', c(colourOf(sectionAt(h * .25), h * .25)));
+      ink(light(colourOf(sectionAt(mid), mid)) ? 'dark' : 'light');
       return;
     }
     // within one section the veil is a single colour, the one halfway down it
@@ -64,22 +88,21 @@
     let under = top, split = h;
     if (below !== above) {
       under = colourOf(below, h);
-      split = Math.max(0, below.getBoundingClientRect().top);
+      split = Math.max(0, spot(below).top);
     }
     // Safari colours its status bar from the bar's background colour (not the picture drawn over it), so
     // that colour is whichever section fills most of the bar; a sliver at the top never decides it.
     const main = split <= h * 0.5 ? under : top;
     // The opening is paper like the bar, so the bar is simply the colour of what lies beneath, there too.
     const css = (c) => `rgb(${c})`;
-    nav.style.setProperty('--nav-c', css(top));
-    nav.style.setProperty('--nav-c2', css(under));
-    nav.style.setProperty('--nav-main', css(main));
-    nav.style.setProperty('--nav-split', `${split.toFixed(1)}px`);
+    put('--nav-c', css(top));
+    put('--nav-c2', css(under));
+    put('--nav-main', css(main));
+    put('--nav-split', `${split.toFixed(1)}px`);
     // the links take the contrast of what runs behind them, their own line
-    const inner = nav.firstElementChild;
-    const behindText = split <= inner.offsetTop + inner.offsetHeight / 2 ? below : above;
+    const behindText = split <= mid ? below : above;
     const textColour = behindText === below ? under : top;
-    nav.dataset.ink = light(textColour) ? 'dark' : 'light';
+    ink(light(textColour) ? 'dark' : 'light');
   }
 
   // With a mouse the bar stays pinned. On touch screens it sits at the top of the page and scrolls away with
@@ -98,14 +121,14 @@
     const c = `rgb(${colourOf(sectionAt(0), 0)})`;
     if (c !== canvas) { canvas = c; root.style.backgroundColor = c; }
   }
+  // what comes in as it is reached: its top above 88 % of the screen
   function update() {
-    const vh = window.innerHeight;
     if (nav) placeNav();
     if (nav && toned.length) paintNav();
     if (toned.length) paintCanvas();
-    for (const el of reveals) {
-      if (!el.classList.contains('is-in') && el.getBoundingClientRect().top < vh * 0.88) el.classList.add('is-in');
-    }
+    if (!window.ResizeObserver) geo = null;
+    const line = window.innerHeight * 0.88;
+    for (const el of reveals) if (!el.classList.contains('is-in') && spot(el).top < line) el.classList.add('is-in');
   }
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
@@ -163,7 +186,7 @@
     const pill = document.querySelector('.menu-btn');
     if (pill) {
       const past = () => (hero ? hero.getBoundingClientRect().bottom <= window.innerHeight * .5 : window.scrollY > window.innerHeight * .6);
-      const place = () => { pill.hidden = !touch.matches || !past(); };
+      const place = () => { const off = !touch.matches || !past(); if (pill.hidden !== off) pill.hidden = off; };
       window.addEventListener('scroll', place, { passive: true });
       window.addEventListener('resize', place);
       place();
