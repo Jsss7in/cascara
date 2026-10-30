@@ -47,22 +47,30 @@
   };
   const total = () => subtotal() + shipping();
 
-  // ---- the product cards: kind is the card, size and number are chosen on it ----------------------------------
+  // ---- the product cards: kind is the card, size and number are chosen on it; the chosen bottle stands on the
+  // table in the picture above them (one fades into the other) -------------------------------------------------
+  const standing = [...document.querySelectorAll('[data-shop-stage] [data-kind]')];
+  const stand = (id, m) => standing.forEach((b) => b.classList.toggle('is-shown', b.dataset.kind === id && +b.dataset.ml === m));
   for (const card of products) {
     const data = JSON.parse(card.dataset.product);
     const sizes = [...card.querySelectorAll('[data-size]')];
-    const shots = [...card.querySelectorAll('[data-shot]')];
     const price = card.querySelector('[data-price]');
     const qty = card.querySelector('[data-qty] input');
     const add = card.querySelector('[data-add]');
-    let ml = data.sizes[0].ml;
+    let ml = +(sizes.find((b) => b.getAttribute('aria-pressed') === 'true') || sizes[0]).dataset.size;
+    const choose = () => {
+      products.forEach((c) => c.classList.toggle('is-picked', c === card));
+      stand(data.id, ml);
+    };
     const pick = (m) => {
       ml = m;
       sizes.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.size === m)));
-      shots.forEach((s) => s.classList.toggle('is-shown', +s.dataset.shot === m));   // one bottle fades into the other
       price.textContent = fmt(data.sizes.find((s) => s.ml === m).price);
+      choose();
     };
     sizes.forEach((b) => b.addEventListener('click', () => pick(+b.dataset.size)));
+    // the card itself chooses its kind (its buttons do their own work)
+    card.addEventListener('click', (e) => { if (!e.target.closest('button, input, a')) choose(); });
     if (!add) continue;                // the shop is not open yet: the sizes show, nothing goes into a basket
     const clampQty = () => { qty.value = String(Math.min(24, Math.max(1, Math.round(+qty.value) || 1))); };
     card.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => {

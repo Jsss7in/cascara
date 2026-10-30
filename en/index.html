@@ -53,8 +53,8 @@
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>
-  <link rel="stylesheet" href="../assets/fonts.css?v=20261030180721">
-  <link rel="stylesheet" href="../styles.css?v=20261030180721">
+  <link rel="stylesheet" href="../assets/fonts.css?v=20261030181858">
+  <link rel="stylesheet" href="../styles.css?v=20261030181858">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -204,36 +204,37 @@
           <h2 class="display" id="shop-title" data-reveal style="--d:1">Get your<br><em>bottle.</em></h2>
           <p class="shop__intro" data-reveal style="--d:2">Original and Cozy Spice, each in a 200 ml hip flask and a large 500 ml bottle. Soon you’ll be able to order them here, and we’ll post them to you anywhere in Switzerland.</p>
         </header>
+        <div class="shop__stage" data-reveal data-shop-stage>
+          <picture><source media="(max-width: 700px)" srcset="../assets/shop/feld-390.webp" width="390" height="340"><img class="shop__field" src="../assets/shop/feld-1360.webp" width="1360" height="560" alt="A wooden table on the coffee plantation in the evening sun, with a heap of cascara on it" loading="lazy" decoding="async"></picture>
+          <span class="stand-bottle stand-bottle--200" data-kind="original" data-ml="200"><img src="../assets/shop/stand/original-200.webp" width="212" height="469" alt="Original, 200 ml hip flask" loading="lazy" decoding="async"></span>
+          <span class="stand-bottle stand-bottle--500 is-shown" data-kind="original" data-ml="500"><img src="../assets/shop/stand/original-500.webp" width="146" height="605" alt="Original, 500 ml bottle" decoding="async"></span>
+          <span class="stand-bottle stand-bottle--200" data-kind="cozy-spice" data-ml="200"><img src="../assets/shop/stand/cozy-spice-200.webp" width="212" height="469" alt="Cozy Spice, 200 ml hip flask" loading="lazy" decoding="async"></span>
+          <span class="stand-bottle stand-bottle--500" data-kind="cozy-spice" data-ml="500"><img src="../assets/shop/stand/cozy-spice-500.webp" width="146" height="605" alt="Cozy Spice, 500 ml bottle" loading="lazy" decoding="async"></span>
+        </div>
         <div class="shop__grid">
-        <article class="product product--original" data-reveal style="--d:0" data-product='{"id": "original", "name": "Original", "sizes": [{"ml": 200, "price": 6.95}, {"ml": 500, "price": 12.95}]}'>
-          <div class="product__stage"><p class="product__tag">Pure cascara</p><img class="product__shot is-shown" data-shot="200" src="../assets/shop/original-200.webp" width="1400" height="1750" alt="Original, 200 ml hip flask" decoding="async"><img class="product__shot" data-shot="500" src="../assets/shop/original-500.webp" width="1400" height="1750" alt="Original, 500 ml bottle" loading="lazy" decoding="async"></div>
-          <div class="product__body">
+        <article class="product product--original is-picked" data-reveal style="--d:0" data-product='{"id": "original", "name": "Original", "sizes": [{"ml": 200, "price": 6.95}, {"ml": 500, "price": 12.95}]}'>
             <div class="product__top">
               <h3 class="product__name">Original</h3>
-              <p class="product__price" data-price>CHF 6.95</p>
+              <p class="product__price" data-price>CHF 12.95</p>
             </div>
+            <p class="product__tag">Pure cascara</p>
             <p class="product__text">Pure cascara from the husk of the coffee cherry. Mixed with water, in coffee or in drinks.</p>
-            <ul class="product__notes" aria-label="Taste"><li>Fruity</li><li>Honey</li><li>Lemon balm</li><li>Raisins</li></ul>
-            <div class="product__sizes" role="group" aria-label="Size"><button type="button" class="product__size" data-size="200" aria-pressed="true"><span class="product__ml">200 ml</span><span class="product__each">CHF 6.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="false"><span class="product__ml">500 ml</span><span class="product__each">CHF 12.95</span></button></div>
+            <div class="product__sizes" role="group" aria-label="Size"><button type="button" class="product__size" data-size="200" aria-pressed="false"><span class="product__ml">200 ml</span><span class="product__each">CHF 6.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="true"><span class="product__ml">500 ml</span><span class="product__each">CHF 12.95</span></button></div>
             <div class="product__buy">
               <button type="button" class="button product__add product__soon" disabled>Coming soon</button>
             </div>
-          </div>
         </article>
         <article class="product product--cozy-spice" data-reveal style="--d:1" data-product='{"id": "cozy-spice", "name": "Cozy Spice", "sizes": [{"ml": 200, "price": 7.95}, {"ml": 500, "price": 13.95}]}'>
-          <div class="product__stage"><p class="product__tag">Cinnamon · Star anise</p><img class="product__shot is-shown" data-shot="200" src="../assets/shop/cozy-spice-200.webp" width="1400" height="1750" alt="Cozy Spice, 200 ml hip flask" decoding="async"><img class="product__shot" data-shot="500" src="../assets/shop/cozy-spice-500.webp" width="1400" height="1750" alt="Cozy Spice, 500 ml bottle" loading="lazy" decoding="async"></div>
-          <div class="product__body">
             <div class="product__top">
               <h3 class="product__name">Cozy Spice</h3>
-              <p class="product__price" data-price>CHF 7.95</p>
+              <p class="product__price" data-price>CHF 13.95</p>
             </div>
+            <p class="product__tag">Cinnamon · Star anise</p>
             <p class="product__text">Our cascara, simmered with cinnamon and star anise. Inspired by the Gifferstee of our region.</p>
-            <ul class="product__notes" aria-label="Taste"><li>Cinnamon</li><li>Star anise</li><li>Warm</li></ul>
-            <div class="product__sizes" role="group" aria-label="Size"><button type="button" class="product__size" data-size="200" aria-pressed="true"><span class="product__ml">200 ml</span><span class="product__each">CHF 7.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="false"><span class="product__ml">500 ml</span><span class="product__each">CHF 13.95</span></button></div>
+            <div class="product__sizes" role="group" aria-label="Size"><button type="button" class="product__size" data-size="200" aria-pressed="false"><span class="product__ml">200 ml</span><span class="product__each">CHF 7.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="true"><span class="product__ml">500 ml</span><span class="product__each">CHF 13.95</span></button></div>
             <div class="product__buy">
               <button type="button" class="button product__add product__soon" disabled>Coming soon</button>
             </div>
-          </div>
         </article>
         </div>
         <ul class="shop__perks">
@@ -594,9 +595,9 @@
   </dialog>
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden><img class="menu-btn__bottle" src="../assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async"><span>Menu</span><i aria-hidden="true"></i></button>
 
-  <script src="../main.js?v=20261030180721" defer></script>
-  <script src="../checkout.js?v=20261030180721" defer></script>
-  <script src="../shop.js?v=20261030180721" defer></script>
-  <script type="module" src="../assets/hero3d.js?v=20261030180721"></script>
+  <script src="../main.js?v=20261030181858" defer></script>
+  <script src="../checkout.js?v=20261030181858" defer></script>
+  <script src="../shop.js?v=20261030181858" defer></script>
+  <script type="module" src="../assets/hero3d.js?v=20261030181858"></script>
 </body>
 </html>

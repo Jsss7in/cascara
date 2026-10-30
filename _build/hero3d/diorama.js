@@ -622,3 +622,6 @@ export function createDiorama(root) {
   const lean = (x, y) => { tpx = x; tpy = y; };
   return { layout, update, lean, layers, ready: () => key !== '', whenDrawn: () => drawn };
 }
+
+// the same paper and the same hand, for the shop's picture (_build/shopscene)
+export { C as PALETTE, f1, curve, disc, oval, leaf, crestAt, shifted, shrubRow, shadeTree, farm, heap, shrubPiece, tuft, farmer, cloud, seeded, grainOn };

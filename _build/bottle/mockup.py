@@ -1,7 +1,8 @@
 # The shop pictures: our real bottles (phone photos in ~/ClaudeC/cascara-quellen/bottle), cut out of the room,
 # with our labels laid onto the glass the way paper sits on it, alone on a quiet, neutral backdrop with their shadows.
 #   …/branch/venv/bin/python -I _build/bottle/mockup.py      (after node _build/label/render.mjs)
-# → assets/shop/<kind>-<ml>.webp (1400 × 1750) and assets/bottle/<kind>-<ml>.webp (cut-out with alpha, for small uses)
+# → _build/bottle/out/<kind>-<ml>.png (the studio picture), assets/bottle/<kind>-<ml>.webp (cut-out with alpha, for small
+#   uses) and assets/shop/stand/<kind>-<ml>.webp (the cut-out large, for the table in the shop's picture)
 import pathlib, subprocess
 import cv2, numpy as np
 
@@ -242,11 +243,9 @@ def compose(ml, kind, tones):
     bottle = I * (1 - G[..., None]) + seen * G[..., None]
     out = bg * (1 - M[..., None]) + bottle * M[..., None]
 
-    shop = ROOT / 'assets' / 'shop'; shop.mkdir(parents=True, exist_ok=True)
     name = f'{FILES[kind]}-{ml}'
     png = HERE / 'out' / f'{name}.png'; png.parent.mkdir(exist_ok=True)
     cv2.imwrite(str(png), np.clip(out * 255 + .5, 0, 255).astype(np.uint8))
-    subprocess.run(['cwebp', '-quiet', '-q', '86', '-sharp_yuv', str(png), '-o', str(shop / f'{name}.webp')], check=True)
 
     # the cut-out alone, for small places (the menu button): tight round the bottle, glass half clear
     alpha = M * (1 - G * .55)
@@ -260,7 +259,15 @@ def compose(ml, kind, tones):
     (ROOT / 'assets' / 'bottle').mkdir(exist_ok=True)
     subprocess.run(['cwebp', '-quiet', '-q', '88', '-alpha_q', '100', str(cut), '-o',
                     str(ROOT / 'assets' / 'bottle' / f'{name}.webp')], check=True)
-    print(kind, ml, 'scale', round(s, 3))
+    # and large, for the shop's table: the same cut-out at a little over half the picture's size (sharp at twice the
+    # size it stands on the table), both sizes at one scale, so they keep their true proportions
+    big = cv2.resize(rgba[ys_.min():ys_.max() + 1, xs_.min():xs_.max() + 1], None, fx=.52, fy=.52, interpolation=cv2.INTER_AREA)
+    stand = HERE / 'out' / f'{name}-stand.png'
+    cv2.imwrite(str(stand), np.clip(big * 255 + .5, 0, 255).astype(np.uint8))
+    (ROOT / 'assets' / 'shop' / 'stand').mkdir(parents=True, exist_ok=True)
+    subprocess.run(['cwebp', '-quiet', '-q', '88', '-alpha_q', '100', '-sharp_yuv', str(stand), '-o',
+                    str(ROOT / 'assets' / 'shop' / 'stand' / f'{name}.webp')], check=True)
+    print(kind, ml, 'scale', round(s, 3), 'stand', big.shape[1], 'x', big.shape[0])
 
 
 FILES = {'original': 'original', 'cozy': 'cozy-spice'}   # label → product id (the pictures are named after it)

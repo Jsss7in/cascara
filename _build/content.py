@@ -279,8 +279,10 @@ PRODUCTS = [
       notes=['Zimt', 'Sternanis', 'Warm'],
       sizes=[(200, 7.95), (500, 13.95)]),
 ]
-SHOT = (1400, 1750)   # the pictures' size in pixels (4:5, upright)
 BOTTLE_NAME = {200: 'Taschenflasche', 500: 'Flasche'}
+# the bottles cut out for the table in the shop's picture (_build/bottle/mockup.py): width × height in pixels
+STAND = {200: (212, 469), 500: (146, 605)}
+FIRST = 500           # the size shown first
 # What a buyer must be able to read before ordering food online (LIV Art. 44); «folgt» until we have it.
 PRODUCT_FACTS = [
  ('Zutaten', None), ('Allergene', None), ('Füllmenge', '200 ml oder 500 ml'),
@@ -307,19 +309,23 @@ PERKS = [
 
 
 def shop():
-    cards = []
+    # Above, one picture: our table on the coffee field at dusk, and on it the bottle chosen below. Below, the two
+    # kinds side by side: choosing a kind or a size puts that bottle on the table.
+    cards, stand = [], []
     for n, pr in enumerate(PRODUCTS):
         data = json.dumps({'id': pr['id'], 'name': pr['name'],
                            'sizes': [{'ml': ml, 'price': price} for ml, price in pr['sizes']]}, ensure_ascii=False)
         sizes = ''.join(
-            f'<button type="button" class="product__size" data-size="{ml}" aria-pressed="{str(i == 0).lower()}">'
+            f'<button type="button" class="product__size" data-size="{ml}" aria-pressed="{str(ml == FIRST).lower()}">'
             f'<span class="product__ml">{ml} ml</span><span class="product__each">CHF {chf(price)}</span></button>'
-            for i, (ml, price) in enumerate(pr['sizes']))
-        shots = ''.join(
-            f'<img class="product__shot{" is-shown" if i == 0 else ""}" data-shot="{ml}" src="assets/shop/{pr["id"]}-{ml}.webp" '
-            f'width="{SHOT[0]}" height="{SHOT[1]}" alt="{pr["name"]}, {BOTTLE_NAME[ml]} mit {ml} ml"{"" if i == 0 else " loading=" + chr(34) + "lazy" + chr(34)} decoding="async">'
-            for i, (ml, _) in enumerate(pr['sizes']))
-        notes = ''.join(f'<li>{t}</li>' for t in pr['notes'])
+            for ml, price in pr['sizes'])
+        for ml, _ in pr['sizes']:
+            w, h = STAND[ml]
+            shown = n == 0 and ml == FIRST
+            stand.append(f'          <span class="stand-bottle stand-bottle--{ml}{" is-shown" if shown else ""}" data-kind="{pr["id"]}" data-ml="{ml}">'
+                         f'<img src="assets/shop/stand/{pr["id"]}-{ml}.webp" width="{w}" height="{h}" alt="{pr["name"]}, {BOTTLE_NAME[ml]} mit {ml} ml"'
+                         f'{"" if shown else " loading=" + chr(34) + "lazy" + chr(34)} decoding="async"></span>')
+        price0 = dict(pr['sizes'])[FIRST]
         buy = ('            <div class="product__buy">\n'
                '              <div class="qty" data-qty>\n'
                '                <button type="button" data-step="-1" aria-label="Eine Flasche weniger">−</button>\n'
@@ -332,18 +338,15 @@ def shop():
                 '              <button type="button" class="button product__add product__soon" disabled>Bald erhältlich</button>\n'
                 '            </div>\n')
         cards.append(
-            f'        <article class="product product--{pr["id"]}" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
-            f'          <div class="product__stage"><p class="product__tag">{pr["tag"]}</p>{shots}</div>\n'
-            '          <div class="product__body">\n'
+            f'        <article class="product product--{pr["id"]}{" is-picked" if n == 0 else ""}" data-reveal style="--d:{n}" data-product=\'{data}\'>\n'
             '            <div class="product__top">\n'
             f'              <h3 class="product__name">{pr["name"]}</h3>\n'
-            f'              <p class="product__price" data-price>CHF {chf(pr["sizes"][0][1])}</p>\n'
+            f'              <p class="product__price" data-price>CHF {chf(price0)}</p>\n'
             '            </div>\n'
+            f'            <p class="product__tag">{pr["tag"]}</p>\n'
             f'            <p class="product__text">{pr["text"]}</p>\n'
-            f'            <ul class="product__notes" aria-label="Geschmack">{notes}</ul>\n'
             f'            <div class="product__sizes" role="group" aria-label="Grösse">{sizes}</div>\n'
             + (buy if SALES_OPEN else soon) +
-            '          </div>\n'
             '        </article>')
     facts = '\n'.join(
         f'            <div><dt>{k}</dt><dd>{v if v else chr(60) + "span class=" + chr(34) + "muted" + chr(34) + ">folgt</span>"}</dd></div>'
@@ -363,6 +366,10 @@ def shop():
         'und als grosse Flasche mit 500 ml. ' + ('Bezahl online mit TWINT oder Karte, wir schicken dir deine Flaschen per Post.' if SALES_OPEN
         else 'Bald kannst du sie hier bestellen, und wir schicken sie dir per Post in die ganze Schweiz.') + '</p>\n'
         '        </header>\n'
+        '        <div class="shop__stage" data-reveal data-shop-stage>\n'
+        '          <picture><source media="(max-width: 700px)" srcset="assets/shop/feld-390.webp" width="390" height="340">'
+        '<img class="shop__field" src="assets/shop/feld-1360.webp" width="1360" height="560" alt="Ein Holztisch auf der Kaffeeplantage in der Abendsonne, darauf ein Haufen Cascara" loading="lazy" decoding="async"></picture>\n'
+        + '\n'.join(stand) + '\n        </div>\n'
         '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
         '        <ul class="shop__perks">\n' + perks + '\n        </ul>\n'
         '        <details class="shop__facts">\n'
