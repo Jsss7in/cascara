@@ -106,6 +106,7 @@ def drinks():
         </article>''')
     return f'''    <!-- Ideas for the glass: a bar menu, alcohol-free -->
     <section class="drinks" data-tone="night" data-fade="top bottom" id="ideen" aria-labelledby="ideen-title">
+      <!--drips-->
       <header class="drinks__head">
         <p class="eyebrow" data-reveal>Ideen fürs Glas</p>
         <h2 class="display" id="ideen-title" data-reveal style="--d:1">Heiss, kalt<br>oder im <em>Punsch.</em></h2>
@@ -634,10 +635,9 @@ V['STANDS'] = stands()
 V['SHOP'] = shop()
 V['CART'] = cart()
 # ---------------------------------------------------------------------------
-# Cascara in four facts, poured: a pot of our syrup with cinnamon and star anise tips as it comes up the page; its
-# syrup runs over the spout and falls into the first word, which fills with it; from that word it drips on into the
-# next, and from the last into a bottle of Cozy Spice. Drawn and moved by pour.js, flat, in the syrup's colour. The pot is 36 frames rendered from the
-# opening's own 3D pot (_build/pour/render.mjs → assets/pour/pot.webp, 6 to a row); meta.json: where its lip is.
+# Cascara in four facts, poured: a glass pot of our syrup with cinnamon and star anise tips as it comes up the page;
+# its syrup runs over the spout and falls in one straight stream past the four words, down into a bottle of Cozy
+# Spice, which fills. Drawn and moved by pour.js, flat, in the syrup's colour.
 CASCARA_FACTS = [
     ('Was', 'Haut und Fruchtfleisch der Kaffeekirsche, getrocknet'),
     ('Name', 'von spanisch <em>cáscara</em>, Schale'),
@@ -647,25 +647,14 @@ CASCARA_FACTS = [
 
 
 def pour():
-    # each label in our type, in the syrup's own colour: a faint word waiting, and over it the same word, which the
-    # syrup fills as it runs in – the first letter from the top, where the stream lands, the rest from the left (pour.js
-    # parts each word into its first letter and the rest, so the words stay whole for the translations). pour.js draws
-    # the pot, the stream, the drips and the bottle that catches the rest.
-    rows = '\n'.join(f'          <div class="pour__fact"><dt><span class="pour__ghost" aria-hidden="true">{a}</span><span class="pour__ink">{a}</span></dt><dd>{b}</dd></div>'
-                     for a, b in CASCARA_FACTS)
-    # the first letters' outlines in DynaPuff (font units, y down from the baseline; _build/pour/glyphs.py), with where
-    # a stream lands on each and where drops hang from its feet: pour.js draws them in syrup, one shape with the stream
-    g = json.loads((pathlib.Path(__file__).parent / 'pour' / 'glyphs.json').read_text())
-    firsts = {}
-    for w in g['words'].values():
-        l = w['letters'][0]
-        firsts[l['char']] = {'d': l['d'], 'box': [round(v, 1) for v in l['bbox']], 'land': [l['landing']['x'], l['landing']['y']],
-                             'drips': [[d['x'], d['y']] for d in l.get('drips', [])]}
-    glyphs = json.dumps(firsts, separators=(',', ':')).replace("'", '&#39;')
-    return (f'<div class="pour" data-pour data-glyphs=\'{glyphs}\'>\n'
+    # the four words stand beside the stream and come in as it passes; pour.js draws the pot, the stream and the bottle
+    # that catches it (in the room .pour__catch keeps), with our label on it (the picture is here so the translations
+    # find it one folder up)
+    rows = '\n'.join(f'          <div class="pour__fact"><dt>{a}</dt><dd>{b}</dd></div>' for a, b in CASCARA_FACTS)
+    return ('<div class="pour" data-pour>\n'
             '          <svg class="pour__flow" aria-hidden="true"></svg>\n'
             '          <dl class="pour__facts">\n' + rows + '\n          </dl>\n'
-            '          <div class="pour__catch" aria-hidden="true"><img src="assets/pour/flask.webp" alt="" width="212" height="406" loading="lazy" decoding="async"></div>\n        </div>')
+            '          <div class="pour__catch" aria-hidden="true"><img src="assets/pour/label.webp" alt="" width="168" height="219" hidden></div>\n        </div>')
 
 
 V['POUR'] = pour()
@@ -687,6 +676,11 @@ def drip(ys, lo, hi, step=6):
 
 DRIP_TOP = drip(_wv['original']['top'], 250, 420)      # espresso into the rust, as on the label's head
 DRIP_LOW = drip(_wv['original']['bottom'], 820, 1060)  # the rust into the cream, as above «Cascara Sirup»
+# the bar menu's edges, as on our label: the paper runs down into the night at its head, the night down into the paper
+# at its foot – a short drip, no long fall of colour
+V['DRINKS'] = V['DRINKS'].replace('<!--drips-->',
+    f'<svg class="drinks__drip drinks__drip--top" viewBox="0 0 1007 {DRIP_TOP[1]}" preserveAspectRatio="none" aria-hidden="true"><path d="{DRIP_TOP[0]}"/></svg>\n'
+    f'      <svg class="drinks__drip drinks__drip--low" viewBox="0 0 1007 {DRIP_LOW[1]}" preserveAspectRatio="none" aria-hidden="true"><path d="{DRIP_LOW[0]}"/></svg>')
 
 CHAPTERS = [
  ('shop', 'Shop', 'Zwei Sorten, zwei Grössen'),

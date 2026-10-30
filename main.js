@@ -179,6 +179,8 @@
         // after a push the ring glides and eases back to its own pace (stopped while a mouse rests on it)
         const aim = hover ? 0 : SPEED;
         vel += (aim - vel) * (1 - Math.pow(.12, dt));
+        // come to rest under the mouse: nothing more to draw until it leaves
+        if (hover && Math.abs(vel) < .02) { vel = 0; return; }
         angle += vel * dt;
         put();
       }
@@ -210,13 +212,13 @@
     ring.addEventListener('pointerup', letGo); ring.addEventListener('pointercancel', letGo);
     ring.addEventListener('lostpointercapture', letGo);
     ring.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
-    ring.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hover = false; });
+    ring.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { hover = false; go(); } });
     // a sideways scroll on a trackpad or a mouse wheel turns it too; an up-and-down one stays the page's
     ring.addEventListener('wheel', (e) => {
       if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       e.preventDefault();
       angle -= deg(e.deltaX); put();
-      vel = SPEED * Math.sign(-e.deltaX || 1) * 2;
+      vel = SPEED * Math.sign(-e.deltaX || 1) * 2; go();
     }, { passive: false });
   }
 

@@ -471,6 +471,9 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   // what shows through the pulp, the water and the glass is soft anyway: drawn at under a third of the size (side by
   // side with half size, no difference to be seen; the opened fruit runs at full frame rate instead of 45)
   renderer.transmissionResolutionScale = .3;
+  // no reading back of every shader's log after it is built: that waits for the compiler, which on a first visit
+  // (nothing cached) froze the page for seconds
+  renderer.debug.checkShaderErrors = false;
   renderer.toneMapping = NeutralToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.localClippingEnabled = true;
@@ -1029,7 +1032,10 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
       for (const p of [.12, .3, .45, .58, .66, .74, .776, .79, .83, .88, .95, 1]) {
         // only while the loading screen covers it (on a very slow phone it may lift first: then stop at once)
         if (!document.documentElement.classList.contains('is-loading')) break;
-        apply(p, 0); renderer.render(scene, camera);
+        // built in the background where the browser can (parallel compiling), then drawn once
+        apply(p, 0);
+        try { await renderer.compileAsync(scene, camera); } catch { /* drawn below all the same */ }
+        renderer.render(scene, camera);
         await new Promise((r) => requestAnimationFrame(r));
       }
       apply(story(keep), 0); renderer.render(scene, camera);

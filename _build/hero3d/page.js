@@ -18,6 +18,7 @@ import { createDiorama } from './diorama.js';
   const hero = document.querySelector('[data-hero]');
   if (!hero) return;
   const stage = hero.querySelector('[data-hero-stage]');
+  const foot = hero.querySelector('[data-hero-foot]');
   const canvas = hero.querySelector('[data-hero-canvas]');
   const photo = hero.querySelector('[data-hero-cherry]');
   const cue = hero.querySelector('[data-hero-cue]');       // «Scroll für mehr», under the cherry
@@ -198,7 +199,7 @@ import { createDiorama } from './diorama.js';
     const r = run(), top = heroTop();
     if (r <= 0) return;
     const p = (y - top) / r;
-    if (dir > 0 && p > .0012 && p < STOPS[1] - .01) { opening = true; glideTo(top + STOPS[1] * r, (STOPS[1] - p) * PLAY_MS, true); }
+    if (dir > 0 && p > .0025 && p < STOPS[1] - .01) { opening = true; glideTo(top + STOPS[1] * r, (STOPS[1] - p) * PLAY_MS, true); }
   }
 
   function onScroll() {
@@ -215,7 +216,7 @@ import { createDiorama } from './diorama.js';
 
   // Words follow the 3D scene's own (softly following) progress, so they never run ahead of the picture.
   // Only what changes is written, and only on these few elements.
-  let photoShown = -1, introShown = -1, plantShown = -1, dioShown = true, dioAway = false, copyBox = null, stageW = 1, stageH = 1, covered = false, picW = 0;
+  let photoShown = -1, introShown = -1, plantShown = -1, dioShown = true, dioAway = false, landShown = -1, copyBox = null, stageW = 1, stageH = 1, covered = false, picW = 0;
   function onFrame(p, labels, fruitBox) {
     // the paper diorama: laid out round the cherry while the story rests at its start, flown apart by the first move
     if (dio) {
@@ -229,6 +230,7 @@ import { createDiorama } from './diorama.js';
         dio.update(smooth(.004, end, p), o, performance.now() / 1000, w, h, narrow, away);
       }
       dioShown = o > 0; dioAway = away;
+      if (o !== landShown) { landShown = o; if (foot) foot.style.opacity = o; }   // the foot's fade goes with the land
       const cover = o >= 1 && !document.documentElement.classList.contains('is-loading');
       if (cover !== covered) { covered = cover; three.cover = cover; }
     }

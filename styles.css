@@ -258,7 +258,8 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .hero__stage { position: sticky; top: 0; height: 100svh; min-height: 520px; overflow: hidden; background: var(--paper); }
 .hero__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.6s var(--ease) .1s; }
 .hero.is-ready .hero__canvas { opacity: 1; }
-.hero.is-flat .hero__canvas { display: none; }
+.hero.is-flat .hero__canvas, .hero__foot { display: none; }
+@media (pointer: coarse) { .hero:not(.is-flat) .hero__foot { display: block; } }
 
 .hero__copy, .hero__beat, .hero__end {
   position: absolute; z-index: 2; left: max(var(--gutter), calc((100vw - var(--max)) / 2)); top: 50%; width: min(40vw, 560px);
@@ -375,7 +376,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .hero.is-flat .hero__plant { display: none; }
 /* the paper diorama round the cherry (hero3d/diorama.js): its layers rise one after the other as the loading screen
    lifts, lean with the pointer and fly apart on the first scroll (page.js); over it the grain of the paper */
-.hero__dio { position: absolute; inset: -1px; z-index: 1; pointer-events: none; overflow: hidden; }
+.hero__dio { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
 .dio__ground { position: absolute; inset: 0; will-change: opacity; background: var(--grain) 0 0 / 180px 180px, var(--paper); background-blend-mode: soft-light, normal; }
 .dio__layer { position: absolute; inset: 0; transform-origin: 62% 58%; will-change: transform; }
 .dio__rise { position: absolute; inset: 0; transition: transform 1.6s cubic-bezier(.16, 1, .3, 1) calc(var(--i) * 90ms), opacity 1s var(--ease) calc(var(--i) * 90ms); }
@@ -471,31 +472,24 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .facts dd { font-size: 1.0625rem; line-height: 1.5; }
 
 /* Cascara, poured (pour.js): a glass pot of our syrup, drawn flat like the rest of the page, tips as it comes up the
-   page; the syrup inside stays level, rises to the spout, runs over it and falls into the first word, which fills –
-   the first letter from where the stream lands, the rest from the left. From each word's first letter the syrup drips
-   into the next, and from the last into a bottle of Cozy Spice, which fills. All of it follows the scroll, both ways. */
-.pour { --syrup: #51301D; position: relative; margin-top: 26px; }
-.pour.is-live { padding-top: 196px; }
+   page; the syrup inside stays level, rises to the spout, runs over it and falls in one straight stream past the four
+   words – each comes in as the stream passes – into a bottle of Cozy Spice, which slowly fills. All of it follows the
+   scroll, both ways. */
+.pour { --syrup: #51301D; --pour-ease: cubic-bezier(.22, .61, .36, 1); position: relative; margin-top: 26px; }
+.pour.is-live { padding-top: 210px; }
 .pour__flow { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
 .pour__facts { margin: 0; display: grid; gap: 36px; }
-.pour__fact dt { position: relative; width: fit-content; font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); font-variant-ligatures: none; letter-spacing: -.01em; color: var(--syrup); }
-.pour__ghost { display: none; }
-.pour__ink { display: block; }
-.pour__ink > span, .pour__ghost > span { display: inline; }
-.pour.is-live .pour__ghost { display: block; opacity: .13; }
-.pour.is-live .pour__ink { position: absolute; inset: 0; }
-/* each letter after the first fills from the top, its front uneven like running syrup (pour.js sets --y) */
-.pour.is-live .pour__ink .pour__ch { --y: -15%;
-  clip-path: polygon(-12% -30%, 112% -30%, 112% calc(var(--y) - .03em), 78% calc(var(--y) + .025em), 52% calc(var(--y) - .01em), 26% calc(var(--y) + .035em), -12% calc(var(--y) - .005em)); }
-/* with the outlines (pour.js) the first letters are drawn in syrup; the type beneath only keeps their room */
-.pour.has-glyphs .pour__ink .pour__first { visibility: hidden; }
-.pour__catch { display: none; }
-/* our Cozy Spice flask, its cap off, catches the stream beneath the last word (pour.js aims at its neck) */
-.pour.is-live .pour__catch { display: block; margin-top: 30px; }
-.pour__catch img { display: block; width: 68px; height: auto; filter: drop-shadow(0 14px 14px rgba(58, 33, 22, .22)); }
-.pour__fact dd { margin: 8px 0 0 46px; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
+.pour.is-live .pour__facts { padding-left: 66px; }
+.pour__fact dt { font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); letter-spacing: -.01em; color: var(--syrup); }
+.pour__fact dd { margin: 8px 0 0; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
 .pour__fact dd em { font-style: italic; }
-.pour.is-live .pour__fact dd { opacity: 0; will-change: opacity, transform; }
+/* the words wait, faint; each comes in as the stream passes it */
+.pour.is-live .pour__fact dt { opacity: .16; transition: opacity .7s var(--pour-ease); }
+.pour.is-live .pour__fact dd { opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity .7s var(--pour-ease) .08s, transform .7s var(--pour-ease) .08s; }
+.pour.is-live .pour__fact.is-in dt, .pour.is-live .pour__fact.is-in dd { opacity: 1; transform: none; }
+/* the room of the bottle that catches the stream (pour.js draws it, the stream down its middle) */
+.pour__catch { display: none; }
+.pour.is-live .pour__catch { display: block; width: 80px; height: 138px; margin-top: 34px; }
 
 /* ---------- plan ---------- */
 
@@ -528,12 +522,14 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 
 /* ---------- ideas for the glass: a bar menu ---------- */
 
-/* the night of the bar menu comes and goes as a long, soft fall of colour, never as an edge (main.js follows it
-   with the bar and Safari's strip: --fade is read there) */
+/* the night of the bar menu begins and ends as on our label: the paper drips into it at its head, it drips into the
+   paper at its foot – a short, soft edge (main.js follows it with the bar and Safari's strip: --fade is read there) */
 .drinks {
-  --fade: 210px; color: var(--milk); padding: var(--section) var(--gutter);
-  background: linear-gradient(var(--paper), #9c6a4a calc(var(--fade) * .45), var(--night) var(--fade), var(--night) calc(100% - var(--fade)), #9c6a4a calc(100% - var(--fade) * .45), var(--paper));
+  --fade: 30px; position: relative; z-index: 1; color: var(--milk); padding: var(--section) var(--gutter); background: var(--night);
 }
+.drinks__drip { position: absolute; left: 0; width: 100%; pointer-events: none; }
+.drinks__drip--top { top: -1px; height: clamp(22px, 2.6vw, 34px); fill: var(--paper); }
+.drinks__drip--low { top: calc(100% - 1px); height: clamp(26px, 3vw, 40px); fill: var(--night); }
 .drinks__head { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; }
 .drinks__head .eyebrow { grid-column: 1 / -1; color: var(--cream); }
 .drinks__head .display { grid-column: 1 / span 6; margin-top: 26px; }
@@ -1019,7 +1015,6 @@ html:has(.is-legal) { background: var(--paper); }
 
 @media (max-width: 900px) {
   :root { --nav-h: 64px; }
-  .drinks { --fade: 104px; }
   .footer { --fade: 120px; }
   .nav__links { display: none; }
   .nav__inner { grid-template-columns: auto 1fr auto; }
@@ -1135,9 +1130,11 @@ html:has(.is-legal) { background: var(--paper); }
 @media (pointer: coarse) {
   /* at its foot the stage stops short of the screen's edge (see below): the land fades into the paper there
      instead of ending on a cut line */
-  .hero__stage::after {
-    content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 57px; z-index: 3; pointer-events: none;
+  /* (an element of its own, so fading it with the land touches nothing else: page.js sets its opacity) */
+  .hero__foot {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 56px; z-index: 3; pointer-events: none;
     background: linear-gradient(rgba(122, 78, 52, 0), rgba(150, 101, 70, .5) 30%, rgba(206, 168, 132, .86) 60%, rgb(230, 211, 183) 88%);
+    will-change: opacity;
   }
   .hero__stage::before {
     content: ""; position: absolute; left: 0; right: 0; top: 0; height: 44px; z-index: 3; pointer-events: none;
