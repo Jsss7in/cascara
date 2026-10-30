@@ -769,7 +769,7 @@ PS_CHOICE = [
 PS_FAV = 'Hilft uns am meisten'
 PS_STEPS = [
  ('Schein wählen', 'Wie viele Scheine, deine Angaben und was am Ende mit deinem Geld passiert.'),
- ('Bezahlen', 'Mit TWINT: Wir zeigen dir unseren QR-Code, den Betrag und deinen persönlichen Code für die Mitteilung.' if PS_OPEN else 'Bald online mit TWINT. Schon jetzt bar oder mit TWINT an unseren Ständen.'),
+ ('Bezahlen', 'Mit TWINT: Wir zeigen dir unseren QR-Code, den Betrag und deinen persönlichen Code für die Mitteilung.' if PS_OPEN else 'Mit TWINT. Der Kauf ist gerade pausiert und bald wieder möglich.'),
  ('Bestätigung', 'Du bekommst eine Bestätigung per E-Mail. Sobald deine Zahlung da ist, ist dein Schein gezeichnet, und wir melden uns wegen deines Zertifikats.'),
  ('Am Ende des Jahres', 'Geld zurück oder Andenken, so wie du es gewählt hast.'),
 ]
@@ -897,31 +897,11 @@ def ps_main():
         </div>
 '''
     # until the certificates can be bought online: a name and an e-mail, so we can write once they can
+    # while buying is paused: no form, only the word that it comes back (the old sign-up ran through FormSubmit)
     notify = f'''          <p class="eyebrow">Dein Schein</p>
           <h2 class="display" id="ps-form-title">Bald wieder <em>erhältlich.</em></h2>
-          <p class="ps-soon">Online zeichnen kannst du deinen Schein bald wieder. Lass uns deinen Namen und deine E-Mail-Adresse da, dann schreiben wir dir, sobald es wieder losgeht.</p>
-          <form class="order ps-order" data-notify data-endpoint="{NOTIFY_ENDPOINT}" novalidate>
-            <fieldset class="order__group">
-              <legend>Deine Angaben</legend>
-              <div class="fields">{field('vorname', 'Vorname', ' autocomplete="given-name"')}{field('nachname', 'Name', ' autocomplete="family-name"')}</div>
-              {field('email', 'E-Mail', ' type="email" autocomplete="email" inputmode="email"', wide=True)}
-            </fieldset>
-            <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
-            <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
-              <span>Ich bin einverstanden, dass Cascarup meinen Namen und meine E-Mail-Adresse für diese Benachrichtigung speichert und dafür über den Dienst FormSubmit ins Ausland übermittelt. Mehr in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span></label>
-            <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
-            <button class="button button--solid order__submit" type="submit" data-pay>Benachrichtige mich</button>
-            <p class="order__pay">Lieber schon jetzt? Bar oder mit TWINT an unseren <a href="index.html#staende">Ständen</a> oder bei einem Teammitglied.</p>
-            <p class="order__status" role="status" aria-live="polite"></p>
-          </form>
-          <div class="ps-done" data-ps-done hidden tabindex="-1">
-            <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
-            <p class="eyebrow">Danke!</p>
-            <p class="cart__done-title">Du hörst von uns.</p>
-            <p class="cart__done-text">Sobald du deinen Partizipationsschein online zeichnen kannst, schreiben wir dir eine E-Mail.</p>
-            <p class="cart__done-note" data-done-note hidden></p>
-            <a class="button button--solid" href="index.html#shop">Zum Shop</a>
-          </div>
+          <p class="ps-soon">Der Kauf mit TWINT ist gerade pausiert. Bald kannst du deinen Schein hier wieder online zeichnen.</p>
+          <p class="ps-soon">Fragen? Schreib uns an <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
 '''
     return f'''  <main id="main" class="ps">
     <!-- the way in: what a certificate is, beside the certificate itself -->

@@ -53,8 +53,8 @@
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>
-  <link rel="stylesheet" href="../assets/fonts.css?v=20261030105125">
-  <link rel="stylesheet" href="../styles.css?v=20261030105125">
+  <link rel="stylesheet" href="../assets/fonts.css?v=20261030105531">
+  <link rel="stylesheet" href="../styles.css?v=20261030105531">
 </head>
 <body class="is-ps">
   <a class="skip" href="#main">Aller au contenu</a>
@@ -176,7 +176,7 @@
       <h2 class="display" id="ps-steps-title" data-reveal style="--d:1">Participer, c’est<br>tout <em>simple.</em></h2>
       <ol class="ps-steps__list">
         <li data-reveal style="--d:0"><span class="ps-steps__no">1</span><h3>Choix du bon</h3><p>Le nombre de bons, tes coordonnées et ce que devient ton argent à la fin.</p></li>
-        <li data-reveal style="--d:1"><span class="ps-steps__no">2</span><h3>Paiement</h3><p>Bientôt en ligne avec TWINT. Dès maintenant en espèces ou avec TWINT à nos stands.</p></li>
+        <li data-reveal style="--d:1"><span class="ps-steps__no">2</span><h3>Paiement</h3><p>Avec TWINT. L’achat est momentanément en pause et bientôt de nouveau possible.</p></li>
         <li data-reveal style="--d:2"><span class="ps-steps__no">3</span><h3>Confirmation</h3><p>Tu reçois une confirmation par e-mail. Dès que ton paiement nous parvient, ton bon est souscrit et nous te contactons pour ton certificat.</p></li>
         <li data-reveal style="--d:3"><span class="ps-steps__no">4</span><h3>À la fin de l’année</h3><p>Remboursement ou souvenir, comme tu l’as choisi.</p></li>
       </ol>
@@ -189,29 +189,8 @@
         <div class="ps-form__main">
           <p class="eyebrow">Ton bon</p>
           <h2 class="display" id="ps-form-title">Bientôt à nouveau <em>disponible.</em></h2>
-          <p class="ps-soon">Tu pourras bientôt à nouveau souscrire ton bon en ligne. Laisse-nous ton nom et ton adresse e-mail, et nous t’écrirons dès que ce sera de nouveau possible.</p>
-          <form class="order ps-order" data-notify data-endpoint="https://formsubmit.co/ajax/info@cascarup.ch" novalidate>
-            <fieldset class="order__group">
-              <legend>Tes coordonnées</legend>
-              <div class="fields"><label class="field"><span>Prénom</span><input name="vorname" autocomplete="given-name" required aria-describedby="err-vorname"><span class="order__error" id="err-vorname" data-error="vorname" hidden></span></label><label class="field"><span>Nom</span><input name="nachname" autocomplete="family-name" required aria-describedby="err-nachname"><span class="order__error" id="err-nachname" data-error="nachname" hidden></span></label></div>
-              <label class="field field--wide"><span>E-mail</span><input name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="err-email"><span class="order__error" id="err-email" data-error="email" hidden></span></label>
-            </fieldset>
-            <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
-            <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
-              <span>J’accepte que Cascarup enregistre mon nom et mon adresse e-mail pour cette notification et les transmette pour cela à l’étranger via le service FormSubmit. Plus d’infos dans la <a href="datenschutz.html" target="_blank">déclaration de protection des données</a>.</span></label>
-            <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
-            <button class="button button--solid order__submit" type="submit" data-pay>Préviens-moi</button>
-            <p class="order__pay">Tu ne veux pas attendre ? En espèces ou avec TWINT à nos <a href="index.html#staende">stands</a> ou auprès d’un membre de l’équipe.</p>
-            <p class="order__status" role="status" aria-live="polite"></p>
-          </form>
-          <div class="ps-done" data-ps-done hidden tabindex="-1">
-            <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
-            <p class="eyebrow">Merci !</p>
-            <p class="cart__done-title">Tu auras de nos nouvelles.</p>
-            <p class="cart__done-text">Dès que tu pourras souscrire ton bon de participation en ligne, nous t’enverrons un e-mail.</p>
-            <p class="cart__done-note" data-done-note hidden></p>
-            <a class="button button--solid" href="index.html#shop">Vers la boutique</a>
-          </div>
+          <p class="ps-soon">L’achat avec TWINT est momentanément en pause. Tu pourras bientôt à nouveau souscrire ton bon en ligne ici.</p>
+          <p class="ps-soon">Des questions ? Écris-nous à <a href="mailto:info@cascarup.ch">info@cascarup.ch</a>.</p>
         <div class="ps-form__aside" aria-hidden="true">
           <div class="cert" data-cert>
           <img class="cert__rosette" src="../assets/ps/rosette.svg" alt="" width="1200" height="1200" decoding="async">
@@ -277,8 +256,8 @@
 
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden><img class="menu-btn__bottle" src="../assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async"><span>Menu</span><i aria-hidden="true"></i></button>
 
-  <script src="../main.js?v=20261030105125" defer></script>
-  <script src="../checkout.js?v=20261030105125" defer></script>
-  <script src="../ps.js?v=20261030105125" defer></script>
+  <script src="../main.js?v=20261030105531" defer></script>
+  <script src="../checkout.js?v=20261030105531" defer></script>
+  <script src="../ps.js?v=20261030105531" defer></script>
 </body>
 </html>
