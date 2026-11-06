@@ -483,6 +483,11 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .pour__fact dt { font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); letter-spacing: -.01em; color: var(--syrup); }
 .pour__fact dd { margin: 8px 0 0; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
 .pour__fact dd em { font-style: italic; }
+/* the word introduces its line: a colon after it (French sets it apart with a space) */
+.pour__fact dt::after { content: ":"; }
+.pour__fact dt:lang(fr)::after { content: "\00a0:"; }
+/* what we make of it, in one sentence, just above the pot */
+.split__copy .split__sirup { margin-top: 18px; font: 400 clamp(1.125rem, 1.5vw, 1.3125rem)/1.45 var(--serif); color: var(--ink); }
 /* the words wait, faint; each comes in as the stream passes it */
 .pour.is-live .pour__fact dt { opacity: .16; transition: opacity .7s var(--pour-ease); }
 .pour.is-live .pour__fact dd { opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity .7s var(--pour-ease) .08s, transform .7s var(--pour-ease) .08s; }
@@ -490,35 +495,6 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 /* the room of the bottle that catches the stream (pour.js draws it, the stream down its middle) */
 .pour__catch { display: none; }
 .pour.is-live .pour__catch { display: block; width: 80px; height: 138px; margin-top: 34px; }
-
-/* ---------- plan ---------- */
-
-.plan {
-  max-width: calc(var(--max) + 2 * var(--gutter));
-  margin: 0 auto;
-  padding: 0 var(--gutter) var(--section);
-  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px;
-  align-items: start;
-}
-.plan__head { grid-column: 1 / span 5; position: sticky; top: calc(var(--nav-h) + 48px); }
-.plan__head .display { margin-top: 26px; }
-.plan__media { margin-top: 44px; border-radius: var(--radius); overflow: hidden; background: var(--ink); }
-.plan__media img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
-.plan__media figcaption { padding: 12px 16px 14px; font: 400 .6875rem/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 247, 238, .7); }
-.plan__body { grid-column: 7 / span 6; }
-.plan__lead { font: 300 clamp(1.375rem, 1.9vw, 1.75rem)/1.4 var(--serif); }
-.steps { margin-top: 48px; border-top: 1px solid var(--line); counter-reset: step; }
-.steps li {
-  display: grid; grid-template-columns: 3.2em 1fr; gap: 12px;
-  padding: 26px 0 28px; border-bottom: 1px solid var(--line);
-}
-.steps li::before {
-  counter-increment: step; content: counter(step, decimal-leading-zero);
-  font: 600 1.125rem/1.45 var(--brand); color: var(--terra);
-}
-.steps h3 { font: 300 1.5rem/1.2 var(--serif); letter-spacing: -.01em; }
-.steps p { margin-top: 6px; color: var(--ink-2); font-size: 1.0625rem; }
-.steps .step__who { margin-top: 10px; font: 400 .6875rem/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
 
 /* ---------- ideas for the glass: a bar menu ---------- */
 
@@ -1038,7 +1014,7 @@ html:has(.is-legal) { background: var(--paper); }
   .intro { text-align: left; }
   .intro__cols { grid-template-columns: 1fr; gap: 20px; margin-top: 36px; }
 
-  .split, .plan, .drinks__head { display: block; }
+  .split, .drinks__head { display: block; }
   .drinks__intro { margin-top: 24px; }
   /* on phones the menu becomes a row of cards to swipe through, with tabs to jump */
   .drinks__tabs {
@@ -1066,11 +1042,8 @@ html:has(.is-legal) { background: var(--paper); }
     background: rgba(255, 247, 238, .025);
   }
   .drinks__title { margin-top: 18px; }
-  .steps li { grid-template-columns: 2.4em 1fr; }
   .split__media { aspect-ratio: 4 / 3; }
   .split__copy { margin-top: 48px; }
-  .plan__head { position: static; }
-  .plan__body { margin-top: 36px; }
 
 
   .footer__top { grid-template-columns: 1fr 1fr; row-gap: 40px; }

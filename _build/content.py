@@ -7,10 +7,6 @@ COMPANY_PLAIN = 'Cascarup'
 def facts(rows):
     return '\n          '.join(f'<div><dt>{a}</dt><dd>{b}</dd></div>' for a, b in rows)
 
-def steps(rows):
-    return '\n          '.join(
-        f'<li data-reveal><div><h3>{t}</h3><p>{p}</p><p class="step__who">{w}</p></div></li>' for t, p, w in rows)
-
 V = {
  'SITE_URL': 'https://cascarup.ch/',
  'IMG_DRY': 'assets/photos/trocknen.jpg', 'IMG_DRY_ALT': 'Kaffeekirschen trocknen in der Sonne, frische rote zwischen dunklen, schon getrockneten',
@@ -33,14 +29,7 @@ V = {
             'In einer Verkostungsstudie beschrieben die Prüfpersonen Cascara-Aufgüsse als süsslich, fruchtig '
             'und kräuterig, mit Noten von Honig, Dörrpflaume und Schwarztee.',
 
- 'PLAN_LEAD': 'Unser Sirup bringt den Geschmack von Cascara ins Glas: mit Wasser verdünnt, im Kaffee oder in '
-              'Drinks. Zum Start gibt es zwei Sorten, das Original und Cozy Spice mit Zimt und Sternanis. Weitere Sorten sind geplant.',
- 'STEPS': steps([
-     ('Reifen und ernten', 'Nach der Blüte brauchen Arabica-Kirschen rund sieben bis neun Monate, bis sie reif und rot sind. Dann werden sie geerntet.', 'Auf der Plantage'),
-     ('Trennen und trocknen', 'Die Bohnen werden aus der Frucht gelöst. Haut und Fruchtfleisch werden getrocknet: Das ist Cascara.', 'Bei der Aufbereitung'),
-     ('Aufgiessen und einkochen', 'Wir giessen die Cascara mit heissem Wasser auf und kochen den Aufguss zu Sirup ein. Für Cozy Spice ziehen Zimt und Sternanis mit.', 'In Freiburg'),
-     ('Abfüllen', 'Wir füllen den Sirup von Hand in die Flaschen, in kleinen Mengen und mit viel Sorgfalt.', 'In Freiburg'),
- ]),
+ 'SPLIT_SIRUP': 'Ein Sirup, zwei Sorten: Wir giessen die Cascara auf, kochen sie zu Sirup ein und füllen ihn in Freiburg von Hand ab, als Original und als Cozy Spice mit Zimt und Sternanis.',
 
  'PROJECT_P1': 'Wir sind ein Schülerunternehmen am Collège Saint-Michel. Im Company Programme von Young Enterprise '
                'Switzerland gründen und führen Schülerinnen und Schüler zwischen 16 und 20 Jahren während eines '
