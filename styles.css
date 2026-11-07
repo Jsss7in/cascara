@@ -1416,7 +1416,8 @@ html:has(.is-legal) { background: var(--paper); }
    (hero3d/photobg.js), with a light cream wash where the words stand (left; on phones above) */
 .dio__photo { position: absolute; inset: -3%; display: block; will-change: transform, opacity; transform-origin: 70% 60%; }
 .dio__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 55%; display: block; }
-@media (max-aspect-ratio: 4/5) { .dio__photo img { object-position: 50% 70%; } }
+/* phones: the picture a little larger and lower, so the pickers on the path stand clear below the branch */
+@media (max-aspect-ratio: 4/5) { .dio__photo { inset: -3% -3% -22%; } .dio__photo img { object-position: 50% 70%; } }
 /* the wash, and at the foot a fade into the paper that stays as it is while the photograph fades (it does not move
    or fade with it, so the lower edge looks the same all through the first scroll) */
 .hero__dio.dio--photo::after { content: ""; position: absolute; inset: 0; pointer-events: none;
@@ -1424,13 +1425,7 @@ html:has(.is-legal) { background: var(--paper); }
     linear-gradient(90deg, rgba(252, 246, 236, .62) 0%, rgba(252, 246, 236, .22) 38%, rgba(252, 246, 236, 0) 60%); }
 @media (max-aspect-ratio: 4/5) { .hero__dio.dio--photo::after { background: linear-gradient(to top, rgb(230, 211, 183) 0, rgba(230, 211, 183, .7) 5%, rgba(230, 211, 183, 0) 15%),
   linear-gradient(180deg, rgba(252, 246, 236, .6) 0%, rgba(252, 246, 236, .14) 42%, rgba(252, 246, 236, 0) 60%); } }
-/* the drawn soil's dark foot and the veil under the clock belonged to the paper land: the photograph needs neither */
+/* the drawn soil's dark foot belonged to the paper land: the photograph does not need it */
 .hero__stage:has(.dio--photo) .hero__foot { display: none !important; }
-.hero__stage:has(.dio--photo)::before { display: none; }
 
-/* The bar as glass (2026-11): see-through, tinted a little in the colour of what lies beneath (main.js sets it) */
-.nav, .nav.is-fading { background: color-mix(in srgb, var(--nav-c, #E6D3B7) 34%, transparent) !important;
-  -webkit-backdrop-filter: saturate(1.4) blur(16px); backdrop-filter: saturate(1.4) blur(16px);
-  -webkit-mask-image: none; mask-image: none; padding-bottom: 0; border-bottom: 1px solid rgba(255, 250, 242, .22); }
-.nav.is-pinned { padding-bottom: 0; -webkit-mask-image: none; mask-image: none; background: color-mix(in srgb, var(--nav-c, #E6D3B7) 58%, transparent) !important; }
 .dio__front { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
