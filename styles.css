@@ -1411,3 +1411,13 @@ html:has(.is-legal) { background: var(--paper); }
   .nav__menu { padding-left: 8px; }
   .nav__menu span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+
+/* The opening since 2026-11: a real photograph of the plantation at sunrise behind the drawn branch
+   (hero3d/photobg.js), with a light cream wash where the words stand (left; on phones above) */
+.dio__photo { position: absolute; inset: -3%; display: block; will-change: transform, opacity; transform-origin: 70% 60%; }
+.dio__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 55%; display: block; }
+@media (max-aspect-ratio: 4/5) { .dio__photo img { object-position: 50% 70%; } }
+.hero__dio.dio--photo::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(252, 246, 236, .62) 0%, rgba(252, 246, 236, .22) 38%, rgba(252, 246, 236, 0) 60%); }
+@media (max-aspect-ratio: 4/5) { .hero__dio.dio--photo::after { background: linear-gradient(180deg, rgba(252, 246, 236, .6) 0%, rgba(252, 246, 236, .14) 42%, rgba(252, 246, 236, 0) 60%); } }
+.dio__front { position: absolute; inset: 0; z-index: 1; pointer-events: none; }

@@ -243,13 +243,16 @@ const sharp = (id, dpr) => (id === 'branch' ? Math.min(dpr, 3) : Math.min(dpr, d
 
 // Every layer is drawn once as a picture (the SVG painted onto a canvas, while the loading screen still shows), so
 // what moves afterwards are finished pictures: nothing is drawn again while the page runs, only moved and faded.
-export function createDiorama(root) {
+// only: draw just these layers (the photograph of 2026-11 keeps the drawn branch in front of it)
+export function createDiorama(root, { only } = {}) {
+  const shown = (id) => !only || only.includes(id);
   root.innerHTML = '';
   // the paper under it all, with its grain: a layer of its own, so the diorama fades layer by layer (one opacity on
   // the whole would have the browser paint all of it again, off screen, in every frame of the fade)
   const ground = document.createElement('div');
   ground.className = 'dio__ground';
   root.append(ground);
+  if (only) ground.style.display = 'none';
   const layers = LAYERS.map((L, i) => {
     const wrap = document.createElement('div');
     wrap.className = `dio__layer dio__layer--${L.id}`;
@@ -265,6 +268,7 @@ export function createDiorama(root) {
     const back = document.createElement('div');   // what moves behind the drawing (the sun's halo)
     back.className = 'dio__fx';
     rise.append(back, paint, svg, fx); wrap.append(rise); root.append(wrap);
+    if (!shown(L.id)) wrap.style.display = 'none';
     return { ...L, wrap, paint, svg, fx, back, tf: '' };
   });
   const byId = Object.fromEntries(layers.map((L) => [L.id, L]));
@@ -587,7 +591,7 @@ export function createDiorama(root) {
   async function paintAll(svgs, W, H, g) {
     const dpr = window.devicePixelRatio || 1;
     await Promise.all(layers.map(async (L) => {
-      const inner = svgs[L.id] || '', c = L.paint, k = sharp(L.id, dpr);
+      const inner = shown(L.id) ? svgs[L.id] || '' : '', c = L.paint, k = sharp(L.id, dpr);
       if (!inner) { c.width = c.height = 0; return; }
       // the drawing as large as the canvas's pixels: Safari may rasterise an SVG picture at its own size and only
       // then scale it, which left the branch soft

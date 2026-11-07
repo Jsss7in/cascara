@@ -3,7 +3,7 @@
 // real cherry lies exactly over the model; it hands over as the fruit opens. Between the chapters of the story
 // the page glides on by itself, so a little scroll draws the reader into the next one.
 import { createHero, STOPS, PLAY_MS } from './hero3d.js';
-import { createDiorama } from './diorama.js';
+import { createDiorama } from './photobg.js';
 
 (() => {
   // ?debug=ui: errors and the 3D state shown on the page itself (for testing on phones without an inspector)
