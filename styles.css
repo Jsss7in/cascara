@@ -1423,7 +1423,7 @@ html:has(.is-legal) { background: var(--paper); }
 .hero__dio.dio--photo::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(to top, rgb(230, 211, 183) 0, rgba(230, 211, 183, .7) 6%, rgba(230, 211, 183, 0) 18%),
     linear-gradient(90deg, rgba(252, 246, 236, .62) 0%, rgba(252, 246, 236, .22) 38%, rgba(252, 246, 236, 0) 60%); }
-@media (max-aspect-ratio: 4/5) { .hero__dio.dio--photo::after { background: linear-gradient(to top, rgb(230, 211, 183) 0, rgba(230, 211, 183, .7) 5%, rgba(230, 211, 183, 0) 15%),
+@media (max-aspect-ratio: 4/5) { .hero__dio.dio--photo::after { background: linear-gradient(to top, rgb(var(--top)) 0, rgba(var(--top), .65) 3.5%, rgba(var(--top), 0) 10%),
   linear-gradient(180deg, rgba(252, 246, 236, .6) 0%, rgba(252, 246, 236, .14) 42%, rgba(252, 246, 236, 0) 60%); } }
 /* the drawn soil's dark foot belonged to the paper land: the photograph does not need it */
 .hero__stage:has(.dio--photo) .hero__foot { display: none !important; }

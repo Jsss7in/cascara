@@ -42,6 +42,20 @@ import { createDiorama } from './photobg.js';
   // The colour the stage shows, for the bar over it and for Safari above it (main.js reads hero.edge).
   const paper = [230, 211, 183];
   hero.edge = { top: paper, floor: paper, fadeFrom: Infinity, fadeH: 0 };
+  // on phones, while the photograph shows, the band above it (under the clock and the bar) and below it take the
+  // colour of its sky, so the bar seems to float over the picture; as it fades they turn back into the paper
+  const sky = [250, 241, 226], tall = matchMedia('(max-aspect-ratio: 4/5)');
+  let skyShown = -1;
+  function skyTone(o) {
+    const k = tall.matches ? o : 0;
+    if (k === skyShown) return;
+    skyShown = k;
+    const c = paper.map((v, i) => Math.round(v + (sky[i] - v) * k));
+    hero.style.setProperty('--top', c.join(', '));
+    hero.edge.top = c; hero.edge.floor = c;
+    hero.dispatchEvent(new Event('tone'));
+  }
+  tall.addEventListener?.('change', () => { const o = skyShown; skyShown = -1; skyTone(Math.max(0, o)); });
   hero.dispatchEvent(new Event('tone'));            // main.js ran before this module: repaint the bar now
 
   // the photograph: where its fruit sits in the picture (fractions of the image), and the texture for the model
@@ -230,7 +244,7 @@ import { createDiorama } from './photobg.js';
         dio.update(smooth(.004, end, p), o, performance.now() / 1000, w, h, narrow, away);
       }
       dioShown = o > 0; dioAway = away;
-      if (o !== landShown) { landShown = o; if (foot) foot.style.opacity = o; }   // the foot's fade goes with the land
+      if (o !== landShown) { landShown = o; if (foot) foot.style.opacity = o; skyTone(o); }   // the foot's fade goes with the land
       const cover = o >= 1 && !document.documentElement.classList.contains('is-loading');
       if (cover !== covered) { covered = cover; three.cover = cover; }
     }
