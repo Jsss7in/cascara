@@ -479,7 +479,7 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   renderer.localClippingEnabled = true;
 
   const scene = new Scene();
-  scene.background = new Color('#E6D3B7');
+  scene.background = new Color('#FFFFFF');
   const pmrem = new PMREMGenerator(renderer);
   // the photograph is shown mirrored (its branch runs off to the right), so its flash comes from the upper right:
   // the studio is mirrored to match, or the photo's highlight and the model's would sit on opposite sides

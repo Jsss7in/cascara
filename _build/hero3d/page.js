@@ -40,7 +40,7 @@ import { createDiorama } from './photobg.js';
   const beats = [...hero.querySelectorAll('[data-beat]')].map((el) => ({ el, win: el.dataset.beat.split(',').map(Number) }));
 
   // The colour the stage shows, for the bar over it and for Safari above it (main.js reads hero.edge).
-  const paper = [230, 211, 183];
+  const paper = [255, 255, 255];
   hero.edge = { top: paper, floor: paper, fadeFrom: Infinity, fadeH: 0 };
   // on phones, while the photograph shows, the band above it (under the clock and the bar) and below it take the
   // colour of its sky, so the bar seems to float over the picture; as it fades they turn back into the paper
@@ -105,7 +105,7 @@ import { createDiorama } from './photobg.js';
       addEventListener('pointermove', (e) => dio.lean(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1), { passive: true });
     }
   }
-  three.background = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#E6D3B7';
+  three.background = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#FFFFFF';
   if (/[?&]debug\b/.test(location.search)) window.__hero = three;   // test shots jump straight to a moment
   // ?debug&at=0.765: the page opens at that moment of the story (for checking a frame on a phone)
   const at = /[?&]debug\b/.test(location.search) ? parseFloat(new URLSearchParams(location.search).get('at')) : NaN;
