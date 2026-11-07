@@ -243,8 +243,9 @@ const sharp = (id, dpr) => (id === 'branch' ? Math.min(dpr, 3) : Math.min(dpr, d
 
 // Every layer is drawn once as a picture (the SVG painted onto a canvas, while the loading screen still shows), so
 // what moves afterwards are finished pictures: nothing is drawn again while the page runs, only moved and faded.
-// only: draw just these layers (the photograph of 2026-11 keeps the drawn branch in front of it)
-export function createDiorama(root, { only } = {}) {
+// only: draw just these layers (the photograph of 2026-11 keeps the drawn branch in front of it); keep: of the other
+// layers, just these moving pieces (the birds over the photograph's sky)
+export function createDiorama(root, { only, keep = [] } = {}) {
   const shown = (id) => !only || only.includes(id);
   root.innerHTML = '';
   // the paper under it all, with its grain: a layer of its own, so the diorama fades layer by layer (one opacity on
@@ -268,7 +269,7 @@ export function createDiorama(root, { only } = {}) {
     const back = document.createElement('div');   // what moves behind the drawing (the sun's halo)
     back.className = 'dio__fx';
     rise.append(back, paint, svg, fx); wrap.append(rise); root.append(wrap);
-    if (!shown(L.id)) wrap.style.display = 'none';
+    if (!shown(L.id) && !(L.id === 'sky' && keep.length)) wrap.style.display = 'none';
     return { ...L, wrap, paint, svg, fx, back, tf: '' };
   });
   const byId = Object.fromEntries(layers.map((L) => [L.id, L]));
@@ -279,6 +280,7 @@ export function createDiorama(root, { only } = {}) {
   // a small drawing that moves on its own: an SVG in its own element (CSS animates the element, never the drawing)
   const piece = (layer, cls, x, y, w, h, inner, style = '', behind = false) => {
     const el = document.createElement('div');
+    if (!shown(layer.id) && !keep.includes(cls)) return el;    // left out: made, never shown
     el.className = cls;
     el.style.cssText = `left:${f1(x)}px;top:${f1(y)}px;width:${f1(w)}px;height:${f1(h)}px;${style}`;
     el.innerHTML = inner ? `<svg viewBox="0 0 ${f1(w)} ${f1(h)}" width="${f1(w)}" height="${f1(h)}" aria-hidden="true">${inner}</svg>` : '';

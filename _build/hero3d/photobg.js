@@ -12,11 +12,12 @@ export function createDiorama(root) {
   const base = root.dataset.photo || 'assets/hero/feld';
   pic.innerHTML = `<source media="(max-aspect-ratio: 4/5)" srcset="${base}-hoch-900.webp 900w, ${base}-hoch-1500.webp 1500w" sizes="100vw">`
     + `<img src="${base}-quer-2400.webp" srcset="${base}-quer-1400.webp 1400w, ${base}-quer-2400.webp 2400w" sizes="100vw" alt="" decoding="async" fetchpriority="high">`;
-  // the branch in front stays the drawn one of the first opening (Justin, 2026-11-07): the old diorama, its branch only
+  // the branch in front stays the drawn one of the first opening (Justin, 2026-11-07): the old diorama, its branch only,
+  // and its birds crossing the sky now and then
   const front = document.createElement('div');
   front.className = 'dio__front';
   root.append(pic, front);
-  const branch = createPaper(front, { only: ['branch'] });
+  const branch = createPaper(front, { only: ['branch'], keep: ['dio__bird'] });
   const img = pic.querySelector('img');
   let laid = false, px = 0, py = 0, tpx = 0, tpy = 0, tf = '', last = -1, gone = null;
   const drawn = Promise.all([(img.decode ? img.decode() : Promise.resolve()).catch(() => {}), branch.whenDrawn()]);
