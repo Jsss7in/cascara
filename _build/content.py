@@ -720,7 +720,6 @@ def rueckgabe():
     towns = ''.join(
         f'<span class="rueck__town" style="left:{x:.2f}%;top:{y:.2f}%">{name}</span>'
         for name, lat, lon in [(t[0], t[1], t[2]) for t in RETURN_MAP['towns']] for x, y in [return_xy(lat, lon)])
-    cx, cy = return_xy(*RETURN_MAP['towns'][0][1:])   # the ring round Freiburg
     if RETURN_POINTS:
         pins = ''.join(
             f'<a class="rueck__pin" href="{route(*p["at"])}" target="_blank" rel="noopener" style="left:{x:.2f}%;top:{y:.2f}%;--d:{i}" '
@@ -755,7 +754,11 @@ def rueckgabe():
         f'          <span class="stand__badge rueck__badge">{"Rückgabestellen" if RETURN_POINTS else "Bald"}</span>\n'
         '          <div class="rueck__sheet">\n'
         '            <img src="assets/maps/rueckgabe-region.svg" alt="Karte: Freiburg und Umgebung" width="900" height="600" loading="lazy" decoding="async">\n'
-        f'            <svg class="rueck__loop" viewBox="0 0 900 600" aria-hidden="true"><ellipse pathLength="1" cx="{9 * cx:.0f}" cy="{6 * cy:.0f}" rx="300" ry="205"/></svg>\n'
+        # the ring round Freiburg and the towns about it, in the middle of the picture: wide on wide screens, rounder
+        # on phones (which show the middle half of the map, top to bottom), there a little higher: the note covers its foot
+        '            <svg class="rueck__loop" viewBox="0 0 900 600" aria-hidden="true">'
+        '<ellipse class="rueck__loop--wide" pathLength="1" cx="450" cy="300" rx="300" ry="165"/>'
+        '<ellipse class="rueck__loop--tall" pathLength="1" cx="450" cy="248" rx="182" ry="182"/></svg>\n'
         f'            <div class="rueck__pins" aria-hidden="{"false" if RETURN_POINTS else "true"}">{towns}{pins}</div>\n'
         '          </div>\n'
         + soon +

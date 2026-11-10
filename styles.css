@@ -1484,3 +1484,19 @@ a.rueck__pin { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .rueck__loop ellipse, .rueck__pin::before { animation: none; } }
 /* in the phone menu, the return stands out like «Werde Teil» */
 .menu__return small { padding: 6px 10px 5px; border-radius: 999px; background: var(--m-cream); color: var(--m-esp); opacity: 1; }
+/* the ring: one for wide screens, a rounder one for phones */
+.rueck__loop--tall { display: none; }
+@media (max-width: 900px) {
+  .rueck__loop--wide { display: none; }
+  .rueck__loop--tall { display: inline; }
+  /* phones: the three steps one under the other, small, so all three fit on one screen (no swiping) */
+  .stands__list.rueck__steps { display: block; overflow: visible; margin: 36px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .rueck__steps .stand, .rueck__steps .stand:nth-child(n+3) { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 16px; align-items: start;
+    padding: 16px 0 15px; border-top: 0; border-bottom: 1px solid var(--line); }
+  .rueck__steps .stand::before { content: none !important; }
+  .rueck__steps .stand__icon { grid-row: 1 / span 3; width: 40px; height: 40px; margin-top: 2px; }
+  .rueck__steps .stand__date { margin-top: 0; font-size: 1.5rem; }
+  .rueck__steps .stand__when { margin-top: 6px; font-size: .625rem; }
+  .rueck__steps .stand__place { margin: 5px 0 0; font-size: .875rem; line-height: 1.45; }
+  .rueck__map { margin-top: 28px; }
+}
