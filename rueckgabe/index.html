@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- cascarup.ch/rueckgabe: the address on the bottle's QR code. It leads to the return section of the page, in the
+     visitor's language (French or English if the browser asks for it, German otherwise). -->
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Rückgabe · Cascarup</title>
+  <link rel="canonical" href="https://cascarup.ch/#rueckgabe">
+  <meta http-equiv="refresh" content="0; url=../#rueckgabe">
+  <script>
+    (function () {
+      var l = ((navigator.languages && navigator.languages[0]) || navigator.language || '').toLowerCase();
+      var to = l.indexOf('fr') === 0 ? '../fr/#rueckgabe' : l.indexOf('en') === 0 ? '../en/#rueckgabe' : '../#rueckgabe';
+      location.replace(to);
+    })();
+  </script>
+  <style>html { background: #FAF1E2; color: #3A2116; font: 16px/1.5 system-ui, sans-serif; } a { color: #8E401C; }</style>
+</head>
+<body>
+  <p style="margin: 40vh auto 0; text-align: center">Weiter zur <a href="../#rueckgabe">Rückgabe</a> · <a href="../fr/#rueckgabe">Retour</a> · <a href="../en/#rueckgabe">Return</a></p>
+</body>
+</html>

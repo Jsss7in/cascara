@@ -667,6 +667,107 @@ DRIP_TOP = drip(_wv['original']['top'], 250, 420)      # espresso into the rust,
 DRIP_LOW = drip(_wv['original']['bottom'], 820, 1060)  # the rust into the cream, as above «Cascara Sirup»
 # the bar menu's edges, as on our label: the paper runs down into the night at its head, the night down into the paper
 # at its foot – a short drip, no long fall of colour
+# ---------------------------------------------------------------------------
+# The bottle return (Rückgabe): bring the empty bottle back, get the deposit back. Drawn like the stands: three steps,
+# each a line drawing that draws itself, then the map of Freiburg and the towns around it. As long as RETURN_POINTS is
+# empty, the map shows where they will be ("Bald"); each place added here gets its own pin and card:
+#   dict(name='…', place='Strasse 1', town='Freiburg', at=(lat, lon), hours='Mo–Fr 9–18 Uhr')
+RETURN_POINTS = []
+# the map: its centre and how many metres it is wide (python3 _build/maps_region.py draws it)
+RETURN_MAP = dict(center=(46.7970, 7.1480), metres=12000,
+                  towns=[('Freiburg', 46.8065, 7.1600), ('Marly', 46.7770, 7.1590), ('Villars-sur-Glâne', 46.7905, 7.1225),
+                         ('Givisiez', 46.8125, 7.1270), ('Granges-Paccot', 46.8235, 7.1430)])
+# where the pins will roughly sit while the places are still to come (shares of the map)
+RETURN_GHOSTS = [(46.7965, 7.1565), (46.7945, 7.1290), (46.7810, 7.1680), (46.8150, 7.1450)]
+RETURN_ICONS = [
+ # rinse: the bottle under a tap, a drop falling
+ '<path d="M27 24h10v6l4 6v20a3 3 0 0 1-3 3H26a3 3 0 0 1-3-3V36l4-6z"/><path d="M27 20h10v4H27z"/>'
+ '<path d="M23 44h18"/><path d="M44 8h10v6"/><path d="M38 8h6"/><path d="M54 18c0 2-1.5 3.5-3 3.5s-3-1.5-3-3.5 3-6 3-6 3 4 3 6z"/>',
+ # bring it back: the bottle, the way back round to the start
+ '<path d="M26 28h8v4l3 5v15a2 2 0 0 1-2 2H25a2 2 0 0 1-2-2V37l3-5z"/><path d="M26 25h8v3h-8z"/>'
+ '<path d="M44 16a20 20 0 1 1-26 0"/><path d="M44 16l1 7m-1-7-7 1"/>',
+ # the deposit back: the coin, the hand
+ '<circle cx="34" cy="22" r="11"/><path d="M34 16v12m-3-9h5a2 2 0 0 1 0 4h-4a2 2 0 0 0 0 4h5"/>'
+ '<path d="M8 48h10l9 4h12a3 3 0 0 0 0-6h-9"/><path d="M18 44l8-4h10l14-6a3 3 0 0 1 3 5l-15 10"/>',
+]
+RETURN_STEPS = [
+ ('1', 'Ausspülen', 'Zu Hause', 'Leer trinken, kurz mit Wasser ausspülen und den Deckel wieder drauf.'),
+ ('2', 'Vorbeibringen', 'In Freiburg und Umgebung', 'Bring die Flasche zu einer unserer Rückgabestellen.'),
+ ('3', 'Depot zurück', 'Vor Ort', 'Für jede Flasche bekommst du dein Depot zurück.'),
+]
+
+
+def return_xy(lat, lon):
+    """A place on the return map, in shares of its width and height (as maps_region.py projects it)."""
+    import math
+    (lat0, lon0), m = RETURN_MAP['center'], RETURN_MAP['metres']
+    h = m * 2 / 3
+    x = .5 + (lon - lon0) * 111320 * math.cos(math.radians(lat0)) / m
+    y = .5 - (lat - lat0) * 111320 / h
+    return 100 * x, 100 * y
+
+
+def rueckgabe():
+    steps = []
+    for n, ((num, title, when, text), icon) in enumerate(zip(RETURN_STEPS, RETURN_ICONS)):
+        steps.append(
+            f'      <li class="stand rueck__step" data-reveal style="--d:{n}">\n'
+            f'        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true">{icon.replace("<path ", "<path pathLength=" + chr(34) + "1" + chr(34) + " ").replace("<circle ", "<circle pathLength=" + chr(34) + "1" + chr(34) + " ")}</svg>\n'
+            f'        <p class="stand__date"><span class="stand__day">{num}.</span> {title}</p>\n'
+            f'        <p class="stand__when">{when}</p>\n'
+            f'        <p class="stand__place">{text}</p>\n'
+            f'      </li>')
+    towns = ''.join(
+        f'<span class="rueck__town" style="left:{x:.2f}%;top:{y:.2f}%">{name}</span>'
+        for name, lat, lon in [(t[0], t[1], t[2]) for t in RETURN_MAP['towns']] for x, y in [return_xy(lat, lon)])
+    cx, cy = return_xy(*RETURN_MAP['towns'][0][1:])   # the ring round Freiburg
+    if RETURN_POINTS:
+        pins = ''.join(
+            f'<a class="rueck__pin" href="{route(*p["at"])}" target="_blank" rel="noopener" style="left:{x:.2f}%;top:{y:.2f}%;--d:{i}" '
+            f'aria-label="{p["name"]}, {p["town"]}: Karte öffnen"><i></i></a>'
+            for i, p in enumerate(RETURN_POINTS) for x, y in [return_xy(*p['at'])])
+        soon = ''
+        where = (f'Hier nehmen wir leere Flaschen zurück: an {len(RETURN_POINTS)} Orten in Freiburg und Umgebung.')
+    else:
+        pins = ''.join(f'<span class="rueck__pin rueck__pin--soon" style="left:{x:.2f}%;top:{y:.2f}%;--d:{i}"><i></i></span>'
+                       for i, at in enumerate(RETURN_GHOSTS) for x, y in [return_xy(*at)])
+        soon = ('          <div class="rueck__soon"><p class="rueck__soon-tag">Coming soon</p>'
+                '<p class="rueck__soon-text">Unsere Rückgabestellen in Freiburg und Umgebung findest du bald hier.</p></div>\n')
+        where = 'Die Rückgabestellen in Freiburg und Umgebung geben wir bald bekannt.'
+    cards = ''.join(
+        f'\n      <li class="stand rueck__place" data-reveal style="--d:{i}">\n'
+        f'        <h3 class="stand__title">{p["name"]}</h3>\n'
+        f'        <p class="stand__place">{p["place"]}<br>{p["town"]}</p>\n'
+        + (f'        <p class="stand__when">{p["hours"]}</p>\n' if p.get('hours') else '') +
+        f'        <p class="stand__links"><a href="{route(*p["at"])}" target="_blank" rel="noopener">Route</a></p>\n'
+        f'      </li>' for i, p in enumerate(RETURN_POINTS))
+    return (
+        '    <!-- The bottle return: three steps, then the map of the places in Freiburg and around it -->\n'
+        '    <section class="stands rueck" data-tone="paper" id="rueckgabe" aria-labelledby="rueckgabe-title">\n'
+        '      <div class="stands__inner">\n'
+        '        <header class="stands__head">\n'
+        '          <p class="eyebrow" data-reveal>Rückgabe</p>\n'
+        '          <h2 class="display" id="rueckgabe-title" data-reveal style="--d:1">Bring die Flasche<br><em>zurück.</em></h2>\n'
+        f'          <p class="stands__intro" data-reveal style="--d:2">Leer getrunken? Bring die Flasche zurück und hol dein Depot ab. {where}</p>\n'
+        '        </header>\n'
+        '        <ol class="stands__list rueck__steps">\n' + '\n'.join(steps) + '\n        </ol>\n'
+        '        <figure class="rueck__map" data-reveal>\n'
+        f'          <span class="stand__badge rueck__badge">{"Rückgabestellen" if RETURN_POINTS else "Bald"}</span>\n'
+        '          <div class="rueck__sheet">\n'
+        '            <img src="assets/maps/rueckgabe-region.svg" alt="Karte: Freiburg und Umgebung" width="900" height="600" loading="lazy" decoding="async">\n'
+        f'            <svg class="rueck__loop" viewBox="0 0 900 600" aria-hidden="true"><ellipse pathLength="1" cx="{9 * cx:.0f}" cy="{6 * cy:.0f}" rx="300" ry="205"/></svg>\n'
+        f'            <div class="rueck__pins" aria-hidden="{"false" if RETURN_POINTS else "true"}">{towns}{pins}</div>\n'
+        '          </div>\n'
+        + soon +
+        '        </figure>\n'
+        + (f'        <ol class="stands__list rueck__places">{cards}\n        </ol>\n' if RETURN_POINTS else '') +
+        '        <p class="stands__credit">Karte: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende</p>\n'
+        '      </div>\n'
+        '    </section>')
+
+
+V['RUECKGABE'] = rueckgabe()
+
 V['DRINKS'] = V['DRINKS'].replace('<!--drips-->',
     f'<svg class="drinks__drip drinks__drip--top" viewBox="0 0 1007 {DRIP_TOP[1]}" preserveAspectRatio="none" aria-hidden="true"><path d="{DRIP_TOP[0]}"/></svg>\n'
     f'      <svg class="drinks__drip drinks__drip--low" viewBox="0 0 1007 {DRIP_LOW[1]}" preserveAspectRatio="none" aria-hidden="true"><path d="{DRIP_LOW[0]}"/></svg>')
@@ -676,6 +777,7 @@ CHAPTERS = [
  ('cascara', 'Cascara', 'Was die Schale kann'),
  ('ideen', 'Ideen', 'Heiss, kalt oder im Punsch'),
  ('staende', 'Stände', 'Wo du uns findest'),
+ ('rueckgabe', 'Rückgabe', 'Flasche zurückbringen'),
  ('team', 'Team', 'Wer hinter Cascarup steht'),
 ]
 JOIN_URL = 'partizipation.html'
@@ -711,7 +813,7 @@ def menu(base=''):
     items = [('top', 'Home', 'Zum Anfang'), CHAPTERS[0], ('__join', 'Werde Teil', 'ab CHF 15')] + CHAPTERS[1:]
     lis = ''.join(
         f'<li><a href="{JOIN_URL if k == "__join" else base + "#" + k}" data-menu-link'
-        f'{" class=" + chr(34) + "menu__join" + chr(34) if k == "__join" else ""}><span>{t}</span><small>{sub}</small></a></li>'
+        f'{" class=" + chr(34) + "menu__join" + chr(34) if k == "__join" else " class=" + chr(34) + "menu__return" + chr(34) if k == "rueckgabe" else ""}><span>{t}</span><small>{sub}</small></a></li>'
         for k, t, sub in items)
     return f'''  <dialog class="menu" id="menu" data-menu aria-label="Menü">
     <div class="menu__inner" tabindex="-1" autofocus>

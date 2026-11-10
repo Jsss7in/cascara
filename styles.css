@@ -1434,3 +1434,53 @@ html:has(.is-legal) { background: var(--paper); }
 .hero__dio.dio--photo:not(.is-up) .dio__rise { transform: translate3d(0, 2.5vh, 0); }
 /* on the white page the shop's painted sky fades straight into white (its glow bridged the cream page) */
 .shop__stage::before { display: none; }
+
+/* The bottle return (Rückgabe), drawn like the stands: three steps, then the map of Freiburg and the towns around it.
+   While the places are still to come, the map shows where they will roughly be (dashed pins) under «Coming soon». */
+.rueck .stands__inner { padding-top: 0; }
+.rueck__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rueck__step .stand__date { font-size: clamp(1.75rem, 2.3vw, 2.375rem); }
+.rueck__step .stand__place { max-width: 24em; margin-bottom: 0; }
+.rueck__map { position: relative; margin: clamp(48px, 5vw, 76px) 0 0; aspect-ratio: 2 / 1; overflow: hidden; border-radius: var(--radius);
+  background: #F3E7D3; box-shadow: 0 0 0 1px var(--line); }
+/* the map sheet keeps its own proportions and is cut to the frame (wide here, tall on phones), pins and names with it */
+.rueck__sheet { position: absolute; left: 0; top: 50%; width: 100%; aspect-ratio: 3 / 2; transform: translateY(-50%); }
+.rueck__sheet img { display: block; width: 100%; height: 100%; transform: scale(1.04); transition: transform 2.4s var(--ease); }
+.rueck__map.is-in .rueck__sheet img { transform: none; }
+.rueck__loop { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.rueck__loop ellipse { fill: rgba(180, 89, 42, .05); stroke: var(--terra); stroke-width: 1.6; stroke-linecap: round;
+  stroke-dasharray: .006 .008; opacity: 0; transition: opacity 1.2s var(--ease) .5s; animation: rueck-march 90s linear infinite; }
+.rueck__map.is-in .rueck__loop ellipse { opacity: .75; }
+@keyframes rueck-march { to { stroke-dashoffset: -1; } }
+.rueck__pins { position: absolute; inset: 0; }
+.rueck__town { position: absolute; transform: translate(-50%, 6px); white-space: nowrap; font: 500 .625rem/1 var(--sans); letter-spacing: .22em;
+  text-transform: uppercase; color: rgba(58, 33, 22, .58); text-shadow: 0 0 6px #F3E7D3, 0 0 3px #F3E7D3; }
+.rueck__town:first-child { font-size: .75rem; color: var(--ink-2); }
+/* a pin: its tip on the place; dashed while the place is still to come, with a halo that breathes */
+.rueck__pin { position: absolute; width: 0; height: 0; opacity: 0; transform: translateY(-14px);
+  transition: opacity .6s var(--ease), transform .8s cubic-bezier(.34, 1.56, .64, 1); transition-delay: calc(900ms + var(--d, 0) * 260ms); }
+.rueck__map.is-in .rueck__pin { opacity: 1; transform: none; }
+.rueck__pin i { position: absolute; left: -11px; top: -30px; width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  background: var(--terra); box-shadow: inset 0 0 0 5px var(--terra), inset 0 0 0 9px var(--milk); }
+.rueck__pin::before { content: ""; position: absolute; left: -20px; top: -20px; width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(180, 89, 42, .16); animation: rueck-breathe 2.8s ease-in-out infinite; animation-delay: calc(var(--d, 0) * -.7s); }
+.rueck__pin--soon i { background: rgba(250, 241, 226, .7); box-shadow: none; border: 1.6px dashed var(--terra); }
+.rueck__pin--soon::before { background: rgba(180, 89, 42, .1); }
+@keyframes rueck-breathe { 0%, 100% { transform: scale(.35); opacity: .9; } 60% { transform: scale(1); opacity: 0; } }
+a.rueck__pin { cursor: pointer; }
+.rueck__badge { top: 20px; right: 20px; z-index: 2; }
+.rueck__soon { position: absolute; z-index: 2; left: 20px; bottom: 20px; max-width: 330px; padding: 16px 18px 17px; border-radius: var(--radius);
+  background: rgba(250, 241, 226, .9); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 0 0 1px var(--line), 0 18px 34px -24px rgba(58, 33, 22, .5); }
+.rueck__soon-tag { margin: 0; font: 500 .6875rem/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--terra-ink); }
+.rueck__soon-text { margin: 8px 0 0; font: 400 1.0625rem/1.35 var(--serif); color: var(--ink); }
+.rueck__places { margin-top: clamp(40px, 4vw, 56px); }
+@media (max-width: 1100px) { .rueck__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } .rueck__steps .stand:nth-child(n+3) { border-top: 0; } .rueck__steps .stand:nth-child(odd)::before { content: ""; } .rueck__steps .stand:first-child::before { content: none; } }
+@media (max-width: 900px) {
+  .rueck__map { aspect-ratio: 4 / 5; margin-top: 36px; }
+  .rueck__sheet { left: 50%; top: 0; width: auto; height: 100%; transform: translateX(-50%); }
+  .rueck__soon { left: 14px; right: 14px; bottom: 14px; max-width: none; }
+  .rueck__badge { top: 14px; right: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .rueck__loop ellipse, .rueck__pin::before { animation: none; } }
+/* in the phone menu, the return stands out like «Werde Teil» */
+.menu__return small { padding: 6px 10px 5px; border-radius: 999px; background: var(--m-cream); color: var(--m-esp); opacity: 1; }
