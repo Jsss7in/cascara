@@ -686,14 +686,14 @@ RETURN_ICONS = [
  # bring it back: the bottle, the way back round to the start
  '<path d="M26 28h8v4l3 5v15a2 2 0 0 1-2 2H25a2 2 0 0 1-2-2V37l3-5z"/><path d="M26 25h8v3h-8z"/>'
  '<path d="M44 16a20 20 0 1 1-26 0"/><path d="M44 16l1 7m-1-7-7 1"/>',
- # the deposit back: the coin, the hand
- '<circle cx="34" cy="22" r="11"/><path d="M34 16v12m-3-9h5a2 2 0 0 1 0 4h-4a2 2 0 0 0 0 4h5"/>'
- '<path d="M8 48h10l9 4h12a3 3 0 0 0 0-6h-9"/><path d="M18 44l8-4h10l14-6a3 3 0 0 1 3 5l-15 10"/>',
+ # used again: the bottle, clean and ready, with a little shine and the arrow round it once more
+ '<path d="M27 22h10v6l4 6v22a3 3 0 0 1-3 3H26a3 3 0 0 1-3-3V34l4-6z"/><path d="M27 18h10v4H27z"/>'
+ '<path d="M23 42h18"/><path d="M48 12v8m-4-4h8"/><path d="M52 28v4m-2-2h4"/><path d="M12 30a22 22 0 0 0 6 22"/><path d="M18 52l-6-1m6 1 1-6"/>',
 ]
 RETURN_STEPS = [
  ('1', 'Ausspülen', 'Zu Hause', 'Leer trinken, kurz mit Wasser ausspülen und den Deckel wieder drauf.'),
  ('2', 'Vorbeibringen', 'In Freiburg und Umgebung', 'Bring die Flasche zu einer unserer Rückgabestellen.'),
- ('3', 'Depot zurück', 'Vor Ort', 'Für jede Flasche bekommst du dein Depot zurück.'),
+ ('3', 'Wiederverwenden', 'Bei uns', 'Wir verwenden die Flasche wieder. So braucht es keine neue.'),
 ]
 
 
@@ -748,7 +748,7 @@ def rueckgabe():
         '        <header class="stands__head">\n'
         '          <p class="eyebrow" data-reveal>Rückgabe</p>\n'
         '          <h2 class="display" id="rueckgabe-title" data-reveal style="--d:1">Bring die Flasche<br><em>zurück.</em></h2>\n'
-        f'          <p class="stands__intro" data-reveal style="--d:2">Leer getrunken? Bring die Flasche zurück und hol dein Depot ab. {where}</p>\n'
+        f'          <p class="stands__intro" data-reveal style="--d:2">Leer getrunken? Bring die Flasche zurück. So können wir die Flaschen wiederverwenden, und es entsteht weniger Verpackungsabfall. {where}</p>\n'
         '        </header>\n'
         '        <ol class="stands__list rueck__steps">\n' + '\n'.join(steps) + '\n        </ol>\n'
         '        <figure class="rueck__map" data-reveal>\n'

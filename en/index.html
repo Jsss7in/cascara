@@ -29,7 +29,7 @@
   <link rel="preload" href="../assets/fonts/dynapuff-latin.woff2" as="font" type="font/woff2" crossorigin>
   <!-- the loading screen, styled before anything else arrives: our mark draws itself, the name rises beneath it -->
   <style>
-    .loader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: #FAF1E2;
+    .loader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: #F7ECDA;
       transition: opacity .7s cubic-bezier(.22, .61, .36, 1), visibility 0s .7s; }
     .loader.is-done { opacity: 0; visibility: hidden; }
     .loader__inner { display: grid; justify-items: center; gap: 16px; transition: transform .9s cubic-bezier(.22, .61, .36, 1); }
@@ -53,8 +53,8 @@
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>
-  <link rel="stylesheet" href="../assets/fonts.css?v=20261110121751">
-  <link rel="stylesheet" href="../styles.css?v=20261110121751">
+  <link rel="stylesheet" href="../assets/fonts.css?v=20261110122517">
+  <link rel="stylesheet" href="../styles.css?v=20261110122517">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -415,7 +415,7 @@
         <header class="stands__head">
           <p class="eyebrow" data-reveal>Return</p>
           <h2 class="display" id="rueckgabe-title" data-reveal style="--d:1">Bring the bottle<br><em>back.</em></h2>
-          <p class="stands__intro" data-reveal style="--d:2">Finished it? Bring the bottle back and collect your deposit. We will soon announce our return points in and around Fribourg.</p>
+          <p class="stands__intro" data-reveal style="--d:2">Finished it? Bring the bottle back. That way we can reuse the bottles and there is less packaging waste. We will soon announce our return points in and around Fribourg.</p>
         </header>
         <ol class="stands__list rueck__steps">
       <li class="stand rueck__step" data-reveal style="--d:0">
@@ -431,10 +431,10 @@
         <p class="stand__place">Drop it off at one of our return points.</p>
       </li>
       <li class="stand rueck__step" data-reveal style="--d:2">
-        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="34" cy="22" r="11"/><path pathLength="1" d="M34 16v12m-3-9h5a2 2 0 0 1 0 4h-4a2 2 0 0 0 0 4h5"/><path pathLength="1" d="M8 48h10l9 4h12a3 3 0 0 0 0-6h-9"/><path pathLength="1" d="M18 44l8-4h10l14-6a3 3 0 0 1 3 5l-15 10"/></svg>
-        <p class="stand__date"><span class="stand__day">3</span> Deposit back</p>
-        <p class="stand__when">On the spot</p>
-        <p class="stand__place">For every bottle, you get your deposit back.</p>
+        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true"><path pathLength="1" d="M27 22h10v6l4 6v22a3 3 0 0 1-3 3H26a3 3 0 0 1-3-3V34l4-6z"/><path pathLength="1" d="M27 18h10v4H27z"/><path pathLength="1" d="M23 42h18"/><path pathLength="1" d="M48 12v8m-4-4h8"/><path pathLength="1" d="M52 28v4m-2-2h4"/><path pathLength="1" d="M12 30a22 22 0 0 0 6 22"/><path pathLength="1" d="M18 52l-6-1m6 1 1-6"/></svg>
+        <p class="stand__date"><span class="stand__day">3</span> Reuse</p>
+        <p class="stand__when">With us</p>
+        <p class="stand__place">We use the bottle again, so no new one is needed.</p>
       </li>
         </ol>
         <figure class="rueck__map" data-reveal>
@@ -682,10 +682,10 @@
   </dialog>
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden><img class="menu-btn__bottle" src="../assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async"><span>Menu</span><i aria-hidden="true"></i></button>
 
-  <script src="../main.js?v=20261110121751" defer></script>
-  <script src="../checkout.js?v=20261110121751" defer></script>
-  <script src="../shop.js?v=20261110121751" defer></script>
-  <script src="../pour.js?v=20261110121751" defer></script>
-  <script type="module" src="../assets/hero3d.js?v=20261110121751"></script>
+  <script src="../main.js?v=20261110122517" defer></script>
+  <script src="../checkout.js?v=20261110122517" defer></script>
+  <script src="../shop.js?v=20261110122517" defer></script>
+  <script src="../pour.js?v=20261110122517" defer></script>
+  <script type="module" src="../assets/hero3d.js?v=20261110122517"></script>
 </body>
 </html>

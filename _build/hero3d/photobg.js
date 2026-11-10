@@ -9,7 +9,11 @@ export function createDiorama(root) {
   root.classList.add('dio--photo');
   const pic = document.createElement('picture');
   pic.className = 'dio__photo';
-  const base = root.dataset.photo || 'assets/hero/feld';
+  // the French and English pages live one folder down: their pictures are found the way the cherry's photo is
+  // (the page's own links are rewritten for them, this script's are not)
+  const cherry = document.querySelector('[data-hero-cherry]');
+  const up = cherry ? (cherry.getAttribute('src') || '').replace(/assets\/.*$/, '') : '';
+  const base = root.dataset.photo || `${up}assets/hero/feld`;
   pic.innerHTML = `<source media="(max-aspect-ratio: 4/5)" srcset="${base}-hoch-900.webp 900w, ${base}-hoch-1500.webp 1500w" sizes="100vw">`
     + `<img src="${base}-quer-2400.webp" srcset="${base}-quer-1400.webp 1400w, ${base}-quer-2400.webp 2400w" sizes="100vw" alt="" decoding="async" fetchpriority="high">`;
   // the branch in front stays the drawn one of the first opening (Justin, 2026-11-07): the old diorama, its branch only,
