@@ -21,9 +21,11 @@ export function createDiorama(root) {
   pic.innerHTML = '<picture>' + (still ? `<source media="(max-aspect-ratio: 4/5)" srcset="${base}-hoch-900.webp 900w, ${base}-hoch-1500.webp 1500w" sizes="100vw">` : '')
     + `<img src="${base}-quer-2400.webp" srcset="${base}-quer-1400.webp 1400w, ${base}-quer-2400.webp 2400w" sizes="(max-aspect-ratio: 4/5) 420vw, 106vw" alt="" decoding="async" fetchpriority="high"></picture>`;
   // The pickers walk (2026-11-12): only they move in Justin's film of this photograph, so the sharp photograph stays and
-  // just their patch of it plays as a small looping video on top, its edges feathered into the picture. It joins
+  // just their patch of it plays as a small looping video on top, its edges feathered into the picture. In the patch
+  // the film shows only where they move (each frame masked, cascara-quellen/startvideo-2026-11-12/comp.py); the rest
+  // of it is the photograph itself, pixel for pixel, so no difference in sharpness shows. It joins
   // the wide picture only (the tall one is another shot), and stays away with reduced motion or Save-Data.
-  const PATCH = [790 / 1920, 598 / 1072, 540 / 1920, 402 / 1072];   // where the patch lies in the picture (shares)
+  const PATCH = [988 / 2400, 748 / 1340, 676 / 2400, 502 / 1340];   // where the patch lies in the picture (shares of the 2400 photograph)
   const film = still ? null : document.createElement('video');
   if (film) {
     film.className = 'dio__pickers';
