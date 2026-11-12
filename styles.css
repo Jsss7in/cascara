@@ -1415,9 +1415,19 @@ html:has(.is-legal) { background: var(--paper); }
 /* The opening since 2026-11: a real photograph of the plantation at sunrise behind the drawn branch
    (hero3d/photobg.js), with a light cream wash where the words stand (left; on phones above) */
 .dio__photo { position: absolute; inset: -3%; display: block; will-change: transform, opacity; transform-origin: 70% 60%; }
+.dio__photo picture { display: block; width: 100%; height: 100%; }
 .dio__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 55%; display: block; }
+/* the pickers' patch of the film over the photograph, its edges feathered so no seam shows */
+.dio__pickers { position: absolute; display: block; object-fit: fill; pointer-events: none; opacity: 0; transition: opacity 1s var(--ease);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(transparent, #000 12%, #000 88%, transparent);
+  mask-composite: intersect; }
+.dio__pickers.is-on { opacity: 1; }
+.dio__pickers[hidden] { display: none; }
 /* phones: the picture a little larger and lower, so the pickers on the path stand clear below the branch */
 @media (max-aspect-ratio: 4/5) { .dio__photo { inset: -3% -3% -22%; } .dio__photo img { object-position: 50% 70%; } }
+/* phones with the film: the wide picture, cut to where the pickers walk, clear below the branch */
+@media (max-aspect-ratio: 4/5) { .dio__photo:not(.is-still) img { object-position: 60% 70%; } }
 /* the wash, and at the foot a fade into the paper that stays as it is while the photograph fades (it does not move
    or fade with it, so the lower edge looks the same all through the first scroll) */
 .hero__dio.dio--photo::after { content: ""; position: absolute; inset: 0; pointer-events: none;
