@@ -42,4 +42,13 @@ if missing: print('UNTRANSLATED', len(missing), sorted(missing)[:8])
 ics_dir=pathlib.Path(C)/'assets'/'staende'; ics_dir.mkdir(parents=True, exist_ok=True)
 for st in content.STANDS:
     (ics_dir/f"{st['date']}.ics").write_text(content.ics(st))
+# The QR code on the bottle's label says https://cascarup.ch/rueckgabe. The labels stay printed for a long time, so this
+# address must never go away, whatever happens to the page: it is written here on every build (never by hand) and
+# leads to the return section in the visitor's language. Moving or renaming the section means changing only
+# RUECKGABE_ZIEL here, never the code on the label.
+RUECKGABE_ZIEL = '#rueckgabe'
+RUECKGABE_SEITE = '<!doctype html>\n<!-- cascarup.ch/rueckgabe: the address on the bottle\'s QR code. It leads to the return section of the page, in the\n     visitor\'s language (French or English if the browser asks for it, German otherwise). -->\n<html lang="de-CH">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <meta name="robots" content="noindex">\n  <title>Rückgabe · Cascarup</title>\n  <link rel="canonical" href="https://cascarup.ch/#rueckgabe">\n  <meta http-equiv="refresh" content="0; url=../#rueckgabe">\n  <script>\n    (function () {\n      var l = ((navigator.languages && navigator.languages[0]) || navigator.language || \'\').toLowerCase();\n      var to = l.indexOf(\'fr\') === 0 ? \'../fr/#rueckgabe\' : l.indexOf(\'en\') === 0 ? \'../en/#rueckgabe\' : \'../#rueckgabe\';\n      location.replace(to);\n    })();\n  </script>\n  <style>html { background: #F7ECDA; color: #3A2116; font: 16px/1.5 system-ui, sans-serif; } a { color: #8E401C; }</style>\n</head>\n<body>\n  <p style="margin: 40vh auto 0; text-align: center">Weiter zur <a href="../#rueckgabe">Rückgabe</a> · <a href="../fr/#rueckgabe">Retour</a> · <a href="../en/#rueckgabe">Return</a></p>\n</body>\n</html>\n'
+(pathlib.Path(C)/'rueckgabe').mkdir(exist_ok=True)
+(pathlib.Path(C)/'rueckgabe'/'index.html').write_text(RUECKGABE_SEITE.replace('#rueckgabe', RUECKGABE_ZIEL))
+assert RUECKGABE_ZIEL in (pathlib.Path(C)/'rueckgabe'/'index.html').read_text(), 'QR-Weiterleitung fehlt'
 print('built', len(html))
