@@ -41,7 +41,8 @@ if missing: print('UNTRANSLATED', len(missing), sorted(missing)[:8])
 # one calendar file per stand, next to the page
 ics_dir=pathlib.Path(C)/'assets'/'staende'; ics_dir.mkdir(parents=True, exist_ok=True)
 for st in content.STANDS:
-    (ics_dir/f"{st['date']}.ics").write_text(content.ics(st))
+    if not st.get('cancelled'):
+        (ics_dir/f"{st['date']}.ics").write_text(content.ics(st))
 # The QR code on the bottle's label says https://cascarup.ch/rueckgabe. The labels stay printed for a long time, so this
 # address must never go away, whatever happens to the page: it is written here on every build (never by hand) and
 # leads to the return section in the visitor's language. Moving or renaming the section means changing only

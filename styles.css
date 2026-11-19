@@ -564,6 +564,12 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .stand.is-past .stand__badge { background: none; color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line); }
 .stand.is-past > :not(.stand__badge) { opacity: .5; }
 .stand.is-past .stand__map img { filter: grayscale(.7); }
+/* a cancelled stand: all grey, with its badge «Abgesagt» */
+.stand.is-cancelled > :not(.stand__badge) { opacity: .55; filter: grayscale(1); }
+.stand.is-cancelled .stand__date time { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: rgba(58, 33, 22, .5); }
+.stand.is-cancelled .stand__badge { background: none; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--ink-3); }
+.stand.is-cancelled .stand__map { pointer-events: none; }
+.stand__links--none { min-height: 44px; }   /* keeps the map level with its neighbours */
 .stands__credit { margin-top: 32px; font-size: .75rem; color: var(--ink-3); }
 .stands__credit a { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
 

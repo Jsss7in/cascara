@@ -244,8 +244,9 @@
   if (stands.length) {
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const next = stands.find((el) => el.dataset.stand >= today);
+    const next = stands.find((el) => el.dataset.stand >= today && !('cancelled' in el.dataset));
     for (const el of stands) {
+      if ('cancelled' in el.dataset) continue;   // cancelled: «Abgesagt» is written into the page itself
       const past = el.dataset.stand < today;
       const badge = el.querySelector('[data-stand-badge]');
       const text = T(past ? 'Vorbei' : el === next ? (el.dataset.stand === today ? 'Heute' : 'Als Nächstes') : '') || '';

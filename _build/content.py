@@ -133,7 +133,7 @@ STANDS = [
       place='Aula, Collège de Gambach', town='Freiburg', icon='fribourg', map='gambach', at=(46.8069923, 7.1497324)),
  dict(date='2026-11-21', weekday='Samstag', day='21', month='November', title='Wochenmarkt',
       place='Altstadt', town='Estavayer-le-Lac', icon='estavayer', map='estavayer', at=(46.84918, 6.84732),
-      view=(46.8503, 6.8430)),   # framed towards the lake, so Estavayer-le-Lac shows its lake
+      view=(46.8503, 6.8430), cancelled=True),   # cancelled (2026-11-19): grey, «Abgesagt», no route, no calendar entry   # framed towards the lake, so Estavayer-le-Lac shows its lake
  dict(date='2026-12-05', weekday='Samstag', day='5', month='Dezember', title='Saint-Nicolas-Markt',
       place='Collège Saint-Michel', town='Freiburg', icon='fribourg', map='stmichel', at=(46.8067246, 7.1579802)),
  dict(date='2026-12-19', weekday='Samstag', day='19', month='Dezember', title='Weihnachtsmarkt',
@@ -151,18 +151,23 @@ def stands():
         when = s['weekday'] + (f' · {s["time"]}' if s.get('time') else '')
         stamp = s['date'] + (f'T{s["time"]}' if s.get('time') else '')
         link = route(*s['at'])
+        off = s.get('cancelled')
+        badge = ('<p class="stand__badge" data-stand-badge>Abgesagt</p>' if off else '<p class="stand__badge" data-stand-badge hidden></p>')
+        img = (f'<img src="assets/maps/{s["map"]}.svg" alt="Karte: {s["place"]}, {s["town"]}" width="600" height="400" loading="lazy" decoding="async">')
+        mapbox = (f'<span class="stand__map">{img}</span>' if off else
+                  f'<a class="stand__map" href="{link}" target="_blank" rel="noopener" aria-label="{s["title"]} in {s["town"]}: Karte öffnen">{img}</a>')
+        links = '        <p class="stand__links stand__links--none" aria-hidden="true"></p>\n' if off else (f'        <p class="stand__links"><a href="{link}" target="_blank" rel="noopener">Route</a>'
+                                f'<a href="assets/staende/{s["date"]}.ics" download>In den Kalender</a></p>\n')
         items.append(
-            f'      <li class="stand" data-reveal data-stand="{s["date"]}" style="--d:{n}">\n'
-            f'        <p class="stand__badge" data-stand-badge hidden></p>\n'
+            f'      <li class="stand{" is-cancelled" if off else ""}" data-reveal data-stand="{s["date"]}"{" data-cancelled" if off else ""} style="--d:{n}">\n'
+            f'        {badge}\n'
             f'        <svg class="stand__icon" viewBox="0 0 64 64" aria-hidden="true">{icon}</svg>\n'
             f'        <p class="stand__date"><time datetime="{stamp}"><span class="stand__day">{s["day"]}.</span> {s["month"]}</time></p>\n'
             f'        <p class="stand__when">{when}</p>\n'
             f'        <h3 class="stand__title">{s["title"]}</h3>\n'
             f'        <p class="stand__place">{s["place"]}<br>{s["town"]}</p>\n'
-            f'        <a class="stand__map" href="{link}" target="_blank" rel="noopener" aria-label="{s["title"]} in {s["town"]}: Karte öffnen">'
-            f'<img src="assets/maps/{s["map"]}.svg" alt="Karte: {s["place"]}, {s["town"]}" width="600" height="400" loading="lazy" decoding="async"></a>\n'
-            f'        <p class="stand__links"><a href="{link}" target="_blank" rel="noopener">Route</a>'
-            f'<a href="assets/staende/{s["date"]}.ics" download>In den Kalender</a></p>\n'
+            f'        {mapbox}\n'
+            f'{links}'
             f'      </li>')
     return (
         '    <!-- Where our stand is: four dates, a skyline and a map each -->\n'
