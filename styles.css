@@ -1076,7 +1076,7 @@ html:has(.is-legal) { background: var(--paper); }
    show while something is pinned – painted in the colour the stage meets there. */
 @media (pointer: coarse) {
   .hero { padding-top: 8px; background: rgb(var(--top)); }
-  .hero__stage { top: 8px; height: calc(100svh - 32px); min-height: 0; }
+  .hero__stage { top: 8px; height: calc(100svh - 16px); min-height: 0; }
 }
 /* The pin ends a little before the hero does, and the stage leaves as ordinary content, from the same
    place: a sticky element crossing the top of the screen, even for a frame in a fast swipe, would freeze
@@ -1378,13 +1378,21 @@ html:has(.is-legal) { background: var(--paper); }
 .dio__pickers.is-on { opacity: 1; }
 .dio__pickers[hidden] { display: none; }
 /* phones: the picture a little larger and lower, so the pickers on the path stand clear below the branch */
-@media (max-aspect-ratio: 4/5) { .dio__photo { inset: -3% -3% -22%; } .dio__photo img { object-position: 50% 70%; } }
+/* phones: the tall photograph (only without the film) cut to the screen; with the film the wide picture, 760 px tall at the
+   foot of the screen (sharp enough at that size), its top fading into the sky, the pickers in the middle of the width */
+@media (max-aspect-ratio: 4/5) {
+  .dio__photo.is-still { inset: -3% -3% -22%; }
+  .dio__photo.is-still img { object-position: 50% 70%; }
+  .dio__photo:not(.is-still) { inset: auto -3% -84px -3%; height: 760px; transform-origin: 55% 80%;
+    -webkit-mask-image: linear-gradient(transparent, #000 30%); mask-image: linear-gradient(transparent, #000 30%); }
+  .dio__photo:not(.is-still) img { object-position: 56% 50%; }
+}
 /* the wash, and at the foot a fade into the paper that stays as it is while the photograph fades (it does not move
    or fade with it, so the lower edge looks the same all through the first scroll) */
 .hero__dio.dio--photo::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(to top, rgb(247, 236, 218) 0, rgba(247, 236, 218, .5) 1.6%, rgba(247, 236, 218, 0) 4.5%),
     linear-gradient(90deg, rgba(247, 236, 218, .55) 0%, rgba(247, 236, 218, .2) 38%, rgba(247, 236, 218, 0) 60%); }
-@media (max-aspect-ratio: 4/5) { .hero__dio.dio--photo::after { background: linear-gradient(to top, rgb(var(--top)) 0, rgba(var(--top), .5) 1.4%, rgba(var(--top), 0) 4%),
+@media (max-aspect-ratio: 4/5) { .hero__dio.dio--photo::after { background: linear-gradient(to top, rgb(var(--top)) 0, rgba(var(--top), .5) 0.8%, rgba(var(--top), 0) 2.4%),
   linear-gradient(180deg, rgba(247, 236, 218, .55) 0%, rgba(247, 236, 218, .14) 42%, rgba(247, 236, 218, 0) 60%); } }
 /* the drawn soil's dark foot belonged to the paper land: the photograph does not need it */
 .hero__stage:has(.dio--photo) .hero__foot { display: none !important; }
@@ -1465,3 +1473,16 @@ a.rueck__pin { cursor: pointer; }
 .rueck__steps { border-top: 0 !important; }
 .rueck__steps .stand::before { content: none !important; }
 @media (max-width: 900px) { .rueck__steps .stand, .rueck__steps .stand:nth-child(n+3) { border-bottom: 0 !important; } .stands__list.rueck__steps { border-top: 0; } }
+
+/* the way down: two soft hills of the page's own colour sway slowly along the photograph's foot, like wind through the
+   coffee rows, and carry it into the story below (they ride with the photograph and fade with it) */
+.dio__waves { position: absolute; left: 0; right: 0; bottom: -1px; height: clamp(54px, 9vh, 96px); z-index: 2; pointer-events: none; overflow: hidden; will-change: opacity; }
+.dio__wave { position: absolute; left: 0; bottom: 0; width: 200%; max-width: none; height: 100%; display: block; animation: dio-sway var(--t, 26s) linear infinite; will-change: transform; }
+.dio__wave path { fill: rgb(var(--top)); }
+.dio__wave--back { --t: 38s; animation-direction: reverse; }
+.dio__wave--back path { fill-opacity: .5; }
+.dio__wave--mid { --t: 30s; height: 78%; }
+.dio__wave--mid path { fill-opacity: .82; }
+@keyframes dio-sway { to { transform: translate3d(-50%, 0, 0); } }
+.hero__dio.is-gone .dio__wave { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .dio__wave { animation: none; } }

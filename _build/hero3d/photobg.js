@@ -14,19 +14,58 @@ export function createDiorama(root) {
   const cherry = document.querySelector('[data-hero-cherry]');
   const up = cherry ? (cherry.getAttribute('src') || '').replace(/assets\/.*$/, '') : '';
   const base = root.dataset.photo || `${up}assets/hero/feld`;
-  // phones keep the tall photograph (sharp at their size, the pickers clear below the branch); the film belongs to the
-  // wide picture only. With reduced motion or Save-Data there is no film at all.
+  // Phones show the wide picture too, so the pickers walk there as well: not cut to the screen's height (blown up it
+  // was pixelated) but only 640 px tall at the foot of the screen, its top melting into the sky (styles.css); it comes
+  // in its largest size. With reduced motion or Save-Data there is no film and phones keep the tall photograph.
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
-  pic.innerHTML = `<picture><source media="(max-aspect-ratio: 4/5)" srcset="${base}-hoch-900.webp 900w, ${base}-hoch-1500.webp 1500w" sizes="100vw">`
-    + `<img src="${base}-quer-2400.webp" srcset="${base}-quer-1400.webp 1400w, ${base}-quer-2400.webp 2400w" sizes="100vw" alt="" decoding="async" fetchpriority="high"></picture>`;
+  pic.classList.toggle('is-still', !!still);
+  pic.innerHTML = '<picture>' + (still ? `<source media="(max-aspect-ratio: 4/5)" srcset="${base}-hoch-900.webp 900w, ${base}-hoch-1500.webp 1500w" sizes="100vw">` : '')
+    + `<img src="${base}-quer-2400.webp" srcset="${base}-quer-1400.webp 1400w, ${base}-quer-2400.webp 2400w" sizes="(max-aspect-ratio: 4/5) 330vw, 106vw" alt="" decoding="async" fetchpriority="high"></picture>`;
   // the branch in front stays the drawn one of the first opening (Justin, 2026-11-07): the old diorama, its branch only,
   // and its birds crossing the sky now and then
   const front = document.createElement('div');
   front.className = 'dio__front';
-  root.append(pic, front);
+  // the hills at the foot: three waves, each twice as wide as the screen and drifting by its own width, so they never end
+  const waves = document.createElement('div');
+  waves.className = 'dio__waves';
+  const hill = (cls, d) => `<svg class="dio__wave ${cls}" viewBox="0 0 1200 100" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`;
+  waves.innerHTML = hill('dio__wave--back', 'M0 52q150-46 300 0t300 0t300 0t300 0V100H0z')
+    + hill('dio__wave--mid', 'M0 60q100 34 200 0t200 0t200 0t200 0t200 0t200 0V100H0z')
+    + hill('dio__wave--front', 'M0 78q200-30 400 0t400 0t400 0V100H0z');
+  root.append(pic, front, waves);
   const branch = createPaper(front, { only: ['branch'], keep: ['dio__bird'] });
   const img = pic.querySelector('img');
   let laid = false, px = 0, py = 0, tpx = 0, tpy = 0, tf = '', last = -1, gone = null;
+  // The pickers walk (2026-11-12): only they move in Justin's film of this photograph, so the sharp photograph stays and
+  // just their patch of it plays as a small looping video on top, its edges feathered into the picture. In the patch
+  // the film shows only where they move (each frame masked, cascara-quellen/startvideo-2026-11-12/comp.py); the rest
+  // of it is the photograph itself, pixel for pixel, so no difference in sharpness shows. It joins
+  // the wide picture only (the tall one is another shot), and stays away with reduced motion or Save-Data.
+  const PATCH = [988 / 2400, 748 / 1340, 676 / 2400, 502 / 1340];   // where the patch lies in the picture (shares of the 2400 photograph)
+  const film = still ? null : document.createElement('video');
+  if (film) {
+    film.className = 'dio__pickers';
+    Object.assign(film, { muted: true, loop: true, playsInline: true, autoplay: true, preload: 'auto', disablePictureInPicture: true });
+    film.setAttribute('muted', ''); film.setAttribute('playsinline', ''); film.setAttribute('aria-hidden', 'true');
+    film.innerHTML = `<source src="${up}assets/hero/pfluecker.webm" type="video/webm"><source src="${up}assets/hero/pfluecker.mp4" type="video/mp4">`;
+    film.addEventListener('playing', () => film.classList.add('is-on'), { once: true });
+    pic.append(film);
+  }
+  // the patch follows the picture as object-fit: cover lays it out (read from the picture's own computed position)
+  function placeFilm() {
+    if (!film) return;
+    const wide = /-quer-/.test(img.currentSrc || img.src) && img.naturalWidth;
+    film.hidden = !wide;
+    if (!wide) { film.pause(); return; }
+    const cw = pic.clientWidth, ch = pic.clientHeight, ar = img.naturalWidth / img.naturalHeight;
+    const dw = cw / ch > ar ? cw : ch * ar, dh = dw / ar;
+    const [opx, opy] = getComputedStyle(img).objectPosition.split(' ').map((v) => parseFloat(v) / 100);
+    const ox = (cw - dw) * opx, oy = (ch - dh) * opy;
+    Object.assign(film.style, { left: `${(ox + PATCH[0] * dw).toFixed(1)}px`, top: `${(oy + PATCH[1] * dh).toFixed(1)}px`,
+      width: `${(PATCH[2] * dw).toFixed(1)}px`, height: `${(PATCH[3] * dh).toFixed(1)}px` });
+    if (!gone && film.paused) film.play().catch(() => {});
+  }
+  pic.querySelector('img').addEventListener('load', () => placeFilm());   // runs later, once img is known
   const drawn = Promise.all([(img.decode ? img.decode() : Promise.resolve()).catch(() => {}), branch.whenDrawn()]);
   function layout(box, W, H, narrow, copy) {
     if (!box || !box.rx) return;
@@ -43,7 +82,7 @@ export function createDiorama(root) {
     const s = 1.04 + e * .1, x = -px * 14, y = -py * 9 + e * H * .04;
     const next = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
     if (next !== tf) { tf = next; pic.style.transform = next; }
-    if (opacity !== last) { last = opacity; pic.style.opacity = opacity.toFixed(3); }
+    if (opacity !== last) { last = opacity; pic.style.opacity = opacity.toFixed(3); waves.style.opacity = opacity.toFixed(3); }
     branch.update(go, opacity, t, W, H, narrow, away);
     const isGone = away && opacity <= 0;
     if (isGone !== gone) {
