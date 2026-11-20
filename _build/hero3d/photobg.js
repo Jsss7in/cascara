@@ -14,42 +14,11 @@ export function createDiorama(root) {
   const cherry = document.querySelector('[data-hero-cherry]');
   const up = cherry ? (cherry.getAttribute('src') || '').replace(/assets\/.*$/, '') : '';
   const base = root.dataset.photo || `${up}assets/hero/feld`;
-  // with the film, phones show the wide picture too (cut to its middle, where the pickers walk), so it has to come in
-  // its largest size there; without the film they keep the tall one, which is sharper on a phone
+  // phones keep the tall photograph (sharp at their size, the pickers clear below the branch); the film belongs to the
+  // wide picture only. With reduced motion or Save-Data there is no film at all.
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
-  pic.classList.toggle('is-still', !!still);
-  pic.innerHTML = '<picture>' + (still ? `<source media="(max-aspect-ratio: 4/5)" srcset="${base}-hoch-900.webp 900w, ${base}-hoch-1500.webp 1500w" sizes="100vw">` : '')
-    + `<img src="${base}-quer-2400.webp" srcset="${base}-quer-1400.webp 1400w, ${base}-quer-2400.webp 2400w" sizes="(max-aspect-ratio: 4/5) 420vw, 106vw" alt="" decoding="async" fetchpriority="high"></picture>`;
-  // The pickers walk (2026-11-12): only they move in Justin's film of this photograph, so the sharp photograph stays and
-  // just their patch of it plays as a small looping video on top, its edges feathered into the picture. In the patch
-  // the film shows only where they move (each frame masked, cascara-quellen/startvideo-2026-11-12/comp.py); the rest
-  // of it is the photograph itself, pixel for pixel, so no difference in sharpness shows. It joins
-  // the wide picture only (the tall one is another shot), and stays away with reduced motion or Save-Data.
-  const PATCH = [988 / 2400, 748 / 1340, 676 / 2400, 502 / 1340];   // where the patch lies in the picture (shares of the 2400 photograph)
-  const film = still ? null : document.createElement('video');
-  if (film) {
-    film.className = 'dio__pickers';
-    Object.assign(film, { muted: true, loop: true, playsInline: true, autoplay: true, preload: 'auto', disablePictureInPicture: true });
-    film.setAttribute('muted', ''); film.setAttribute('playsinline', ''); film.setAttribute('aria-hidden', 'true');
-    film.innerHTML = `<source src="${up}assets/hero/pfluecker.webm" type="video/webm"><source src="${up}assets/hero/pfluecker.mp4" type="video/mp4">`;
-    film.addEventListener('playing', () => film.classList.add('is-on'), { once: true });
-    pic.append(film);
-  }
-  // the patch follows the picture as object-fit: cover lays it out (read from the picture's own computed position)
-  function placeFilm() {
-    if (!film) return;
-    const wide = /-quer-/.test(img.currentSrc || img.src) && img.naturalWidth;
-    film.hidden = !wide;
-    if (!wide) { film.pause(); return; }
-    const cw = pic.clientWidth, ch = pic.clientHeight, ar = img.naturalWidth / img.naturalHeight;
-    const dw = cw / ch > ar ? cw : ch * ar, dh = dw / ar;
-    const [opx, opy] = getComputedStyle(img).objectPosition.split(' ').map((v) => parseFloat(v) / 100);
-    const ox = (cw - dw) * opx, oy = (ch - dh) * opy;
-    Object.assign(film.style, { left: `${(ox + PATCH[0] * dw).toFixed(1)}px`, top: `${(oy + PATCH[1] * dh).toFixed(1)}px`,
-      width: `${(PATCH[2] * dw).toFixed(1)}px`, height: `${(PATCH[3] * dh).toFixed(1)}px` });
-    if (!gone && film.paused) film.play().catch(() => {});
-  }
-  pic.querySelector('img').addEventListener('load', () => placeFilm());   // runs later, once img is known
+  pic.innerHTML = `<picture><source media="(max-aspect-ratio: 4/5)" srcset="${base}-hoch-900.webp 900w, ${base}-hoch-1500.webp 1500w" sizes="100vw">`
+    + `<img src="${base}-quer-2400.webp" srcset="${base}-quer-1400.webp 1400w, ${base}-quer-2400.webp 2400w" sizes="100vw" alt="" decoding="async" fetchpriority="high"></picture>`;
   // the branch in front stays the drawn one of the first opening (Justin, 2026-11-07): the old diorama, its branch only,
   // and its birds crossing the sky now and then
   const front = document.createElement('div');

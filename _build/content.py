@@ -673,9 +673,8 @@ RETURN_ICONS = [
  # rinse: the bottle under a tap, a drop falling
  '<path d="M27 24h10v6l4 6v20a3 3 0 0 1-3 3H26a3 3 0 0 1-3-3V36l4-6z"/><path d="M27 20h10v4H27z"/>'
  '<path d="M23 44h18"/><path d="M44 8h10v6"/><path d="M38 8h6"/><path d="M54 18c0 2-1.5 3.5-3 3.5s-3-1.5-3-3.5 3-6 3-6 3 4 3 6z"/>',
- # bring it back: the bottle, the way back round to the start
- '<path d="M26 28h8v4l3 5v15a2 2 0 0 1-2 2H25a2 2 0 0 1-2-2V37l3-5z"/><path d="M26 25h8v3h-8z"/>'
- '<path d="M44 16a20 20 0 1 1-26 0"/><path d="M44 16l1 7m-1-7-7 1"/>',
+ # drop it off: a place on the map, the bottle in it
+ '<path d="M32 58S13 40 13 26a19 19 0 0 1 38 0c0 14-19 32-19 32z"/><path d="M29.5 16h5v4.5l2.5 3.5v9.5a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V24l2.5-3.5z"/><path d="M24 29h16"/>',
  # used again: the bottle, clean and ready, with a little shine and the arrow round it once more
  '<path d="M27 22h10v6l4 6v22a3 3 0 0 1-3 3H26a3 3 0 0 1-3-3V34l4-6z"/><path d="M27 18h10v4H27z"/>'
  '<path d="M23 42h18"/><path d="M48 12v8m-4-4h8"/><path d="M52 28v4m-2-2h4"/><path d="M12 30a22 22 0 0 0 6 22"/><path d="M18 52l-6-1m6 1 1-6"/>',
