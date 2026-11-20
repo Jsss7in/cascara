@@ -25,14 +25,7 @@ export function createDiorama(root) {
   // and its birds crossing the sky now and then
   const front = document.createElement('div');
   front.className = 'dio__front';
-  // the hills at the foot: three waves, each twice as wide as the screen and drifting by its own width, so they never end
-  const waves = document.createElement('div');
-  waves.className = 'dio__waves';
-  const hill = (cls, d) => `<svg class="dio__wave ${cls}" viewBox="0 0 1200 100" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`;
-  waves.innerHTML = hill('dio__wave--back', 'M0 52q150-46 300 0t300 0t300 0t300 0V100H0z')
-    + hill('dio__wave--mid', 'M0 60q100 34 200 0t200 0t200 0t200 0t200 0t200 0V100H0z')
-    + hill('dio__wave--front', 'M0 78q200-30 400 0t400 0t400 0V100H0z');
-  root.append(pic, front, waves);
+  root.append(pic, front);
   const branch = createPaper(front, { only: ['branch'], keep: ['dio__bird'] });
   const img = pic.querySelector('img');
   let laid = false, px = 0, py = 0, tpx = 0, tpy = 0, tf = '', last = -1, gone = null;
@@ -82,7 +75,7 @@ export function createDiorama(root) {
     const s = 1.04 + e * .1, x = -px * 14, y = -py * 9 + e * H * .04;
     const next = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
     if (next !== tf) { tf = next; pic.style.transform = next; }
-    if (opacity !== last) { last = opacity; pic.style.opacity = opacity.toFixed(3); waves.style.opacity = opacity.toFixed(3); }
+    if (opacity !== last) { last = opacity; pic.style.opacity = opacity.toFixed(3); }
     branch.update(go, opacity, t, W, H, narrow, away);
     const isGone = away && opacity <= 0;
     if (isGone !== gone) {
