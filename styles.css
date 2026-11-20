@@ -471,30 +471,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .facts dt { font: 400 .75rem/1.9 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
 .facts dd { font-size: 1.0625rem; line-height: 1.5; }
 
-/* Cascara, poured (pour.js): a glass pot of our syrup, drawn flat like the rest of the page, tips as it comes up the
-   page; the syrup inside stays level, rises to the spout, runs over it and falls in one straight stream past the four
-   words – each comes in as the stream passes – into a bottle of Cozy Spice, which slowly fills. All of it follows the
-   scroll, both ways. */
-.pour { --syrup: #51301D; --pour-ease: cubic-bezier(.22, .61, .36, 1); position: relative; margin-top: 26px; }
-.pour.is-live { padding-top: 210px; }
-.pour__flow { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
-.pour__facts { margin: 0; display: grid; gap: 36px; }
-.pour.is-live .pour__facts { padding-left: 66px; }
-.pour__fact dt { font: 600 clamp(2.25rem, 3.4vw, 2.9rem)/1.12 var(--brand); letter-spacing: -.01em; color: var(--syrup); }
-.pour__fact dd { margin: 8px 0 0; font: 400 clamp(1.125rem, 1.4vw, 1.3125rem)/1.42 var(--serif); letter-spacing: -.005em; color: var(--ink); }
-.pour__fact dd em { font-style: italic; }
-/* the word introduces its line: a colon after it (French sets it apart with a space) */
-.pour__fact dt::after { content: ":"; }
-.pour__fact dt:lang(fr)::after { content: "\00a0:"; }
-/* what we make of it, in one sentence, just above the pot */
 .split__copy .split__sirup { margin-top: 18px; font: 400 clamp(1.125rem, 1.5vw, 1.3125rem)/1.45 var(--serif); color: var(--ink); }
-/* the words wait, faint; each comes in as the stream passes it */
-.pour.is-live .pour__fact dt { opacity: .16; transition: opacity .7s var(--pour-ease); }
-.pour.is-live .pour__fact dd { opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity .7s var(--pour-ease) .08s, transform .7s var(--pour-ease) .08s; }
-.pour.is-live .pour__fact.is-in dt, .pour.is-live .pour__fact.is-in dd { opacity: 1; transform: none; }
-/* the room of the bottle that catches the stream (pour.js draws it, the stream down its middle) */
-.pour__catch { display: none; }
-.pour.is-live .pour__catch { display: block; width: 80px; height: 138px; margin-top: 34px; }
 
 /* ---------- ideas for the glass: a bar menu ---------- */
 
@@ -709,15 +686,8 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .qty--small button { width: 44px; height: 44px; }
 
 /* what comes with every order: a calm band of three, between hairlines */
-.shop__perks { margin-top: 0; padding: 30px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px clamp(24px, 3vw, 48px); }
-.shop__perks li { display: grid; grid-template-columns: 48px 1fr; gap: 16px; align-items: start; }
-.shop__perks svg { width: 48px; height: 48px; fill: none; stroke: var(--terra); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
-.shop__perks path, .shop__perks rect, .shop__perks circle { stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; transition: stroke-dashoffset 1.6s var(--ease-io); transition-delay: calc(var(--d, 0) * 120ms + 200ms); }
-.shop__perks li.is-in :is(path, rect, circle) { stroke-dashoffset: 0; }
-.shop__perks h3 { font: 600 1.25rem/1.1 var(--brand); }
-.shop__perks p { margin-top: 6px; font-size: .9375rem; line-height: 1.5; color: var(--ink-2); }
 
-.shop__facts { margin-top: 8px; border-bottom: 1px solid var(--line); }
+.shop__facts { margin-top: 8px; }
 .shop__facts summary { display: flex; align-items: center; justify-content: space-between; min-height: 60px; cursor: pointer; list-style: none; font-size: .9375rem; letter-spacing: .03em; }
 .shop__facts summary::-webkit-details-marker { display: none; }
 .shop__facts summary::after { content: "+"; font: 300 1.5rem/1 var(--sans); color: var(--terra); transition: transform .3s var(--ease); }
@@ -728,8 +698,7 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .shop__note a { text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 1100px) {
-  .shop__perks { grid-template-columns: minmax(0, 1fr); }
-}
+  }
 @media (max-width: 900px) {
   .shop { padding-top: calc(var(--section) * .45); }
   .shop__head { display: block; }
@@ -774,40 +743,19 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 .ranke { display: block; width: min(520px, 76%); aspect-ratio: 850 / 74; margin: clamp(64px, 7vw, 100px) auto 0; background: var(--terra); opacity: .85;
   -webkit-mask: url("assets/ranke.webp") center / contain no-repeat; mask: url("assets/ranke.webp") center / contain no-repeat; }
 
-/* the six of us on a turning ring: twelve cards round it (the six twice), each turned its share of the circle and set
-   out from the middle; the ring turns slowly on its own, so the faces come round from the left, pass in front and go
-   on to the right (on the GPU, only while it is on screen; a mouse on it stops it). Cards that face away are not
-   drawn; the edges fade into the paper. No lines – each card a sheet of light paper with its own soft shadow. */
-.team__loop { --card: clamp(236px, 19vw, 280px); --gap: 30px; --r: calc((var(--card) + var(--gap)) * 1.866); position: relative; margin: clamp(48px, 5vw, 76px) calc(var(--gutter) * -1) 0; overflow: hidden;
-  padding: 26px 0 54px; -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); }
-.team__ring { perspective: 2200px; perspective-origin: 50% 40%; }
-.team__people { position: relative; list-style: none; margin: 0 auto; padding: 0; width: var(--card); height: 400px; transform-style: preserve-3d;
-  transform: translateZ(calc(-1 * var(--r))); }
-/* main.js turns it: on its own, slowly; by hand with a swipe, a drag or a sideways scroll, after which it runs on */
-.team__loop { touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
-.team__loop.is-held { cursor: grabbing; }
-.member { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 24px 28px; border-radius: 28px;
-  background: #F1E4CF; box-shadow: 0 26px 46px -30px rgba(58, 33, 22, .55), inset 0 1px 0 rgba(255, 252, 245, .8);
-  transform: rotateY(calc(var(--i) * 30deg)) translateZ(var(--r)); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-.member__disc { position: relative; display: block; width: 124px; aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+/* the six of us as a band: side by side, once, each a sheet of light paper with its own soft shadow; no lines */
+.team__band { margin: clamp(48px, 5vw, 76px) 0 0; }
+.team__people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px); }
+.member { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 16px 26px; border-radius: 24px;
+  background: #F1E4CF; box-shadow: 0 22px 40px -30px rgba(58, 33, 22, .5), inset 0 1px 0 rgba(255, 252, 245, .8); }
+.member__disc { position: relative; display: block; width: min(112px, 70%); aspect-ratio: 1; border-radius: 50%; overflow: hidden;
   background: radial-gradient(circle at 50% 38%, #F8ECDA, #E9CFAE 72%); box-shadow: inset 0 0 0 1px rgba(180, 89, 42, .16); }
 .member__pic { position: absolute; left: 50%; bottom: 0; height: 92%; width: auto; max-width: none; transform: translateX(-50%); }
-.member__name { margin-top: 22px; font: 600 1.375rem/1.15 var(--brand); color: var(--terra); }
-.member__role { margin-top: 8px; font: 500 .6875rem/1.4 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--terra-ink); }
-.member__what { margin-top: 12px; font-size: .9375rem; line-height: 1.5; color: var(--ink-2); }
-@media (max-width: 900px) {
-  .team__loop { --card: 232px; --gap: 22px; margin-top: 40px; }
-  .team__people { height: 392px; }
-  .member__disc { width: 112px; }
-}
-/* without motion: the six side by side, to swipe through */
-@media (prefers-reduced-motion: reduce) {
-  .team__loop { overflow-x: auto; -webkit-mask-image: none; mask-image: none; scrollbar-width: none; padding: 20px var(--gutter) 40px; }
-  .team__ring { perspective: none; }
-  .team__people { display: flex; gap: 16px; width: max-content; height: auto; transform: none !important; }
-  .member { position: relative; inset: auto; flex: 0 0 var(--card); transform: none; }
-  .member[aria-hidden="true"] { display: none; }
-}
+.member__name { margin-top: 18px; font: 600 1.25rem/1.15 var(--brand); color: var(--terra); }
+.member__role { margin-top: 8px; font: 500 .625rem/1.4 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--terra-ink); }
+.member__what { margin-top: 12px; font-size: .875rem; line-height: 1.5; color: var(--ink-2); }
+@media (max-width: 1100px) { .team__people { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .team__people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .member { padding: 22px 12px 20px; } .member__what { font-size: .8125rem; } }
 .team__social { margin-top: clamp(72px, 8vw, 112px); display: flex; justify-content: center; }
 
 @media (max-width: 900px) {
@@ -851,7 +799,6 @@ html.has-menu, html.has-menu body { overflow: hidden; }
 @keyframes pill-in { from { opacity: 0; transform: translate3d(0, 10px, 0); } }
 /* while something is being typed, the pill steps aside (it would cover the field or the button beneath it) */
 html.is-typing .menu-btn { opacity: 0; transform: translate3d(0, 14px, 0); pointer-events: none; transition: opacity .2s, transform .2s; }
-html.is-pouring .menu-btn { opacity: 0; transform: translate3d(0, 14px, 0); pointer-events: none; }
 .menu-btn { transition: opacity .25s, transform .25s; }
 
 /* the basket: a sheet from the right (from below on phones) */
@@ -1516,3 +1463,7 @@ a.rueck__pin { cursor: pointer; }
   .rueck__steps .stand__place { margin: 5px 0 0; font-size: .875rem; line-height: 1.45; }
   .rueck__map { margin-top: 28px; }
 }
+/* Rückgabe: the three steps without dividing lines */
+.rueck__steps { border-top: 0 !important; }
+.rueck__steps .stand::before { content: none !important; }
+@media (max-width: 900px) { .rueck__steps .stand, .rueck__steps .stand:nth-child(n+3) { border-bottom: 0 !important; } .stands__list.rueck__steps { border-top: 0; } }

@@ -440,7 +440,6 @@ def shop():
         '        <div class="shop__grid">\n' + '\n'.join(cards) + '\n        </div>\n'
         '      </div>\n'
         '      <div class="shop__inner">\n'
-        '        <ul class="shop__perks">\n' + perks + '\n        </ul>\n'
         '        <details class="shop__facts">\n'
         '          <summary>Zutaten und Hinweise</summary>\n'
         '          <dl class="facts">\n' + facts + '\n          </dl>\n'
@@ -472,8 +471,7 @@ V['TEAM_P2'] = ('Im Company Programme von Young Enterprise Switzerland gründen 
 
 
 def team():
-    # a carousel: twelve cards stand round a ring that turns slowly on its own – the six of us, twice, so there are
-    # always faces in front and to the sides (the copies are hidden from screen readers). Each card: the portrait on a
+    # a band: the six of us side by side, once (3 × 2 on tablets, 2 × 3 on phones). Each card: the portrait on a
     # disc, the name, the role and what each of us does.
     def member(n, person, copy=False):
         key, name, role, (w, h), what = person
@@ -483,9 +481,8 @@ def team():
                 f'            <p class="member__role">{role}</p>\n'
                 f'            <p class="member__what">{what}</p>\n'
                 '          </li>')
-    people = ('        <div class="team__loop" data-reveal data-pause-away>\n          <div class="team__ring">\n          <ul class="team__people">\n'
-              + '\n'.join(member(n, t) for n, t in enumerate(TEAM)) + '\n'
-              + '\n'.join(member(n, t, True) for n, t in enumerate(TEAM)) + '\n          </ul>\n          </div>\n        </div>')
+    people = ('        <div class="team__band" data-reveal>\n          <ul class="team__people">\n'
+              + '\n'.join(member(n, t) for n, t in enumerate(TEAM)) + '\n          </ul>\n        </div>')
     return (
         '    <!-- The team: six students, one company -->\n'
         '    <section class="team" data-tone="paper" id="team" aria-labelledby="team-title">\n'
@@ -640,18 +637,6 @@ CASCARA_FACTS = [
 ]
 
 
-def pour():
-    # the four words stand beside the stream and come in as it passes; pour.js draws the pot, the stream and the bottle
-    # that catches it (in the room .pour__catch keeps), with our label on it (the picture is here so the translations
-    # find it one folder up)
-    rows = '\n'.join(f'          <div class="pour__fact"><dt>{a}</dt><dd>{b}</dd></div>' for a, b in CASCARA_FACTS)
-    return ('<div class="pour" data-pour>\n'
-            '          <svg class="pour__flow" aria-hidden="true"></svg>\n'
-            '          <dl class="pour__facts">\n' + rows + '\n          </dl>\n'
-            '          <div class="pour__catch" aria-hidden="true"><img src="assets/pour/label.webp" alt="" width="168" height="219" hidden></div>\n        </div>')
-
-
-V['POUR'] = pour()
 
 V['TEAM'] = team()
 

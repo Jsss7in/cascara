@@ -162,66 +162,6 @@
     document.querySelectorAll('[data-pause-away]').forEach((el) => runs.observe(el));
   } else document.querySelectorAll('[data-pause-away]').forEach((el) => el.classList.add('is-near'));
 
-  // The team's ring: it turns slowly on its own; a swipe, a drag or a sideways scroll turns it by hand, and once let
-  // go it glides on and settles back into its own pace. It is turned only while it is on screen.
-  const ring = document.querySelector('.team__loop');
-  if (ring && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const people = ring.querySelector('.team__people');
-    const SPEED = window.matchMedia('(max-width: 900px)').matches ? 360 / 80 : 360 / 96;   // degrees a second
-    let angle = 0, vel = SPEED, held = null, last = 0, raf = 0, near = false, hover = false, radius = 0;
-    const deg = (px) => { if (!radius) radius = (people.offsetWidth + (parseFloat(getComputedStyle(ring).getPropertyValue('--gap')) || 30)) * 1.866; return px / radius * 180 / Math.PI; };
-    const put = () => { people.style.transform = `translateZ(calc(-1 * var(--r))) rotateY(${angle.toFixed(3)}deg)`; };
-    const tick = (now) => {
-      raf = 0;
-      if (!near) return;
-      const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
-      if (!held) {
-        // after a push the ring glides and eases back to its own pace (stopped while a mouse rests on it)
-        const aim = hover ? 0 : SPEED;
-        vel += (aim - vel) * (1 - Math.pow(.12, dt));
-        // come to rest under the mouse: nothing more to draw until it leaves
-        if (hover && Math.abs(vel) < .02) { vel = 0; return; }
-        angle += vel * dt;
-        put();
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    const go = () => { if (!raf && near) { last = 0; raf = requestAnimationFrame(tick); } };
-    new IntersectionObserver(([e]) => { near = e.isIntersecting; if (near) go(); }, { rootMargin: '80px 0px' }).observe(ring);
-    window.addEventListener('resize', () => { radius = 0; });
-    ring.addEventListener('pointerdown', (e) => {
-      held = { x: e.clientX, t: performance.now(), id: e.pointerId, moved: false }; vel = 0;
-      ring.classList.add('is-held');
-    });
-    ring.addEventListener('pointermove', (e) => {
-      if (!held || e.pointerId !== held.id) return;
-      const dx = e.clientX - held.x, now = performance.now(), dt = Math.max(1, now - held.t);
-      if (!held.moved && Math.abs(dx) > 4) { held.moved = true; try { ring.setPointerCapture(e.pointerId); } catch { /* fine */ } }
-      if (!held.moved) return;
-      const d = deg(dx);
-      angle += d; put();
-      vel = vel * .6 + (d / (dt / 1000)) * .4;          // its speed as it leaves the hand
-      held.x = e.clientX; held.t = now;
-    });
-    const letGo = (e) => {
-      if (!held || (e && e.pointerId !== held.id)) return;
-      if (performance.now() - held.t > 90) vel = 0;     // held still before letting go: no throw
-      vel = Math.max(-240, Math.min(240, vel));
-      held = null; ring.classList.remove('is-held'); go();
-    };
-    ring.addEventListener('pointerup', letGo); ring.addEventListener('pointercancel', letGo);
-    ring.addEventListener('lostpointercapture', letGo);
-    ring.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hover = true; });
-    ring.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { hover = false; go(); } });
-    // a sideways scroll on a trackpad or a mouse wheel turns it too; an up-and-down one stays the page's
-    ring.addEventListener('wheel', (e) => {
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-      e.preventDefault();
-      angle -= deg(e.deltaX); put();
-      vel = SPEED * Math.sign(-e.deltaX || 1) * 2; go();
-    }, { passive: false });
-  }
-
   // Arrival plays once the type is in, so headlines never swap fonts mid-animation.
   const start = () => {
     if (root.classList.contains('is-loaded')) return;
