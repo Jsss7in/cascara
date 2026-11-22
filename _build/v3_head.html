@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Cascarup – Sirup aus der Kaffeekirsche · Freiburg</title>
-  <meta name="description" content="Cascarup macht Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche: ein Schülerunternehmen am Collège Saint-Michel in Freiburg. Zwei Sorten, bald online bestellbar, per Post in die ganze Schweiz.">
+  <meta name="description" content="Cascarup macht Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche: ein Schülerunternehmen am Collège Saint-Michel in Freiburg. Zwei Sorten, von Hand gemacht in Freiburg.">
   <meta property="og:title" content="Cascarup – Sirup aus der Kaffeekirsche">
-  <meta property="og:description" content="Original und Cozy Spice, per Post in die ganze Schweiz. Ein Schülerunternehmen aus Freiburg.">
+  <meta property="og:description" content="Original und Cozy Spice, von Hand gemacht in Freiburg. Ein Schülerunternehmen aus Freiburg.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{SITE_URL}}">
   <link rel="canonical" href="{{SITE_URL}}">
@@ -17,26 +17,25 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="assets/apple-touch-icon.png" type="image/png" sizes="180x180">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preload" href="assets/fonts/newsreader-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/dynapuff-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/ericaone-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/bebasneue-latin.woff2" as="font" type="font/woff2" crossorigin>
   <!-- the loading screen, styled before anything else arrives: our mark draws itself, the name rises beneath it -->
   <style>
-    .loader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: #F7ECDA;
+    .loader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: #F2F0E6;
       transition: opacity .7s cubic-bezier(.22, .61, .36, 1), visibility 0s .7s; }
     .loader.is-done { opacity: 0; visibility: hidden; }
     .loader__inner { display: grid; justify-items: center; gap: 16px; transition: transform .9s cubic-bezier(.22, .61, .36, 1); }
     .loader.is-done .loader__inner { transform: translateY(-16px) scale(1.04); }
     .loader__mark { width: 78px; height: auto; overflow: visible; }
-    .loader__ink { fill: none; stroke: #B4592A; stroke-width: 84; stroke-linecap: round; stroke-linejoin: round;
+    .loader__ink { fill: none; stroke: #B5602F; stroke-width: 84; stroke-linecap: round; stroke-linejoin: round;
       stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; animation: ld-draw 1.5s cubic-bezier(.65, 0, .35, 1) .1s forwards; }
-    .loader__word { display: flex; margin: 0; font: 700 2.5rem/1 DynaPuff, system-ui, sans-serif; letter-spacing: -.01em; color: #B4592A; }
+    .loader__word { display: flex; margin: 0; font: 700 2.5rem/1 DynaPuff, system-ui, sans-serif; letter-spacing: -.01em; color: #B5602F; }
     .loader__word span { display: inline-block; opacity: 0; transform: translateY(16px);
       animation: ld-rise .65s cubic-bezier(.22, .61, .36, 1) forwards; animation-delay: calc(.6s + var(--i) * .06s); }
     .loader:not(.has-font) .loader__word span { animation-play-state: paused; }
-    .loader__bar { display: block; width: 124px; height: 3px; margin-top: 8px; border-radius: 3px; background: rgba(58, 33, 22, .12); overflow: hidden; }
-    .loader__bar i { display: block; height: 100%; border-radius: 3px; background: #B4592A; transform-origin: 0 50%; transform: scaleX(.08);
+    .loader__bar { display: block; width: 124px; height: 3px; margin-top: 8px; border-radius: 3px; background: rgba(84, 53, 32, .12); overflow: hidden; }
+    .loader__bar i { display: block; height: 100%; border-radius: 3px; background: #B5602F; transform-origin: 0 50%; transform: scaleX(.08);
       transition: transform .7s cubic-bezier(.22, .61, .36, 1); }
     @keyframes ld-draw { to { stroke-dashoffset: 0; } }
     @keyframes ld-rise { to { opacity: 1; transform: none; } }

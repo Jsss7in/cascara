@@ -359,7 +359,7 @@ export const labelGeometry = () => {
 export function shadowTexture() {
   const c = document.createElement('canvas'); c.width = c.height = 256;
   const x = c.getContext('2d'), g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
-  g.addColorStop(0, 'rgba(58,33,22,.6)'); g.addColorStop(.35, 'rgba(58,33,22,.3)'); g.addColorStop(1, 'rgba(58,33,22,0)');
+  g.addColorStop(0, 'rgba(84, 53, 32,.6)'); g.addColorStop(.35, 'rgba(84, 53, 32,.3)'); g.addColorStop(1, 'rgba(84, 53, 32,0)');
   x.fillStyle = g; x.fillRect(0, 0, 256, 256);
   return new CanvasTexture(c);
 }
@@ -479,7 +479,7 @@ export function createHero(canvas, { onFrame, photo, plantBox, gentle = false } 
   renderer.localClippingEnabled = true;
 
   const scene = new Scene();
-  scene.background = new Color('#F7ECDA');
+  scene.background = new Color('#F2F0E6');
   const pmrem = new PMREMGenerator(renderer);
   // the photograph is shown mirrored (its branch runs off to the right), so its flash comes from the upper right:
   // the studio is mirrored to match, or the photo's highlight and the model's would sit on opposite sides

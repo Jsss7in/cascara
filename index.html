@@ -9,9 +9,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Cascarup – Sirup aus der Kaffeekirsche · Freiburg</title>
   <script>window.cascarupT=(function(d){return function(s){return d[s]||s}})({});</script>
-  <meta name="description" content="Cascarup macht Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche: ein Schülerunternehmen am Collège Saint-Michel in Freiburg. Zwei Sorten, bald online bestellbar, per Post in die ganze Schweiz.">
+  <meta name="description" content="Cascarup macht Sirup aus Cascara, der getrockneten Schale der Kaffeekirsche: ein Schülerunternehmen am Collège Saint-Michel in Freiburg. Zwei Sorten, von Hand gemacht in Freiburg.">
   <meta property="og:title" content="Cascarup – Sirup aus der Kaffeekirsche">
-  <meta property="og:description" content="Original und Cozy Spice, per Post in die ganze Schweiz. Ein Schülerunternehmen aus Freiburg.">
+  <meta property="og:description" content="Original und Cozy Spice, von Hand gemacht in Freiburg. Ein Schülerunternehmen aus Freiburg.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://cascarup.ch/">
   <link rel="canonical" href="https://cascarup.ch/">
@@ -22,26 +22,25 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="assets/apple-touch-icon.png" type="image/png" sizes="180x180">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preload" href="assets/fonts/newsreader-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/newsreader-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/jost-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/dynapuff-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/ericaone-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/bebasneue-latin.woff2" as="font" type="font/woff2" crossorigin>
   <!-- the loading screen, styled before anything else arrives: our mark draws itself, the name rises beneath it -->
   <style>
-    .loader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: #F7ECDA;
+    .loader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: #F2F0E6;
       transition: opacity .7s cubic-bezier(.22, .61, .36, 1), visibility 0s .7s; }
     .loader.is-done { opacity: 0; visibility: hidden; }
     .loader__inner { display: grid; justify-items: center; gap: 16px; transition: transform .9s cubic-bezier(.22, .61, .36, 1); }
     .loader.is-done .loader__inner { transform: translateY(-16px) scale(1.04); }
     .loader__mark { width: 78px; height: auto; overflow: visible; }
-    .loader__ink { fill: none; stroke: #B4592A; stroke-width: 84; stroke-linecap: round; stroke-linejoin: round;
+    .loader__ink { fill: none; stroke: #B5602F; stroke-width: 84; stroke-linecap: round; stroke-linejoin: round;
       stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; animation: ld-draw 1.5s cubic-bezier(.65, 0, .35, 1) .1s forwards; }
-    .loader__word { display: flex; margin: 0; font: 700 2.5rem/1 DynaPuff, system-ui, sans-serif; letter-spacing: -.01em; color: #B4592A; }
+    .loader__word { display: flex; margin: 0; font: 700 2.5rem/1 DynaPuff, system-ui, sans-serif; letter-spacing: -.01em; color: #B5602F; }
     .loader__word span { display: inline-block; opacity: 0; transform: translateY(16px);
       animation: ld-rise .65s cubic-bezier(.22, .61, .36, 1) forwards; animation-delay: calc(.6s + var(--i) * .06s); }
     .loader:not(.has-font) .loader__word span { animation-play-state: paused; }
-    .loader__bar { display: block; width: 124px; height: 3px; margin-top: 8px; border-radius: 3px; background: rgba(58, 33, 22, .12); overflow: hidden; }
-    .loader__bar i { display: block; height: 100%; border-radius: 3px; background: #B4592A; transform-origin: 0 50%; transform: scaleX(.08);
+    .loader__bar { display: block; width: 124px; height: 3px; margin-top: 8px; border-radius: 3px; background: rgba(84, 53, 32, .12); overflow: hidden; }
+    .loader__bar i { display: block; height: 100%; border-radius: 3px; background: #B5602F; transform-origin: 0 50%; transform: scaleX(.08);
       transition: transform .7s cubic-bezier(.22, .61, .36, 1); }
     @keyframes ld-draw { to { stroke-dashoffset: 0; } }
     @keyframes ld-rise { to { opacity: 1; transform: none; } }
@@ -52,8 +51,8 @@
     }
   </style>
   <noscript><style>.loader { display: none; }</style></noscript>
-  <link rel="stylesheet" href="assets/fonts.css?v=20261120144941">
-  <link rel="stylesheet" href="styles.css?v=20261120144941">
+  <link rel="stylesheet" href="assets/fonts.css?v=20261122213502">
+  <link rel="stylesheet" href="styles.css?v=20261122213502">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
@@ -102,7 +101,7 @@
   <header class="nav" data-nav>
     <nav class="nav__inner" aria-label="Hauptnavigation">
       <ul class="nav__links">
-        <li><a href="#cascara">Cascara</a></li><li><a href="#ideen">Ideen</a></li><li><a href="#staende">Stände</a></li><li><a href="#rueckgabe">Rückgabe</a></li><li><a href="#team">Team</a></li><li><a class="nav__join" href="partizipation.html">Werde Teil</a></li>
+        <li><a href="#cascara">Cascara</a></li><li><a href="#ideen">Ideen</a></li><li><a href="#staende">Stände</a></li><li><a href="#rueckgabe">Rückgabe</a></li><li><a href="#team">Team</a></li>
       </ul>
       <a class="nav__mark" href="#top" aria-label="Cascarup – zum Seitenanfang">
         <svg class="mark" viewBox="0 0 541 578" aria-hidden="true">
@@ -113,7 +112,7 @@
       <nav class="lang lang--bar" aria-label="Sprache"><a href="./" hreflang="de-CH" lang="de-CH" data-lang-link aria-current="true" aria-label="Deutsch">DE</a><a href="fr/" hreflang="fr-CH" lang="fr-CH" data-lang-link aria-label="Français">FR</a><a href="en/" hreflang="en" lang="en" data-lang-link aria-label="English">EN</a></nav>
       <div class="nav__end">
         <nav class="lang lang--end" aria-label="Sprache"><a href="./" hreflang="de-CH" lang="de-CH" data-lang-link aria-current="true" aria-label="Deutsch">DE</a><a href="fr/" hreflang="fr-CH" lang="fr-CH" data-lang-link aria-label="Français">FR</a><a href="en/" hreflang="en" lang="en" data-lang-link aria-label="English">EN</a></nav>
-        <a class="nav__cta" href="#shop">Shop</a>
+        <a class="nav__cta" href="#shop">Sorten</a>
         <button class="nav__menu" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu"><span>Menü</span><i aria-hidden="true"></i></button>
       </div>
     </nav>
@@ -127,7 +126,7 @@
         <button class="menu__close" type="button" data-menu-close aria-label="Menü schliessen"><i aria-hidden="true"></i></button>
       </div>
       <svg class="menu__drip" viewBox="0 0 1007 170" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H1007V90.1L1006 90.1L1002 90.6L996 91.0L990 90.7L984 89.7L978 87.8L972 84.3L966 79.0L960 72.6L954 65.3L948 58.2L942 52.0L936 46.1L930 41.3L924 37.8L918 35.1L912 33.1L906 32.0L900 31.2L894 31.4L888 32.4L882 34.3L876 37.2L870 41.3L864 47.2L858 54.8L852 63.6L846 72.6L840 80.4L834 86.9L828 91.6L822 94.6L816 96.4L810 97.7L804 97.7L798 96.4L792 94.3L786 90.9L780 86.9L774 81.9L768 76.6L762 72.3L756 69.3L750 67.7L744 66.7L738 66.7L732 67.4L726 69.1L720 71.9L714 75.6L708 79.9L702 84.8L696 89.8L690 94.7L684 98.9L678 102.6L672 105.6L666 107.3L660 108.0L654 108.0L648 107.2L642 105.7L636 103.1L630 98.8L624 92.1L618 83.6L612 73.0L606 61.8L600 52.6L594 46.0L588 41.7L582 39.6L576 39.0L570 39.6L564 41.7L558 45.6L552 51.0L546 57.9L540 66.3L534 75.7L528 85.3L522 94.8L516 103.8L510 112.2L504 119.4L498 126.0L492 131.6L486 136.4L480 140.6L474 143.6L468 145.7L462 147.3L456 148.4L450 149.0L444 148.8L438 148.0L432 146.8L426 144.9L420 142.6L414 139.7L408 135.8L402 130.9L396 124.7L390 116.6L384 106.7L378 94.1L372 79.0L366 65.1L360 54.9L354 47.6L348 42.8L342 39.4L336 37.6L330 36.9L324 36.9L318 37.9L312 39.9L306 42.8L300 46.8L294 51.2L288 56.0L282 59.9L276 63.2L270 65.8L264 66.9L258 67.7L252 67.9L246 67.0L240 65.2L234 62.7L228 59.1L222 54.1L216 48.6L210 42.1L204 35.0L198 28.1L192 22.0L186 16.6L180 13.1L174 11.3L168 10.9L162 11.0L156 11.9L150 14.7L144 18.7L138 24.4L132 32.8L126 43.3L120 56.0L114 69.8L108 83.0L102 94.1L96 102.6L90 109.0L84 113.9L78 117.2L72 119.3L66 120.6L60 120.6L54 118.9L48 115.9L42 111.1L36 103.8L30 91.4L24 72.6L18 50.4L12 34.2L6 24.6L0 21.1Z"/></svg>
-      <ol class="menu__list"><li><a href="#top" data-menu-link><span>Home</span><small>Zum Anfang</small></a></li><li><a href="#shop" data-menu-link><span>Shop</span><small>Zwei Sorten, zwei Grössen</small></a></li><li><a href="partizipation.html" data-menu-link class="menu__join"><span>Werde Teil</span><small>ab CHF 15</small></a></li><li><a href="#cascara" data-menu-link><span>Cascara</span><small>Was die Schale kann</small></a></li><li><a href="#ideen" data-menu-link><span>Ideen</span><small>Heiss, kalt oder im Punsch</small></a></li><li><a href="#staende" data-menu-link><span>Stände</span><small>Wo du uns findest</small></a></li><li><a href="#rueckgabe" data-menu-link class="menu__return"><span>Rückgabe</span><small>Flasche zurückbringen</small></a></li><li><a href="#team" data-menu-link><span>Team</span><small>Wer hinter Cascarup steht</small></a></li></ol>
+      <ol class="menu__list"><li><a href="#top" data-menu-link><span>Home</span><small>Zum Anfang</small></a></li><li><a href="#shop" data-menu-link><span>Sorten</span><small>Zwei Sorten, zwei Grössen</small></a></li><li><a href="#cascara" data-menu-link><span>Cascara</span><small>Was die Schale kann</small></a></li><li><a href="#ideen" data-menu-link><span>Ideen</span><small>Heiss, kalt oder im Punsch</small></a></li><li><a href="#staende" data-menu-link><span>Stände</span><small>Wo du uns findest</small></a></li><li><a href="#rueckgabe" data-menu-link class="menu__return"><span>Rückgabe</span><small>Flasche zurückbringen</small></a></li><li><a href="#team" data-menu-link><span>Team</span><small>Wer hinter Cascarup steht</small></a></li></ol>
       <svg class="menu__drip menu__drip--low" viewBox="0 0 1007 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H1007V14.0L1006 14.0L1002 14.1L996 15.0L990 16.7L984 19.4L978 23.6L972 29.0L966 36.2L960 46.2L954 60.2L948 81.6L942 107.8L936 127.2L930 138.9L924 146.7L918 152.3L912 156.2L906 159.2L900 161.6L894 162.9L888 163.8L882 164.0L876 163.3L870 162.6L864 161.0L858 158.7L852 155.9L846 152.1L840 147.6L834 142.0L828 135.8L822 128.9L816 121.7L810 114.1L804 106.7L798 99.6L792 93.4L786 88.6L780 84.8L774 82.7L768 81.8L762 81.2L756 81.8L750 83.1L744 85.8L738 89.2L732 92.9L726 97.3L720 102.0L714 106.4L708 110.4L702 113.8L696 116.6L690 118.4L684 119.7L678 120.0L672 120.0L666 120.0L660 119.1L654 117.6L648 115.6L642 113.2L636 110.7L630 107.8L624 104.9L618 102.4L612 100.1L606 98.0L600 96.4L594 95.7L588 95.4L582 96.3L576 97.6L570 99.9L564 103.9L558 109.0L552 116.1L546 126.0L540 140.2L534 158.7L528 176.4L522 189.3L516 198.2L510 205.0L504 210.7L498 214.9L492 218.1L486 220.2L480 221.7L474 222.7L468 223.0L462 222.6L456 221.4L450 219.7L444 217.2L438 213.7L432 209.2L426 204.0L420 197.8L414 190.8L408 183.0L402 174.8L396 166.0L390 156.8L384 147.7L378 138.4L372 129.2L366 120.3L360 111.8L354 103.8L348 96.6L342 90.1L336 84.9L330 80.3L324 76.6L318 73.4L312 71.2L306 69.6L300 68.8L294 68.6L288 69.1L282 70.1L276 72.1L270 74.8L264 78.1L258 81.7L252 85.8L246 90.1L240 94.6L234 98.4L228 102.0L222 105.2L216 107.9L210 110.0L204 111.3L198 112.0L192 112.0L186 111.6L180 110.3L174 108.6L168 106.1L162 103.0L156 99.7L150 95.9L144 91.6L138 87.3L132 83.8L126 80.9L120 78.8L114 77.3L108 77.0L102 77.9L96 80.0L90 83.0L84 86.4L78 90.1L72 93.0L66 95.4L60 96.8L54 96.8L48 95.8L42 93.7L36 90.7L30 86.6L24 81.2L18 75.3L12 68.6L6 62.1L0 59.1Z"/></svg>
       <div class="menu__foot">
         <div class="menu__shelf" aria-hidden="true">
@@ -184,7 +183,7 @@
 
         <div class="hero__end" data-beat=".885,.93,1,1">
           <p class="hero__end-brand">Cascarup</p>
-          <p class="hero__end-text">Von Hand abgefüllt in Freiburg, in zwei Sorten. Bald im Shop.</p>
+          <p class="hero__end-text">Von Hand abgefüllt in Freiburg, in zwei Sorten.</p>
           <div class="hero__actions">
             <a class="button button--solid" href="#shop">Zum Shop</a>
             <a class="hero__more" href="#staende">Wo du uns findest</a>
@@ -198,13 +197,13 @@
       </div>
     </section>
 
-    <!-- The shop: two kinds, two sizes; paid online, sent by post -->
+    <!-- The two kinds, two sizes, with their prices -->
     <section class="shop" data-tone="paper" id="shop" aria-labelledby="shop-title">
       <div class="shop__inner shop__top">
         <header class="shop__head">
-          <p class="eyebrow" data-reveal>Shop</p>
+          <p class="eyebrow" data-reveal>Sorten</p>
           <h2 class="display" id="shop-title" data-reveal style="--d:1">Hol dir deine<br><em>Flasche.</em></h2>
-          <p class="shop__intro" data-reveal style="--d:2">Das Original und Cozy Spice, je als Taschenflasche mit 200 ml und als grosse Flasche mit 500 ml. Bald kannst du sie hier bestellen, und wir schicken sie dir per Post in die ganze Schweiz.</p>
+          <p class="shop__intro" data-reveal style="--d:2">Das Original und Cozy Spice, je als Taschenflasche mit 200 ml und als grosse Flasche mit 500 ml. Du findest sie an unseren Ständen.</p>
         </header>
       </div>
       <div class="shop__stage" data-shop-stage data-pause-away style="--foot:28.06%">
@@ -234,29 +233,23 @@
       </div>
       <div class="shop__ground">
         <div class="shop__grid">
-        <article class="product product--original" data-reveal style="--d:0" data-product='{"id": "original", "name": "Original", "sizes": [{"ml": 200, "price": 6.95}, {"ml": 500, "price": 12.95}]}'>
+        <article class="product product--original" data-reveal style="--d:0" data-product='{"id": "original", "name": "Original", "sizes": [{"ml": 200, "price": 7.95}, {"ml": 500, "price": 12.95}]}'>
             <div class="product__top">
               <h3 class="product__name">Original</h3>
               <p class="product__price" data-price>CHF 12.95</p>
             </div>
             <p class="product__tag">Die pure Cascara</p>
             <p class="product__text">Die pure Cascara aus der Schale der Kaffeekirsche. Mit Wasser verdünnt, im Kaffee oder in Drinks.</p>
-            <div class="product__sizes" role="group" aria-label="Grösse"><button type="button" class="product__size" data-size="200" aria-pressed="false"><span class="product__ml">200 ml</span><span class="product__each">CHF 6.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="true"><span class="product__ml">500 ml</span><span class="product__each">CHF 12.95</span></button></div>
-            <div class="product__buy">
-              <button type="button" class="button product__add product__soon" disabled>Bald erhältlich</button>
-            </div>
+            <div class="product__sizes" role="group" aria-label="Grösse"><button type="button" class="product__size" data-size="200" aria-pressed="false"><span class="product__ml">200 ml</span><span class="product__each">CHF 7.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="true"><span class="product__ml">500 ml</span><span class="product__each">CHF 12.95</span></button></div>
         </article>
-        <article class="product product--cozy-spice" data-reveal style="--d:1" data-product='{"id": "cozy-spice", "name": "Cozy Spice", "sizes": [{"ml": 200, "price": 7.95}, {"ml": 500, "price": 13.95}]}'>
+        <article class="product product--cozy-spice" data-reveal style="--d:1" data-product='{"id": "cozy-spice", "name": "Cozy Spice", "sizes": [{"ml": 200, "price": 8.95}, {"ml": 500, "price": 13.95}]}'>
             <div class="product__top">
               <h3 class="product__name">Cozy Spice</h3>
               <p class="product__price" data-price>CHF 13.95</p>
             </div>
             <p class="product__tag">Zimt · Sternanis</p>
             <p class="product__text">Unsere Cascara, mit Zimt und Sternanis aufgekocht. Inspiriert vom Gifferstee aus unserer Region.</p>
-            <div class="product__sizes" role="group" aria-label="Grösse"><button type="button" class="product__size" data-size="200" aria-pressed="false"><span class="product__ml">200 ml</span><span class="product__each">CHF 7.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="true"><span class="product__ml">500 ml</span><span class="product__each">CHF 13.95</span></button></div>
-            <div class="product__buy">
-              <button type="button" class="button product__add product__soon" disabled>Bald erhältlich</button>
-            </div>
+            <div class="product__sizes" role="group" aria-label="Grösse"><button type="button" class="product__size" data-size="200" aria-pressed="false"><span class="product__ml">200 ml</span><span class="product__each">CHF 8.95</span></button><button type="button" class="product__size" data-size="500" aria-pressed="true"><span class="product__ml">500 ml</span><span class="product__each">CHF 13.95</span></button></div>
         </article>
         </div>
       </div>
@@ -272,7 +265,7 @@
             <div><dt>Hergestellt von</dt><dd>Cascarup, c/o Collège Saint-Michel, Freiburg, Schweiz</dd></div>
           </dl>
         </details>
-        <p class="shop__note">Alle Preise in Schweizer Franken. Versand per Post in die ganze Schweiz.</p>
+        <p class="shop__note">Alle Preise in Schweizer Franken. Die Partizipationsscheine sind ausverkauft: Danke an alle, die uns unterstützt haben!</p>
       </div>
     </section>
 
@@ -475,13 +468,13 @@
             <span class="member__disc"><img class="member__pic" src="assets/team/jaelle.webp" alt="Jaëlle Brügger" width="124" height="118" loading="lazy" decoding="async"></span>
             <h3 class="member__name">Jaëlle Brügger</h3>
             <p class="member__role">CFO</p>
-            <p class="member__what">Plant das Budget, führt die Buchhaltung und betreut die Partizipationsscheine.</p>
+            <p class="member__what">Plant das Budget und führt die Buchhaltung.</p>
           </li>
           <li class="member" style="--i:4">
             <span class="member__disc"><img class="member__pic" src="assets/team/justin.webp" alt="Justin Meissner" width="106" height="118" loading="lazy" decoding="async"></span>
             <h3 class="member__name">Justin Meissner</h3>
             <p class="member__role">CTO</p>
-            <p class="member__what">Baut die Website, den Shop und alles Digitale rund um Cascarup.</p>
+            <p class="member__what">Baut die Website und alles Digitale rund um Cascarup.</p>
           </li>
           <li class="member" style="--i:5">
             <span class="member__disc"><img class="member__pic" src="assets/team/niklas.webp" alt="Niklas Broch" width="110" height="117" loading="lazy" decoding="async"></span>
@@ -496,29 +489,6 @@
       </div>
     </section>
 
-    <!-- Be part of it: participation certificates from CHF 15 (their own page) -->
-    <section class="join" data-tone="paper" aria-labelledby="join-title">
-      <a class="join__card" href="partizipation.html" data-reveal>
-        <div class="join__cert" aria-hidden="true"><div class="cert cert--small">
-          <img class="cert__rosette" src="assets/ps/rosette.svg" alt="" width="1200" height="1200" decoding="async">
-          <span class="cert__seal"><svg viewBox="0 0 541 578" aria-hidden="true"><use href="#lg-fill"/></svg></span>
-          <p class="cert__eyebrow">Partizipationsschein</p>
-          <p class="cert__name">Cascarup</p>
-          <p class="cert__chf">CHF</p>
-          <p class="cert__value">15.–</p>
-          
-          <p class="cert__no">Nº <span data-cert-no>001</span></p>
-          <p class="cert__place">Freiburg · 2026/27</p>
-          <p class="cert__micro" aria-hidden="true">CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR · CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR · CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR · CASCARUP · DIE KAFFEEKIRSCHE KANN MEHR</p>
-        </div></div>
-        <div class="join__copy">
-          <p class="eyebrow">Partizipationsschein</p>
-          <h2 class="display" id="join-title">Werde Teil von <em>Cascarup.</em></h2>
-          <p>Schon ab 15 Franken bist du von Anfang an dabei. Am Ende des Unternehmungsjahres bekommst du dein Geld zurück, wenn du möchtest.</p>
-          <span class="button button--solid join__cta">Mehr erfahren</span>
-        </div>
-      </a>
-    </section>
   </main>
 
   <footer class="footer" data-tone="terra" data-fade="top">
@@ -533,14 +503,13 @@
       <nav class="footer__nav" aria-label="Seite">
         <p class="eyebrow">Seite</p>
         <ul>
-          <li><a href="#shop">Shop</a></li><li><a href="#cascara">Cascara</a></li><li><a href="#ideen">Ideen</a></li><li><a href="#staende">Stände</a></li><li><a href="#rueckgabe">Rückgabe</a></li><li><a href="#team">Team</a></li><li><a href="partizipation.html">Werde Teil</a></li>
+          <li><a href="#shop">Sorten</a></li><li><a href="#cascara">Cascara</a></li><li><a href="#ideen">Ideen</a></li><li><a href="#staende">Stände</a></li><li><a href="#rueckgabe">Rückgabe</a></li><li><a href="#team">Team</a></li>
         </ul>
       </nav>
       <nav class="footer__nav" aria-label="Rechtliches">
         <p class="eyebrow">Rechtliches</p>
         <ul>
           <li><a href="impressum.html">Impressum</a></li>
-          <li><a href="bestellbedingungen.html">Bestellbedingungen</a></li>
           <li><a href="datenschutz.html">Datenschutz</a></li>
           <li><a href="impressum.html#bildnachweis">Bildnachweis</a></li>
         </ul>
@@ -552,85 +521,10 @@
     </div>
   </footer>
 
-  <!-- the basket and the way to pay: three steps in one quiet sheet from the side (from below on phones) -->
-  <button class="basket-btn" type="button" data-cart-open hidden aria-label="Warenkorb öffnen"><span>Warenkorb</span><span class="basket-btn__count" data-cart-count>0</span></button>
-  <dialog class="cart" data-cart aria-labelledby="cart-title" data-checkout="" data-shipping='{"name": "Post, PostPac Economy", "tiers": [[2, 9.0], [10, 12.0], [30, 21.0]], "weights": {"200": 0.55, "500": 1.05}, "box": 0.3}'>
-    <div class="cart__inner">
-      <header class="cart__head">
-        <button class="cart__back" type="button" data-cart-back hidden aria-label="Zurück">←</button>
-        <h2 class="cart__title" id="cart-title" data-cart-title tabindex="-1">Dein Warenkorb</h2>
-        <button class="cart__close" type="button" data-cart-close aria-label="Schliessen">×</button>
-      </header>
-      <ol class="cart__steps" data-cart-steps aria-label="Schritte"><li aria-current="step"><span>1</span>Warenkorb</li><li><span>2</span>Lieferung</li><li><span>3</span>Bezahlen</li></ol>
-      <div class="cart__body" data-cart-body>
-        <section class="cart__step" data-step="1">
-          <ul class="cart__items" data-cart-items></ul>
-          <p class="cart__empty" data-cart-empty>Noch leer. Such dir im Shop eine Flasche aus.</p>
-          <div class="sums" data-cart-sums>
-            <p><span>Zwischensumme</span><span data-sum-items>CHF 0.00</span></p>
-            <p><span>Versand <span class="muted">(Post, PostPac Economy)</span></span><span data-sum-ship>CHF 0.00</span></p>
-            <p class="sums__total"><span>Total</span><strong data-sum-total>CHF 0.00</strong></p>
-          </div>
-          <button class="button button--solid order__submit" type="button" data-to-step="2">Zur Kasse</button>
-          <p class="order__pay">Bezahlen mit TWINT oder Karte · Versand in die ganze Schweiz</p>
-        </section>
-        <form class="order" data-order novalidate>
-          <section class="cart__step" data-step="2" hidden>
-            <fieldset class="order__group">
-              <legend>Kontakt</legend>
-              <div class="fields"><label class="field"><span>Vorname</span><input name="vorname" autocomplete="given-name" required aria-describedby="err-vorname"><span class="order__error" id="err-vorname" data-error="vorname" hidden></span></label><label class="field"><span>Nachname</span><input name="nachname" autocomplete="family-name" required aria-describedby="err-nachname"><span class="order__error" id="err-nachname" data-error="nachname" hidden></span></label></div>
-              <label class="field field--wide"><span>E-Mail</span><input name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="err-email"><span class="order__error" id="err-email" data-error="email" hidden></span></label>
-              <label class="field field--wide"><span>Telefon <span class="muted">(freiwillig)</span></span><input name="telefon" type="tel" autocomplete="tel" inputmode="tel"></label>
-            </fieldset>
-            <fieldset class="order__group">
-              <legend>Lieferadresse</legend>
-              <label class="field field--wide"><span>Strasse und Nummer</span><input name="strasse" autocomplete="address-line1" required aria-describedby="err-strasse"><span class="order__error" id="err-strasse" data-error="strasse" hidden></span></label>
-              <label class="field field--wide"><span>Adresszusatz <span class="muted">(freiwillig)</span></span><input name="zusatz" autocomplete="address-line2"></label>
-              <div class="fields fields--plz"><label class="field"><span>PLZ</span><input name="plz" autocomplete="postal-code" inputmode="numeric" maxlength="4" required aria-describedby="err-plz"><span class="order__error" id="err-plz" data-error="plz" hidden></span></label><label class="field"><span>Ort</span><input name="ort" autocomplete="address-level2" required aria-describedby="err-ort"><span class="order__error" id="err-ort" data-error="ort" hidden></span></label></div>
-              <p class="order__country">Wir liefern in die Schweiz.</p>
-              <label class="field field--wide"><span>Bemerkung <span class="muted">(freiwillig)</span></span><textarea name="bemerkung" rows="2"></textarea></label>
-            </fieldset>
-            <button class="button button--solid order__submit" type="button" data-to-step="3">Weiter zur Zahlung</button>
-          </section>
-          <section class="cart__step" data-step="3" hidden>
-            <div class="review">
-              <div class="review__block"><p class="review__label">Bestellung</p><ul class="review__items" data-review-items></ul></div>
-              <div class="review__block"><p class="review__label">Lieferung an <button type="button" class="review__edit" data-to-step="2">Ändern</button></p><p class="review__address" data-review-address></p></div>
-            </div>
-            <div class="sums sums--review">
-              <p><span>Zwischensumme</span><span data-sum-items>CHF 0.00</span></p>
-              <p><span>Versand</span><span data-sum-ship>CHF 0.00</span></p>
-              <p class="sums__total"><span>Total</span><strong data-sum-total>CHF 0.00</strong></p>
-            </div>
-            <fieldset class="order__group">
-              <legend>Bezahlen mit</legend>
-              <div class="pays"><label class="pay"><input type="radio" name="zahlung" value="twint" required checked><span class="pay__mark pay__mark--twint" aria-hidden="true">TWINT</span><span><strong>TWINT</strong><span class="muted">Mit der App auf dem Handy</span></span></label><label class="pay"><input type="radio" name="zahlung" value="karte" required><span class="pay__mark pay__mark--karte" aria-hidden="true">Karte</span><span><strong>Karte</strong><span class="muted">Visa, Mastercard und weitere</span></span></label></div>
-            </fieldset>
-            <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true">
-            <label class="order__consent"><input type="checkbox" name="zustimmung" required aria-describedby="err-zustimmung">
-              <span>Ich akzeptiere die <a href="bestellbedingungen.html" target="_blank">Bestellbedingungen</a> und habe die <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a> gelesen.</span></label>
-            <p class="order__error" id="err-zustimmung" data-error="zustimmung" hidden></p>
-            <button class="button button--solid order__submit" type="submit" data-pay>Jetzt bezahlen</button>
-            <p class="order__pay">Du kommst auf die sichere Bezahlseite und danach wieder hierher zurück.</p>
-            <p class="order__status" role="status" aria-live="polite"></p>
-          </section>
-        </form>
-      </div>
-      <div class="cart__done" data-cart-done hidden tabindex="-1">
-        <svg class="cart__tick" viewBox="0 0 64 64" aria-hidden="true"><circle pathLength="1" cx="32" cy="32" r="26"/><path pathLength="1" d="M20 33l8 8 16-17"/></svg>
-        <p class="eyebrow">Danke!</p>
-        <p class="cart__done-title" data-done-title>Deine Bestellung ist bezahlt.</p>
-        <p class="cart__done-text">Bestellnummer <strong data-done-number></strong>. Du bekommst eine Bestätigung per E-Mail, und wir schicken dir deine Flaschen per Post.</p>
-        <p class="cart__done-note" data-done-note hidden></p>
-        <button class="button button--solid" type="button" data-cart-close>Fertig</button>
-      </div>
-    </div>
-  </dialog>
   <button class="menu-btn" type="button" data-menu-open aria-haspopup="dialog" aria-controls="menu" hidden><img class="menu-btn__bottle" src="assets/bottle/original-500.webp" alt="" width="140" height="582" decoding="async"><span>Menü</span><i aria-hidden="true"></i></button>
 
-  <script src="main.js?v=20261120144941" defer></script>
-  <script src="checkout.js?v=20261120144941" defer></script>
-  <script src="shop.js?v=20261120144941" defer></script>
-  <script type="module" src="assets/hero3d.js?v=20261120144941"></script>
+  <script src="main.js?v=20261122213502" defer></script>
+  <script src="shop.js?v=20261122213502" defer></script>
+  <script type="module" src="assets/hero3d.js?v=20261122213502"></script>
 </body>
 </html>

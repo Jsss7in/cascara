@@ -11,7 +11,7 @@ OUT = HERE.parent / 'assets' / 'maps'
 VW, VH, METRES = 600, 400, 1000
 K = VW / METRES
 
-PAPER = '#EFE2CB'      # a touch lighter than the page, so the map reads as a sheet
+PAPER = '#F2F0E6'      # a touch lighter than the page, so the map reads as a sheet
 BUILDING = '#DCC6A3'
 GREEN = '#D9D3AF'
 WATER = '#BFCBC4'
@@ -20,7 +20,7 @@ ROAD = '#FBF5EB'
 CASING = '#CDB590'
 PATH = '#B89A71'
 RAIL = '#9C8466'
-TERRA = '#B4592A'
+TERRA = '#B5602F'
 MILK = '#FFF7EE'
 
 # street classes: (casing width, fill width); anything not listed is drawn as a footpath
@@ -159,7 +159,7 @@ def draw(name, at, view=None):
     cx, cy = round(cx, 1), round(cy, 1)
     parts.append(f'<circle cx="{cx}" cy="{cy}" r="36" fill="{TERRA}" fill-opacity=".14"/>'
                  f'<circle cx="{cx}" cy="{cy}" r="22" fill="{TERRA}" fill-opacity=".14"/>'
-                 f'<circle cx="{cx}" cy="{cy + 2}" r="15" fill="#3A2116" fill-opacity=".18"/>'
+                 f'<circle cx="{cx}" cy="{cy + 2}" r="15" fill="#543520" fill-opacity=".18"/>'
                  f'<circle cx="{cx}" cy="{cy}" r="15" fill="{TERRA}" stroke="{MILK}" stroke-width="4"/>'
                  f'<circle cx="{cx}" cy="{cy}" r="5" fill="{MILK}"/>')
     parts.append('</svg>')

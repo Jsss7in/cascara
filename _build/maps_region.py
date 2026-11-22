@@ -23,7 +23,7 @@ def d_of(pts, close=False):
 
 VW, VH = 900, 600
 DATA = HERE / 'maps' / 'region-freiburg.json'
-PAPER, BUILT, GREEN, WATER, WATER_EDGE = '#F3E7D3', '#E6D4B8', '#DDD7B6', '#BFCBC4', '#A9B8B1'
+PAPER, BUILT, GREEN, WATER, WATER_EDGE = '#F2F0E6', '#E6D4B8', '#DDD7B6', '#BFCBC4', '#A9B8B1'
 ROAD, CASING, RAIL, INK = '#FFFBF4', '#D3BC98', '#9C8466', '#6B5342'
 ROADS = {'motorway': (6.4, 4.6), 'trunk': (6, 4.2), 'primary': (5, 3.4), 'secondary': (4.2, 2.8), 'tertiary': (3.2, 2),
          'motorway_link': (3.4, 2.2), 'trunk_link': (3.4, 2.2), 'primary_link': (3, 2), 'secondary_link': (2.8, 1.8)}

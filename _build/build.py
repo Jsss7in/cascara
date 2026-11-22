@@ -11,8 +11,6 @@ V=dict(content.V)
 import time
 V['VER']=time.strftime('%Y%m%d%H%M%S')
 V.update({'LOGO_FILL':L['fill'],'LOGO_LINE':line,'LOGO_VB':L['vb']})
-V.update(NAV_PS=content.nav('index.html'), MENU_PS=content.menu('index.html'), FOOTER_PS=content.footer('index.html'),
-         PS_MAIN=content.ps_main())
 def sub(m):
     k=m.group(1)
     if k not in V: print('MISSING', k); return m.group(0)
@@ -27,17 +25,15 @@ def publish(name, page):
         out=pathlib.Path(C)/L['folder']/name; out.parent.mkdir(exist_ok=True)
         out.write_text(i18n.localise(page, name, lang, V['SITE_URL'], missing))
 publish('index.html', html)
-# the participation certificates: their own page, with its own title and description
-ps_head=(head.replace('<title>Cascarup – Sirup aus der Kaffeekirsche · Freiburg</title>', '<title>Werde Teil von Cascarup – Partizipationsschein ab CHF 15</title>')
-  .replace('{{SITE_URL}}"', '{{SITE_URL}}partizipation.html"'))
-ps_head=re.sub(r'(<meta name="description" content=")[^"]*', r'\1Werde Teil von Cascarup: Mit einem Partizipationsschein ab CHF 15 gibst du unserem Schülerunternehmen das Startkapital. Am Ende des Jahres bekommst du dein Geld zurück, wenn du möchtest.', ps_head)
-ps_head=re.sub(r'(<meta property="og:title" content=")[^"]*', r'\1Werde Teil von Cascarup', ps_head).replace('assets/og.jpg', 'assets/og-ps.jpg')
-ps_head=re.sub(r'(<meta property="og:description" content=")[^"]*', r'\1Partizipationsschein ab CHF 15. Ein Schülerunternehmen aus Freiburg.', ps_head)
-ps=re.sub(r'\{\{([A-Z0-9_]+)\}\}', sub, ps_head+open(f'{S}/ps_body.html').read())
-publish('partizipation.html', ps)
 if missing: print('UNTRANSLATED', len(missing), sorted(missing)[:8])
-(pathlib.Path(C)/'assets'/'ps').mkdir(parents=True, exist_ok=True)
-(pathlib.Path(C)/'assets'/'ps'/'rosette.svg').write_text(content.rosette_svg())
+# Old addresses of the pages that are gone (the online shop's terms, the participation certificates): they lead home.
+for old in ('partizipation.html', 'bestellbedingungen.html', 'twint/index.html'):
+    for folder in ('', 'fr', 'en'):
+        up = '../' * old.count('/')
+        out = pathlib.Path(C)/folder/old; out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text('<!doctype html>\n<meta charset="utf-8"><meta name="robots" content="noindex"><title>Cascarup</title>\n'
+                       f'<meta http-equiv="refresh" content="0; url={up}{"" if not folder else ""}index.html"><link rel="canonical" href="https://cascarup.ch/{folder + "/" if folder else ""}">\n'
+                       f'<script>location.replace("{up}index.html" + location.hash)</script>\n<a href="{up}index.html">cascarup.ch</a>\n')
 # one calendar file per stand, next to the page
 ics_dir=pathlib.Path(C)/'assets'/'staende'; ics_dir.mkdir(parents=True, exist_ok=True)
 for st in content.STANDS:
@@ -48,7 +44,7 @@ for st in content.STANDS:
 # leads to the return section in the visitor's language. Moving or renaming the section means changing only
 # RUECKGABE_ZIEL here, never the code on the label.
 RUECKGABE_ZIEL = '#rueckgabe'
-RUECKGABE_SEITE = '<!doctype html>\n<!-- cascarup.ch/rueckgabe: the address on the bottle\'s QR code. It leads to the return section of the page, in the\n     visitor\'s language (French or English if the browser asks for it, German otherwise). -->\n<html lang="de-CH">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <meta name="robots" content="noindex">\n  <title>Rückgabe · Cascarup</title>\n  <link rel="canonical" href="https://cascarup.ch/#rueckgabe">\n  <meta http-equiv="refresh" content="0; url=../#rueckgabe">\n  <script>\n    (function () {\n      var l = ((navigator.languages && navigator.languages[0]) || navigator.language || \'\').toLowerCase();\n      var to = l.indexOf(\'fr\') === 0 ? \'../fr/#rueckgabe\' : l.indexOf(\'en\') === 0 ? \'../en/#rueckgabe\' : \'../#rueckgabe\';\n      location.replace(to);\n    })();\n  </script>\n  <style>html { background: #F7ECDA; color: #3A2116; font: 16px/1.5 system-ui, sans-serif; } a { color: #8E401C; }</style>\n</head>\n<body>\n  <p style="margin: 40vh auto 0; text-align: center">Weiter zur <a href="../#rueckgabe">Rückgabe</a> · <a href="../fr/#rueckgabe">Retour</a> · <a href="../en/#rueckgabe">Return</a></p>\n</body>\n</html>\n'
+RUECKGABE_SEITE = '<!doctype html>\n<!-- cascarup.ch/rueckgabe: the address on the bottle\'s QR code. It leads to the return section of the page, in the\n     visitor\'s language (French or English if the browser asks for it, German otherwise). -->\n<html lang="de-CH">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <meta name="robots" content="noindex">\n  <title>Rückgabe · Cascarup</title>\n  <link rel="canonical" href="https://cascarup.ch/#rueckgabe">\n  <meta http-equiv="refresh" content="0; url=../#rueckgabe">\n  <script>\n    (function () {\n      var l = ((navigator.languages && navigator.languages[0]) || navigator.language || \'\').toLowerCase();\n      var to = l.indexOf(\'fr\') === 0 ? \'../fr/#rueckgabe\' : l.indexOf(\'en\') === 0 ? \'../en/#rueckgabe\' : \'../#rueckgabe\';\n      location.replace(to);\n    })();\n  </script>\n  <style>html { background: #F2F0E6; color: #543520; font: 16px/1.5 system-ui, sans-serif; } a { color: #9A4F26; }</style>\n</head>\n<body>\n  <p style="margin: 40vh auto 0; text-align: center">Weiter zur <a href="../#rueckgabe">Rückgabe</a> · <a href="../fr/#rueckgabe">Retour</a> · <a href="../en/#rueckgabe">Return</a></p>\n</body>\n</html>\n'
 (pathlib.Path(C)/'rueckgabe').mkdir(exist_ok=True)
 (pathlib.Path(C)/'rueckgabe'/'index.html').write_text(RUECKGABE_SEITE.replace('#rueckgabe', RUECKGABE_ZIEL))
 assert RUECKGABE_ZIEL in (pathlib.Path(C)/'rueckgabe'/'index.html').read_text(), 'QR-Weiterleitung fehlt'

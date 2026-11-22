@@ -19,13 +19,13 @@ const C = {
   row: ['#8A6C43', '#665A34', '#4B4127'],
   tree: ['#A57250', '#7E623E', '#5C4E30'],
   berry: '#B3262A', berryDark: '#8E2B1E',
-  roof: '#B4592A', wall: '#E9C9A0', window: '#F8D88E', door: '#5A3A26',
-  soil: '#3A2116', soilCut: '#9C4B23',
+  roof: '#B5602F', wall: '#E9C9A0', window: '#F8D88E', door: '#5A3A26',
+  soil: '#543520', soilCut: '#9A4F26',
   leaf: ['#2F3B24', '#3B4A2B', '#485A31', '#34432A'], vein: '#E0A86B',
-  twig: '#3A2116',
+  twig: '#543520',
   close: ['#2E2617', '#2A2215'],
   mist: '#F6E3C8',
-  bird: '#3A2116',
+  bird: '#543520',
 };
 
 function seeded(seed) {
@@ -165,13 +165,13 @@ function tuft(s, rnd) {
 function farmer(s) {
   const w = s * 1.1, h = s * 2.05, cx = w / 2;
   const leg = (dx, cls) => `<path class="${cls}" fill="#4A3424" d="M${f1(cx + dx - s * .07)} ${f1(h * .6)}h${f1(s * .14)}l${f1(s * .02)} ${f1(h * .38)}h${f1(-s * .18)}z"/>`;
-  const arm = (dx, cls) => `<path class="${cls}" fill="#9C4B23" d="M${f1(cx + dx - s * .05)} ${f1(h * .3)}h${f1(s * .1)}l${f1(s * .02)} ${f1(h * .27)}h${f1(-s * .13)}z"/>`;
+  const arm = (dx, cls) => `<path class="${cls}" fill="#9A4F26" d="M${f1(cx + dx - s * .05)} ${f1(h * .3)}h${f1(s * .1)}l${f1(s * .02)} ${f1(h * .27)}h${f1(-s * .13)}z"/>`;
   return {
     w, h,
     svg: leg(-s * .09, 'dio__leg dio__leg--b') + arm(s * .16, 'dio__arm dio__arm--b')
       + `<path fill="#A8743E" d="M${f1(cx - s * .52)} ${f1(h * .27)}h${f1(s * .34)}l${f1(-s * .04)} ${f1(h * .3)}h${f1(-s * .26)}z"/>`
       + `<path fill="none" stroke="#7A5128" stroke-width="${f1(s * .03)}" d="M${f1(cx - s * .5)} ${f1(h * .36)}h${f1(s * .3)}M${f1(cx - s * .48)} ${f1(h * .45)}h${f1(s * .28)}"/>`
-      + `<path fill="#B4592A" d="M${f1(cx - s * .2)} ${f1(h * .28)}h${f1(s * .4)}l${f1(s * .03)} ${f1(h * .34)}h${f1(-s * .46)}z"/>`
+      + `<path fill="#B5602F" d="M${f1(cx - s * .2)} ${f1(h * .28)}h${f1(s * .4)}l${f1(s * .03)} ${f1(h * .34)}h${f1(-s * .46)}z"/>`
       + leg(s * .09, 'dio__leg dio__leg--f')
       + `<circle fill="#8A5A3C" cx="${f1(cx + s * .02)}" cy="${f1(h * .2)}" r="${f1(s * .14)}"/>`
       + `<ellipse fill="#D9B27A" cx="${f1(cx + s * .02)}" cy="${f1(h * .13)}" rx="${f1(s * .34)}" ry="${f1(s * .07)}"/>`
@@ -317,7 +317,7 @@ export function createDiorama(root, { only, keep = [] } = {}) {
         + `<stop offset="0" stop-color="${C.glow[0]}"/><stop offset=".22" stop-color="${C.glow[1]}" stop-opacity=".9"/>`
         + `<stop offset=".48" stop-color="${C.glow[2]}" stop-opacity=".42"/><stop offset="1" stop-color="${C.glow[2]}" stop-opacity="0"/></radialGradient></defs>`
         + `<radialGradient id="sund" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#FCEFD2"/><stop offset=".45" stop-color="#F6D7A2"/><stop offset="1" stop-color="#ECB077"/></radialGradient>`
-        + `<linearGradient id="sky" x1="0" y1="0" x2="0" y2="${f1(cy + ry * 1.3)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E6D3B7" stop-opacity="0"/><stop offset=".55" stop-color="#EDCDA6" stop-opacity=".5"/><stop offset="1" stop-color="#EBBE8F" stop-opacity=".75"/></linearGradient>`
+        + `<linearGradient id="sky" x1="0" y1="0" x2="0" y2="${f1(cy + ry * 1.3)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F2F0E6" stop-opacity="0"/><stop offset=".55" stop-color="#EDCDA6" stop-opacity=".5"/><stop offset="1" stop-color="#EBBE8F" stop-opacity=".75"/></linearGradient>`
         + `<rect width="${W}" height="${H}" fill="url(#sky)"/><rect width="${W}" height="${H}" fill="url(#glow)"/>`
         + `<path filter="url(#dsky)" fill="url(#sund)" d="${disc(sx, sy, R)}"/>`;
       const H2 = R * 1.75;
